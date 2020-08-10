@@ -7,8 +7,8 @@
     <ProjectGuid>{B450DB87-100F-446D-BA5F-93B6E9042F46}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SongDownloader</RootNamespace>
-    <AssemblyName>SongDownloader</AssemblyName>
+    <RootNamespace>SongBrowser</RootNamespace>
+    <AssemblyName>SongBrowser</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
