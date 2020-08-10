@@ -95,6 +95,13 @@ namespace AudicaModding
             emptiedDownloadsFolder = true;
         }
 
+        public static void RestoreDeletedSongs()
+        {
+            deletedSongPaths = new List<string>();
+            deletedSongs = new List<string>();
+            DebugText("Restored songs");
+        }
+
         public static void CleanDeletedSongs()
         {
             foreach (var songPath in deletedSongPaths)

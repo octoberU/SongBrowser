@@ -130,6 +130,17 @@ namespace AudicaModding
 				}),
 				null,
 				"Downloads all songs from the current page, this will cause major stutters");
+			optionsMenu.scrollable.AddRow(downloadFullPage.gameObject);
+
+			var RestoreSongs = optionsMenu.AddButton
+				(1,
+				"Restore Deleted Songs",
+				new Action(() =>
+				{
+					AudicaMod.RestoreDeletedSongs();
+				}),
+				null,
+				"Restores all the songs you have deleted.");
 		}
 
 		private static void DownloadFullPage()
