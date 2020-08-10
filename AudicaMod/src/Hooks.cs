@@ -156,7 +156,7 @@ namespace AudicaModding
             }
         }
 
-        [HarmonyPatch(typeof(SongList), "Start", new Type[0])]
+        [HarmonyPatch(typeof(SongList), "Awake", new Type[0])]
         private static class CustomSongFolder
         {
             private static void Postfix(SongList __instance)
@@ -165,8 +165,11 @@ namespace AudicaModding
                 {
                     AudicaMod.EmptyDownloadsFolderFolder();
                 }
-                SongList.AddSongSearchDir(Application.dataPath, AudicaMod.customSongDirectory);
-                AudicaMod.addedCustomsDir = true;
+                //if (!AudicaMod.addedCustomsDir)
+                //{
+                //    SongList.AddSongSearchDir(Application.dataPath, AudicaMod.customSongDirectory);
+                //    AudicaMod.addedCustomsDir = true; 
+                //}
             }
         }
 

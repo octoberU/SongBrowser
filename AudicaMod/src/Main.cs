@@ -72,7 +72,7 @@ namespace AudicaModding
 
         public static void EmptyDownloadsFolderFolder()
         {
-            String directoryName = downloadsDirectory;
+            String directoryName = Application.dataPath + @"\StreamingAssets\HmxAudioAssets\songs";
             if (!Directory.Exists(directoryName))
             {
                 Directory.CreateDirectory(directoryName);
@@ -189,9 +189,7 @@ namespace AudicaModding
                 WWW www = new WWW(downloadUrl);
                 yield return www;
                 byte[] results = www.bytes;
-                yield return new WaitForSeconds(3f);
                 File.WriteAllBytes(downloadPath, results);
-                yield return new WaitForSeconds(5f);
                 needRefresh = true;
             }
             yield return null;
