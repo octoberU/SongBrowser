@@ -221,10 +221,10 @@ namespace AudicaModding
             {
                 Stream stream = new MemoryStream(www.bytes);
                 var player = new SoundPlayer(new OggDecodeStream(stream));
-                player.LoadAsync();
+                //player.LoadAsync();
                 yield return new WaitForSeconds(0.2f);
                 player.Play();
-                yield return new WaitForSeconds(10f);
+                yield return new WaitForSeconds(15f);
             }
 
             yield return null;
