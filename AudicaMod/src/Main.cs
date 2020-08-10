@@ -109,14 +109,12 @@ namespace AudicaModding
         public static void RemoveSong(string songID)
         {
             if (deletedSongs.Contains(songID))
-                return;
-
-            var song = SongList.I.GetSong(songID);
-            if (File.Exists(song.zipPath))
             {
-                deletedSongPaths.Add(song.zipPath);
-                deletedSongs.Add(song.songID);
+                return;
             }
+            var song = SongList.I.GetSong(songID);
+            deletedSongPaths.Add(song.searchRoot + "/" + song.zipPath);
+            deletedSongs.Add(song.songID);
         }
 
         public override void OnUpdate()
@@ -124,6 +122,18 @@ namespace AudicaModding
             if (Input.GetKeyDown(KeyCode.F5))
             {
                 ReloadSongList();
+            }
+            if (Input.GetKeyDown(KeyCode.F3))
+            {
+                foreach (var deletedSong in deletedSongs)
+                {
+                    MelonLogger.Log(deletedSong);
+                }
+                var songlist = GameObject.FindObjectOfType<SongSelect>().GetSongIDs(true);
+                for (int i = 0; i < songlist.Count; i++)
+                {
+                    MelonLogger.Log(songlist[i]);
+                }
             }
         }
 
