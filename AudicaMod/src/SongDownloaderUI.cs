@@ -189,19 +189,21 @@ namespace AudicaModding
 			optionsMenu.scrollable.AddRow(textBlock.gameObject);
 			
 			var downloadButton = optionsMenu.AddButton(0,
-				"Download",
+				"Download" + AudicaMod.GetDifficultyString(song.beginner, song.standard, song.advanced, song.expert),
 				new Action(() => { MelonCoroutines.Start(AudicaMod.DownloadSong(song.download_url)); TMP.text = "Added song to download queue!"; }),
 				null,
 				null);
 			downloadButton.button.destroyOnShot = true;
+
 			row.Add(downloadButton.gameObject);
-			
-			//var previewButton = optionsMenu.AddButton(1,
-			//	"Preview",
-			//	new Action(() => {  }),
-			//	null,
-			//	null);
-			//row.Add(previewButton.gameObject);
+
+			var previewButton = optionsMenu.AddButton(1,
+				"Preview",
+				new Action(() => { MelonCoroutines.Start(AudicaMod.StreamPreviewSong(song.preview_url)); }),
+				null,
+				null);
+			row.Add(previewButton.gameObject);
+
 
 			optionsMenu.scrollable.AddRow(row);
 		}

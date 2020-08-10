@@ -9,6 +9,7 @@ namespace AudicaModding
     internal static class Hooks
     {
         private static int buttonCount = 0;
+        private static int scrollCounter = 2;
 
         public static void ApplyHooks(HarmonyInstance instance)
         {
@@ -37,7 +38,6 @@ namespace AudicaModding
             private static void Prefix(OptionsMenu __instance, OptionsMenu.Page page)
             {
                 AudicaMod.shouldShowKeyboard = false;
-                MelonModLogger.Log(page.ToString());
                 buttonCount = 0;
                 AudicaMod.searchString = "";
 
@@ -99,7 +99,6 @@ namespace AudicaModding
                     if(SongDownloaderUI.searchText != null)
                     {
                         SongDownloaderUI.searchText.text = AudicaMod.searchString;
-                        MelonLogger.Log(AudicaMod.searchString);
                     }
                     return false;
                 }
@@ -122,7 +121,6 @@ namespace AudicaModding
                     if (SongDownloaderUI.searchText != null)
                     {
                         SongDownloaderUI.searchText.text = AudicaMod.searchString;
-                        MelonLogger.Log(AudicaMod.searchString);
                     }
                     return false;
                 }
@@ -140,19 +138,82 @@ namespace AudicaModding
             {
                 if (AudicaMod.shouldShowKeyboard)
                 {
+                    if (AudicaMod.searchString == "" || AudicaMod.searchString == null)
+                        return false;
                     AudicaMod.searchString = AudicaMod.searchString.Substring(0, AudicaMod.searchString.Length - 1);
 
 
                     if (SongDownloaderUI.searchText != null)
                     {
                         SongDownloaderUI.searchText.text = AudicaMod.searchString;
-                        MelonLogger.Log(AudicaMod.searchString);
                     }
                     return false;
                 }
                 else
                 {
                     return true;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(SongList), "Start", new Type[0])]
+        private static class CustomSongFolder
+        {
+            private static void Postfix(SongList __instance)
+            {
+                if (!AudicaMod.emptiedDownloadsFolder)
+                {
+                    AudicaMod.EmptyDownloadsFolderFolder();
+                }
+                SongList.AddSongSearchDir(Application.dataPath, AudicaMod.customSongDirectory);
+                AudicaMod.addedCustomsDir = true;
+            }
+        }
+
+        [HarmonyPatch(typeof(SongSelect), "GetSongIDs", new Type[] {typeof(bool) })]
+        private static class RemoveDeletedScrollerItems
+        {
+            private static void Postfix(SongSelect __instance, bool extras, ref Il2CppSystem.Collections.Generic.List<string> __result)
+            {
+                foreach (var deletedSong in AudicaMod.deletedSongs)
+                {
+                    __result.Remove(deletedSong);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(SongSelect), "AddToScroller", new Type[] { typeof(SongSelect.SongSelectItemEntry) })]
+        private static class ModifySongSelectEntryName
+        {
+            private static void Postfix(SongSelect __instance, SongSelect.SongSelectItemEntry entry)
+            {
+                if (scrollCounter % 2 == 0)
+                {
+                    var song = SongList.I.GetSong(entry.songID);
+                    if (entry.item.mapperLabel != null)
+                    {
+                        entry.item.mapperLabel.text += AudicaMod.GetDifficultyString(song.hasEasy,
+                                        song.hasNormal,
+                                        song.hasHard,
+                                        song.hasExpert);  
+                    }
+                }
+                scrollCounter++;
+            }
+        }
+
+        [HarmonyPatch(typeof(MenuState), "SetState", new Type[] { typeof(MenuState.State) })]
+        private static class Patch2SetMenuState
+        {
+            private static void Postfix(MenuState __instance, ref MenuState.State state)
+            {
+                if (state == MenuState.State.SongPage && !AudicaMod.deleteButtonCreated) AudicaMod.CreateDeleteButton();
+
+                if (AudicaMod.deleteButtonCreated)
+                {
+                    if (state == MenuState.State.LaunchPage) MelonCoroutines.Start(AudicaMod.SetDeleteButtonActive(true));
+                    else if (state != MenuState.State.Launched) MelonCoroutines.Start(AudicaMod.SetDeleteButtonActive(false));
+                    else if (state == MenuState.State.Launching) MelonCoroutines.Start(AudicaMod.SetDeleteButtonActive(false, true));
                 }
             }
         }
