@@ -130,18 +130,6 @@ namespace AudicaModding
             {
                 ReloadSongList();
             }
-            if (Input.GetKeyDown(KeyCode.F3))
-            {
-                foreach (var deletedSong in deletedSongs)
-                {
-                    MelonLogger.Log(deletedSong);
-                }
-                var songlist = GameObject.FindObjectOfType<SongSelect>().GetSongIDs(true);
-                for (int i = 0; i < songlist.Count; i++)
-                {
-                    MelonLogger.Log(songlist[i]);
-                }
-            }
         }
 
         IEnumerator PlayOggCoroutine(string oggFilename)
@@ -247,6 +235,7 @@ namespace AudicaModding
         }
         public static void PreviousPage()
         {
+            if (page == 1) return;
             if (page > songlist.total_pages)
                 page = songlist.total_pages;
             else if (page < 1)
@@ -273,7 +262,10 @@ namespace AudicaModding
             else if (active) yield return new WaitForSeconds(.65f);
             else yield return new WaitForSeconds(.3f);
 
-            deleteButton.gameObject.SetActive(active);
+            if (deleteButton != null)
+            {
+                deleteButton.gameObject.SetActive(active); 
+            }
         }
         public static void CreateDeleteButton()
         {
