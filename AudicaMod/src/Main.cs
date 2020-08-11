@@ -264,7 +264,12 @@ namespace AudicaModding
 
             if (deleteButton != null)
             {
-                deleteButton.gameObject.SetActive(active); 
+                deleteButton.gameObject.SetActive(active);
+ }
+            else
+            {
+                CreateDeleteButton();
+                deleteButton.gameObject.SetActive(active);
             }
         }
         public static void CreateDeleteButton()
