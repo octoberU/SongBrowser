@@ -220,6 +220,7 @@
     <Compile Include="csvorbis\Time0.cs" />
     <Compile Include="csvorbis\VorbisFile.cs" />
     <Compile Include="csvorbis\OggStream.cs" />
+    <Compile Include="src\DifficultyCalculator.cs" />
     <Compile Include="src\Hooks.cs" />
     <Compile Include="src\SongDownloaderUI.cs" />
     <Compile Include="src\Main.cs" />

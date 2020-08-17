@@ -130,6 +130,57 @@ namespace AudicaModding
             {
                 ReloadSongList();
             }
+            if (Input.GetKeyDown(KeyCode.F3))
+            {
+                CalculateAllSongIDs();
+                //CalculateRating(SongDataHolder.I.songData);
+            }
+
+            void CalculateRating(SongList.SongData songData)
+            {
+                var calc = new DifficultyCalculator(songData);
+                MelonLogger.Log("\n" + songData.title);
+                if(calc.expert != null) MelonLogger.Log("\nExpert: " + calc.expert.difficultyRating.ToString());
+                if(calc.advanced != null) MelonLogger.Log("\nAdvanced: " + calc.advanced.difficultyRating.ToString());
+                if(calc.standard != null) MelonLogger.Log("\nStandard: " + calc.standard.difficultyRating.ToString());
+                if(calc.beginner != null) MelonLogger.Log("\nBeginner: " + calc.beginner.difficultyRating.ToString());
+            }
+
+            void CalculateAllSongIDs()
+            {
+                var songIDs = GameObject.FindObjectOfType<SongSelect>().GetSongIDs(true);
+                using (System.IO.StreamWriter file =
+                new System.IO.StreamWriter(Application.dataPath + "/../" + "difficultyCalculator.txt"))
+                {
+                    file.WriteLine("Song Name, Difficulty, Difficulty Rating, BPM, Author");
+                    for (int i = 0; i < songIDs.Count; i++)
+                    {
+                        var songData = SongList.I.GetSong(songIDs[i]);
+                        var calc = new DifficultyCalculator(songData);
+                        if (calc.expert != null) file.WriteLine($"{RemoveFormatting(songData.artist).Replace(",","")} - {RemoveFormatting(songData.title).Replace(",", "")}," +
+                            "Expert," +
+                            $"{calc.expert.difficultyRating.ToString("n2")}," +
+                            $"{songData.tempos[0].tempo.ToString("n2")}," +
+                            $"{songData.author}");
+                        if (calc.advanced != null) file.WriteLine($"{RemoveFormatting(songData.artist).Replace(",", "")} - {RemoveFormatting(songData.title).Replace(",", "")}," +
+                            "Advanced," +
+                            $"{calc.advanced.difficultyRating.ToString("n2")}," +
+                            $"{songData.tempos[0].tempo.ToString("n2")}," +
+                            $"{songData.author}");
+                        if (calc.standard != null) file.WriteLine($"{RemoveFormatting(songData.artist).Replace(",","")} - {RemoveFormatting(songData.title).Replace(",", "")}," +
+                            "Standard," +
+                            $"{calc.standard.difficultyRating.ToString("n2")}," +
+                            $"{songData.tempos[0].tempo.ToString("n2")}," +
+                            $"{songData.author}");
+                        if (calc.beginner != null) file.WriteLine($"{RemoveFormatting(songData.artist).Replace(",","")} - {RemoveFormatting(songData.title).Replace(",", "")}," +
+                            "Beginner," +
+                            $"{calc.beginner.difficultyRating.ToString("n2")}," +
+                            $"{songData.tempos[0].tempo.ToString("n2")}," +
+                            $"{songData.author}");
+                    }
+                    
+                }
+            }
         }
 
         IEnumerator PlayOggCoroutine(string oggFilename)
@@ -321,6 +372,12 @@ namespace AudicaModding
                 (hasAdvanced ? "<color=#f7a919>A</color>" : "") +
                 (hasExpert ? "<color=#b119f7>E</color>" : "") +
                 "]";
+        }
+
+        static string RemoveFormatting(string input)
+        {
+            System.Text.RegularExpressions.Regex rx = new System.Text.RegularExpressions.Regex("<[^>]*>");
+            return rx.Replace(input, "");
         }
 
     }
