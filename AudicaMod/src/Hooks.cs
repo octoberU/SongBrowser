@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Reflection;
 using System;
 using MelonLoader;
+using Valve.VR.InteractionSystem;
 
 namespace AudicaModding
 {
@@ -37,9 +38,9 @@ namespace AudicaModding
         {
             private static void Prefix(OptionsMenu __instance, OptionsMenu.Page page)
             {
-                AudicaMod.shouldShowKeyboard = false;
+                SongBrowser.shouldShowKeyboard = false;
                 buttonCount = 0;
-                AudicaMod.searchString = "";
+                SongBrowser.searchString = "";
 
             }
         }
@@ -51,8 +52,8 @@ namespace AudicaModding
             {
                 if (SongDownloaderUI.songItemPanel != null)
                     SongDownloaderUI.songItemPanel.SetPageActive(false);
-                if (AudicaMod.needRefresh)
-                    AudicaMod.ReloadSongList();
+                if (SongBrowser.needRefresh)
+                    SongBrowser.ReloadSongList();
                     
             }
         }
@@ -62,7 +63,7 @@ namespace AudicaModding
         {
             private static bool Prefix(KeyboardEntry __instance)
             {
-                if (AudicaMod.shouldShowKeyboard)
+                if (SongBrowser.shouldShowKeyboard)
                 {
                     return false;
                 }
@@ -78,27 +79,27 @@ namespace AudicaModding
         {
             private static bool Prefix(KeyboardEntry __instance, KeyCode keyCode, string label)
             {
-                if (AudicaMod.shouldShowKeyboard)
+                if (SongBrowser.shouldShowKeyboard)
                 {
                     switch (label)
                     {
                         case "done":
                             __instance.Hide();
-                            AudicaMod.shouldShowKeyboard = false;
-                            AudicaMod.page = 1;
-                            AudicaMod.StartSongSearch();
+                            SongBrowser.shouldShowKeyboard = false;
+                            SongBrowser.page = 1;
+                            SongBrowser.StartSongSearch();
                             break;
                         case "clear":
-                            AudicaMod.searchString = "";
+                            SongBrowser.searchString = "";
                             break;
                         default:
-                            AudicaMod.searchString += label;
+                            SongBrowser.searchString += label;
                             break;
                     }
                     
                     if(SongDownloaderUI.searchText != null)
                     {
-                        SongDownloaderUI.searchText.text = AudicaMod.searchString;
+                        SongDownloaderUI.searchText.text = SongBrowser.searchString;
                     }
                     return false;
                 }
@@ -114,13 +115,13 @@ namespace AudicaModding
         {
             private static bool Prefix(KeyboardEntry __instance)
             {
-                if (AudicaMod.shouldShowKeyboard)
+                if (SongBrowser.shouldShowKeyboard)
                 {
-                    AudicaMod.searchString += " ";
+                    SongBrowser.searchString += " ";
 
                     if (SongDownloaderUI.searchText != null)
                     {
-                        SongDownloaderUI.searchText.text = AudicaMod.searchString;
+                        SongDownloaderUI.searchText.text = SongBrowser.searchString;
                     }
                     return false;
                 }
@@ -136,16 +137,16 @@ namespace AudicaModding
         {
             private static bool Prefix(KeyboardEntry __instance)
             {
-                if (AudicaMod.shouldShowKeyboard)
+                if (SongBrowser.shouldShowKeyboard)
                 {
-                    if (AudicaMod.searchString == "" || AudicaMod.searchString == null)
+                    if (SongBrowser.searchString == "" || SongBrowser.searchString == null)
                         return false;
-                    AudicaMod.searchString = AudicaMod.searchString.Substring(0, AudicaMod.searchString.Length - 1);
+                    SongBrowser.searchString = SongBrowser.searchString.Substring(0, SongBrowser.searchString.Length - 1);
 
 
                     if (SongDownloaderUI.searchText != null)
                     {
-                        SongDownloaderUI.searchText.text = AudicaMod.searchString;
+                        SongDownloaderUI.searchText.text = SongBrowser.searchString;
                     }
                     return false;
                 }
@@ -161,9 +162,9 @@ namespace AudicaModding
         {
             private static void Postfix(SongList __instance)
             {
-                if (!AudicaMod.emptiedDownloadsFolder)
+                if (!SongBrowser.emptiedDownloadsFolder)
                 {
-                    AudicaMod.EmptyDownloadsFolderFolder();
+                    Utility.EmptyDownloadsFolderFolder();
                 }
                 //if (!AudicaMod.addedCustomsDir)
                 //{
@@ -178,7 +179,7 @@ namespace AudicaModding
         {
             private static void Postfix(SongSelect __instance, bool extras, ref Il2CppSystem.Collections.Generic.List<string> __result)
             {
-                foreach (var deletedSong in AudicaMod.deletedSongs)
+                foreach (var deletedSong in SongBrowser.deletedSongs)
                 {
                     __result.Remove(deletedSong);
                 }
@@ -195,7 +196,7 @@ namespace AudicaModding
                     var song = SongList.I.GetSong(entry.songID);
                     if (entry.item.mapperLabel != null)
                     {
-                        entry.item.mapperLabel.text += AudicaMod.GetDifficultyString(song.hasEasy,
+                        entry.item.mapperLabel.text += SongBrowser.GetDifficultyString(song.hasEasy,
                                         song.hasNormal,
                                         song.hasHard,
                                         song.hasExpert);  
@@ -210,14 +211,7 @@ namespace AudicaModding
         {
             private static void Postfix(MenuState __instance, ref MenuState.State state)
             {
-                if (state == MenuState.State.SongPage && !AudicaMod.deleteButtonCreated) AudicaMod.CreateDeleteButton();
-
-                if (AudicaMod.deleteButtonCreated)
-                {
-                    if (state == MenuState.State.LaunchPage) MelonCoroutines.Start(AudicaMod.SetDeleteButtonActive(true));
-                    else if (state != MenuState.State.Launched) MelonCoroutines.Start(AudicaMod.SetDeleteButtonActive(false));
-                    else if (state == MenuState.State.Launching) MelonCoroutines.Start(AudicaMod.SetDeleteButtonActive(false, true));
-                }
+                if (state == MenuState.State.SongPage) DeleteButton.CreateDeleteButton();
             }
         }
 

@@ -14,22 +14,22 @@ internal static class DiffCalculatorUtil
             {
                 var songData = SongList.I.GetSong(songIDs[i]);
                 var calc = new DifficultyCalculator(songData);
-                if (calc.expert != null) file.WriteLine($"{AudicaMod.RemoveFormatting(songData.artist).Replace(",", "")} - {AudicaMod.RemoveFormatting(songData.title).Replace(",", "")}," +
+                if (calc.expert != null) file.WriteLine($"{SongBrowser.RemoveFormatting(songData.artist).Replace(",", "")} - {SongBrowser.RemoveFormatting(songData.title).Replace(",", "")}," +
                     "Expert," +
                     $"{calc.expert.difficultyRating.ToString("n2")}," +
                     $"{songData.tempos[0].tempo.ToString("n2")}," +
                     $"{songData.author}");
-                if (calc.advanced != null) file.WriteLine($"{AudicaMod.RemoveFormatting(songData.artist).Replace(",", "")} - {AudicaMod.RemoveFormatting(songData.title).Replace(",", "")}," +
+                if (calc.advanced != null) file.WriteLine($"{SongBrowser.RemoveFormatting(songData.artist).Replace(",", "")} - {SongBrowser.RemoveFormatting(songData.title).Replace(",", "")}," +
                     "Advanced," +
                     $"{calc.advanced.difficultyRating.ToString("n2")}," +
                     $"{songData.tempos[0].tempo.ToString("n2")}," +
                     $"{songData.author}");
-                if (calc.standard != null) file.WriteLine($"{AudicaMod.RemoveFormatting(songData.artist).Replace(",", "")} - {AudicaMod.RemoveFormatting(songData.title).Replace(",", "")}," +
+                if (calc.standard != null) file.WriteLine($"{SongBrowser.RemoveFormatting(songData.artist).Replace(",", "")} - {SongBrowser.RemoveFormatting(songData.title).Replace(",", "")}," +
                     "Standard," +
                     $"{calc.standard.difficultyRating.ToString("n2")}," +
                     $"{songData.tempos[0].tempo.ToString("n2")}," +
                     $"{songData.author}");
-                if (calc.beginner != null) file.WriteLine($"{AudicaMod.RemoveFormatting(songData.artist).Replace(",", "")} - {AudicaMod.RemoveFormatting(songData.title).Replace(",", "")}," +
+                if (calc.beginner != null) file.WriteLine($"{SongBrowser.RemoveFormatting(songData.artist).Replace(",", "")} - {SongBrowser.RemoveFormatting(songData.title).Replace(",", "")}," +
                     "Beginner," +
                     $"{calc.beginner.difficultyRating.ToString("n2")}," +
                     $"{songData.tempos[0].tempo.ToString("n2")}," +

@@ -15,7 +15,7 @@ using UnityEngine.Events;
 
 namespace AudicaModding
 {
-    public class AudicaMod : MelonMod
+    public class SongBrowser : MelonMod
     {
         public static class BuildInfo
         {
@@ -50,7 +50,6 @@ namespace AudicaModding
             StartSongSearch();
             var i = HarmonyInstance.Create("Song Downloader");
             Hooks.ApplyHooks(i);
-
         }
 
         private void CheckFolderDirectories()
@@ -68,31 +67,6 @@ namespace AudicaModding
         public override void OnApplicationQuit()
         {
             CleanDeletedSongs();
-        }
-
-        public static void EmptyDownloadsFolderFolder()
-        {
-            String directoryName = Application.dataPath + @"\StreamingAssets\HmxAudioAssets\songs";
-            if (!Directory.Exists(directoryName))
-            {
-                Directory.CreateDirectory(directoryName);
-            }
-            var dirInfo = new DirectoryInfo(directoryName);
-            List<String> AudicaFiles = Directory
-                               .GetFiles(downloadsDirectory, "*.*", SearchOption.TopDirectoryOnly).ToList();
-            foreach (string file in AudicaFiles)
-            {
-                FileInfo audicaFile = new FileInfo(file);
-                if (new FileInfo(dirInfo + "\\" + audicaFile.Name).Exists == false)
-                {
-                    audicaFile.MoveTo(dirInfo + "\\" + audicaFile.Name);
-                }
-                else
-                {
-                    File.Delete(file);
-                }
-            }
-            emptiedDownloadsFolder = true;
         }
 
         public static void RestoreDeletedSongs()
@@ -132,54 +106,7 @@ namespace AudicaModding
             }
             if (Input.GetKeyDown(KeyCode.F3))
             {
-                CalculateAllSongIDs();
-                //CalculateRating(SongDataHolder.I.songData);
-            }
-
-            void CalculateRating(SongList.SongData songData)
-            {
-                var calc = new DifficultyCalculator(songData);
-                MelonLogger.Log("\n" + songData.title);
-                if(calc.expert != null) MelonLogger.Log("\nExpert: " + calc.expert.difficultyRating.ToString());
-                if(calc.advanced != null) MelonLogger.Log("\nAdvanced: " + calc.advanced.difficultyRating.ToString());
-                if(calc.standard != null) MelonLogger.Log("\nStandard: " + calc.standard.difficultyRating.ToString());
-                if(calc.beginner != null) MelonLogger.Log("\nBeginner: " + calc.beginner.difficultyRating.ToString());
-            }
-
-            void CalculateAllSongIDs()
-            {
-                var songIDs = GameObject.FindObjectOfType<SongSelect>().GetSongIDs(true);
-                using (System.IO.StreamWriter file =
-                new System.IO.StreamWriter(Application.dataPath + "/../" + "difficultyCalculator.txt"))
-                {
-                    file.WriteLine("Song Name, Difficulty, Difficulty Rating, BPM, Author");
-                    for (int i = 0; i < songIDs.Count; i++)
-                    {
-                        var songData = SongList.I.GetSong(songIDs[i]);
-                        var calc = new DifficultyCalculator(songData);
-                        if (calc.expert != null) file.WriteLine($"{RemoveFormatting(songData.artist).Replace(",","")} - {RemoveFormatting(songData.title).Replace(",", "")}," +
-                            "Expert," +
-                            $"{calc.expert.difficultyRating.ToString("n2")}," +
-                            $"{songData.tempos[0].tempo.ToString("n2")}," +
-                            $"{songData.author}");
-                        if (calc.advanced != null) file.WriteLine($"{RemoveFormatting(songData.artist).Replace(",", "")} - {RemoveFormatting(songData.title).Replace(",", "")}," +
-                            "Advanced," +
-                            $"{calc.advanced.difficultyRating.ToString("n2")}," +
-                            $"{songData.tempos[0].tempo.ToString("n2")}," +
-                            $"{songData.author}");
-                        if (calc.standard != null) file.WriteLine($"{RemoveFormatting(songData.artist).Replace(",","")} - {RemoveFormatting(songData.title).Replace(",", "")}," +
-                            "Standard," +
-                            $"{calc.standard.difficultyRating.ToString("n2")}," +
-                            $"{songData.tempos[0].tempo.ToString("n2")}," +
-                            $"{songData.author}");
-                        if (calc.beginner != null) file.WriteLine($"{RemoveFormatting(songData.artist).Replace(",","")} - {RemoveFormatting(songData.title).Replace(",", "")}," +
-                            "Beginner," +
-                            $"{calc.beginner.difficultyRating.ToString("n2")}," +
-                            $"{songData.tempos[0].tempo.ToString("n2")}," +
-                            $"{songData.author}");
-                    }
-                    
-                }
+                DiffCalculatorUtil.ExportDifficultyCalculation(true);
             }
         }
 
@@ -270,7 +197,7 @@ namespace AudicaModding
         }
 
 
-        private static void DebugText(string text)
+        public static void DebugText(string text)
         {
             KataConfig.I.CreateDebugText(text, DebugTextPosition, 5f, null, false, 0.2f);
         }
@@ -295,74 +222,6 @@ namespace AudicaModding
                 page--;
         }
 
-        //Variables
-        #region Delete Button
-        static public GameObject deleteButton = null;
-
-        static private Vector3 deleteButtonPos = new Vector3(-24.2f, -9.9f, 17.0f);
-        static private Vector3 deleteButtonRot = new Vector3(0, -55f, 0);
-        static private Vector3 deleteButtonScale = new Vector3(2, 2, 2);
-
-        static public bool deleteButtonCreated = false;
-        #endregion
-        //Wait times to make it look a bit better with menu transitions.
-        public static IEnumerator SetDeleteButtonActive(bool active, bool immediate = false)
-        {
-            if (!deleteButtonCreated) yield break;
-            if (immediate) yield return null;
-            else if (active) yield return new WaitForSeconds(.65f);
-            else yield return new WaitForSeconds(.3f);
-
-            if (deleteButton != null)
-            {
-                deleteButton.gameObject.SetActive(active);
- }
-            else
-            {
-                CreateDeleteButton();
-                deleteButton.gameObject.SetActive(active);
-            }
-        }
-        public static void CreateDeleteButton()
-        {
-            GameObject menuButton = GameObject.FindObjectOfType<MainMenuPanel>().buttons[1];
-            deleteButton = CreateButton(GameObject.FindObjectOfType<MainMenuPanel>().buttons[1], "Delete Song", OnDeleteButtonShot, deleteButtonPos, deleteButtonRot, deleteButtonScale);
-            deleteButtonCreated = true;
-            SetDeleteButtonActive(false);
-        }
-
-        //Add your code to this
-        private static void OnDeleteButtonShot()
-        {
-            var song = SongDataHolder.I.songData;
-            DebugText("Deleted " + song.title);
-            RemoveSong(song.songID);
-            GameObject.FindObjectOfType<LaunchPanel>().Back();
-        }
-        private static GameObject CreateButton(GameObject buttonPrefab, string label, Action onHit, Vector3 position, Vector3 eulerRotation, Vector3 scale)
-        {
-            GameObject buttonObject = UnityEngine.Object.Instantiate(buttonPrefab);
-            buttonObject.transform.rotation = Quaternion.Euler(eulerRotation);
-            buttonObject.transform.position = position;
-            buttonObject.transform.localScale = scale;
-
-            UnityEngine.Object.Destroy(buttonObject.GetComponentInChildren<Localizer>());
-
-            TextMeshPro buttonText = buttonObject.GetComponentInChildren<TextMeshPro>();
-            buttonText.text = label;
-
-            GunButton button = buttonObject.GetComponentInChildren<GunButton>();
-            //don't comment this out, else you'll lose your reference to the button
-            button.destroyOnShot = false;
-            //comment out from here...
-            button.doMeshExplosion = false;
-            button.doParticles = false;
-            //..to here if you want the explosion effect to play
-            button.onHitEvent = new UnityEvent();
-            button.onHitEvent.AddListener(onHit);
-
-            return buttonObject.gameObject;
-        }
 
         public static string GetDifficultyString(bool hasEasy, bool hasStandard, bool hasAdvanced, bool hasExpert)
         {
@@ -374,7 +233,7 @@ namespace AudicaModding
                 "]";
         }
 
-        static string RemoveFormatting(string input)
+        public static string RemoveFormatting(string input)
         {
             System.Text.RegularExpressions.Regex rx = new System.Text.RegularExpressions.Regex("<[^>]*>");
             return rx.Replace(input, "");

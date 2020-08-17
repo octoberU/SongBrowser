@@ -220,11 +220,14 @@
     <Compile Include="csvorbis\Time0.cs" />
     <Compile Include="csvorbis\VorbisFile.cs" />
     <Compile Include="csvorbis\OggStream.cs" />
+    <Compile Include="src\DeleteButton.cs" />
+    <Compile Include="src\DiffCalculationUtil.cs" />
     <Compile Include="src\DifficultyCalculator.cs" />
     <Compile Include="src\Hooks.cs" />
     <Compile Include="src\SongDownloaderUI.cs" />
-    <Compile Include="src\Main.cs" />
+    <Compile Include="src\SongBrowser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="csogg\csogg.csproj" />

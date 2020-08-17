@@ -32,7 +32,7 @@ namespace AudicaModding
 
 		public static void GoToArenaPage(OptionsMenu optionsMenu)
 		{
-			AudicaMod.page = 1;
+			SongBrowser.page = 1;
 			if(songItemPanel == null)
 			{
 				secondaryPanel = GameObject.Instantiate(GameObject.Find("ShellPage_Settings"));
@@ -72,7 +72,7 @@ namespace AudicaModding
 			var header = optionsMenu.AddHeader(0, "Filter by: Artist, Title, Mapper");
 			optionsMenu.scrollable.AddRow(header);
 
-			var searchField = optionsMenu.AddButton(0, "Search:", new Action(() => { AudicaMod.shouldShowKeyboard = true; optionsMenu.keyboard.Show(); }), null, "Filter by: Artist, Title, Mapper", optionsMenu.textEntryButtonPrefab);
+			var searchField = optionsMenu.AddButton(0, "Search:", new Action(() => { SongBrowser.shouldShowKeyboard = true; optionsMenu.keyboard.Show(); }), null, "Filter by: Artist, Title, Mapper", optionsMenu.textEntryButtonPrefab);
 			optionsMenu.scrollable.AddRow(searchField.gameObject);
 			searchText = searchField.gameObject.GetComponentInChildren<TextMeshPro>();
 
@@ -88,8 +88,8 @@ namespace AudicaModding
 					difficultyFilter++;
 					if ((int)difficultyFilter > 4) difficultyFilter = 0;
 					difficultyToggle.label.text = difficultyFilter.ToString();
-					AudicaMod.page = 1;
-					AudicaMod.StartSongSearch();
+					SongBrowser.page = 1;
+					SongBrowser.StartSongSearch();
 				}),
 				null,
 				"Filters the search to the selected difficulty");
@@ -112,8 +112,8 @@ namespace AudicaModding
 						curated = true;
 
 					curatedToggle.label.text = "Curated only: " + curated.ToString();
-					AudicaMod.page = 1;
-					AudicaMod.StartSongSearch();
+					SongBrowser.page = 1;
+					SongBrowser.StartSongSearch();
 				}),
 				null,
 				"Filters the search to curated maps only");
@@ -136,7 +136,7 @@ namespace AudicaModding
 				"Restore Deleted Songs",
 				new Action(() =>
 				{
-					AudicaMod.RestoreDeletedSongs();
+					SongBrowser.RestoreDeletedSongs();
 				}),
 				null,
 				"Restores all the songs you have deleted.");
@@ -147,7 +147,7 @@ namespace AudicaModding
 		{
 			foreach (var song in activeSongList.songs)
 			{
-				MelonCoroutines.Start(AudicaMod.DownloadSong(song.download_url));
+				MelonCoroutines.Start(SongBrowser.DownloadSong(song.download_url));
 			}
 		}
 
@@ -155,7 +155,7 @@ namespace AudicaModding
 		{
 			CleanUpPage(optionsMenu);
 			activeSongList = songlist;
-			optionsMenu.screenTitle.text = "Displaying page " + AudicaMod.page.ToString() + " out of " + songlist.total_pages.ToString();
+			optionsMenu.screenTitle.text = "Displaying page " + SongBrowser.page.ToString() + " out of " + songlist.total_pages.ToString();
 
 			var pageHeader = optionsMenu.AddHeader(0, "Listing " + songlist.song_count.ToString() + " songs");
 			optionsMenu.scrollable.AddRow(pageHeader.gameObject);
@@ -175,14 +175,14 @@ namespace AudicaModding
 			var row = new Il2CppSystem.Collections.Generic.List<GameObject>();
 			var previousPage = optionsMenu.AddButton(0,
 				"Previous Page",
-				new Action(() => { AudicaMod.PreviousPage(); AudicaMod.StartSongSearch(); optionsMenu.scrollable.ScrollTo(0); }),
+				new Action(() => { SongBrowser.PreviousPage(); SongBrowser.StartSongSearch(); optionsMenu.scrollable.ScrollTo(0); }),
 				null,
 				null);
 			row.Add(previousPage.gameObject);
 
 			var nextPage = optionsMenu.AddButton(1,
 				"Next Page",
-				new Action(() => { AudicaMod.NextPage(); AudicaMod.StartSongSearch(); optionsMenu.scrollable.ScrollTo(0); }),
+				new Action(() => { SongBrowser.NextPage(); SongBrowser.StartSongSearch(); optionsMenu.scrollable.ScrollTo(0); }),
 				null,
 				null);
 			row.Add(nextPage.gameObject);
@@ -200,8 +200,8 @@ namespace AudicaModding
 			optionsMenu.scrollable.AddRow(textBlock.gameObject);
 			
 			var downloadButton = optionsMenu.AddButton(0,
-				"Download" + AudicaMod.GetDifficultyString(song.beginner, song.standard, song.advanced, song.expert),
-				new Action(() => { MelonCoroutines.Start(AudicaMod.DownloadSong(song.download_url)); TMP.text = "Added song to download queue!"; }),
+				"Download" + SongBrowser.GetDifficultyString(song.beginner, song.standard, song.advanced, song.expert),
+				new Action(() => { MelonCoroutines.Start(SongBrowser.DownloadSong(song.download_url)); TMP.text = "Added song to download queue!"; }),
 				null,
 				null);
 			downloadButton.button.destroyOnShot = true;
@@ -210,7 +210,7 @@ namespace AudicaModding
 
 			var previewButton = optionsMenu.AddButton(1,
 				"Preview",
-				new Action(() => { MelonCoroutines.Start(AudicaMod.StreamPreviewSong(song.preview_url)); }),
+				new Action(() => { MelonCoroutines.Start(SongBrowser.StreamPreviewSong(song.preview_url)); }),
 				null,
 				null);
 			row.Add(previewButton.gameObject);
@@ -239,7 +239,7 @@ namespace AudicaModding
 		{
 			yield return new WaitForSeconds(0.01f);
 			SetupSeoondaryPanel(panel);
-			AddSongItems(panel.GetComponentInChildren<OptionsMenu>(), AudicaMod.songlist);
+			AddSongItems(panel.GetComponentInChildren<OptionsMenu>(), SongBrowser.songlist);
 		}
 	}
 }
