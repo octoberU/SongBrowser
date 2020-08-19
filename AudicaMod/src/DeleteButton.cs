@@ -27,7 +27,7 @@ namespace AudicaModding
             button.doParticles = false;
             button.onHitEvent = new UnityEvent();
             button.onHitEvent.AddListener(new Action(() => { OnDeleteButtonShot(); }));
-            deleteButton.transform.localPosition = new Vector3(-11.15f, -0.68f, -4.93f);
+            deleteButton.transform.localPosition = new Vector3(-12.28f, -0.68f, -6.38f);
             deleteButton.transform.Rotate(0f, -51.978f, 0f);
         }
         private static void OnDeleteButtonShot()

@@ -7,7 +7,7 @@ internal static class DiffCalculatorUtil
     {
         var songIDs = GameObject.FindObjectOfType<SongSelect>().GetSongIDs(extras);
         using (System.IO.StreamWriter file =
-        new System.IO.StreamWriter(Application.dataPath + "/../" + "difficultyCalculator.txt"))
+        new System.IO.StreamWriter(Application.dataPath + "/../" + "difficultyCalculatorOutput.txt"))
         {
             file.WriteLine("Song Name, Difficulty, Difficulty Rating, BPM, Author");
             for (int i = 0; i < songIDs.Count; i++)

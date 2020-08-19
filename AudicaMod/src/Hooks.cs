@@ -4,6 +4,7 @@ using System.Reflection;
 using System;
 using MelonLoader;
 using Valve.VR.InteractionSystem;
+using TMPro;
 
 namespace AudicaModding
 {
@@ -177,11 +178,28 @@ namespace AudicaModding
         [HarmonyPatch(typeof(SongSelect), "GetSongIDs", new Type[] {typeof(bool) })]
         private static class RemoveDeletedScrollerItems
         {
-            private static void Postfix(SongSelect __instance, bool extras, ref Il2CppSystem.Collections.Generic.List<string> __result)
+            private static void Postfix(SongSelect __instance, ref bool extras, ref Il2CppSystem.Collections.Generic.List<string> __result)
             {
-                foreach (var deletedSong in SongBrowser.deletedSongs)
+                if (FilterPanel.filteringFavorites)
                 {
-                    __result.Remove(deletedSong);
+                    extras = true;
+                    if (FilterPanel.favorites != null)
+                    {
+                        __result.Clear();
+                        for (int i = 0; i < FilterPanel.favorites.songIDs.Count; i++)
+                        {
+                            __result.Add(FilterPanel.favorites.songIDs[i]);
+                        }
+                    }
+                    __instance.scroller.SnapTo(0, true);
+
+                }
+                if (SongBrowser.deletedSongs.Count > 0)
+                {
+                    foreach (var deletedSong in SongBrowser.deletedSongs)
+                    {
+                        __result.Remove(deletedSong);
+                    }
                 }
             }
         }
@@ -211,7 +229,59 @@ namespace AudicaModding
         {
             private static void Postfix(MenuState __instance, ref MenuState.State state)
             {
-                if (state == MenuState.State.SongPage) DeleteButton.CreateDeleteButton();
+                if (state == MenuState.State.SongPage)
+                {
+                    DeleteButton.CreateDeleteButton();
+                    FavoriteButtonButton.CreateFavoriteButtonButton();
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(SongSelect), "OnEnable", new Type[0])]
+        private static class AdjustSongSelect
+        {
+            private static void Postfix(SongSelect __instance)
+            {
+                FilterPanel.Initialize();
+            }
+        }
+
+        [HarmonyPatch(typeof(SongListControls), "FilterAll", new Type[0])]
+        private static class FilterAll
+        {
+            private static void Prefix(SongListControls __instance)
+            {
+                FilterPanel.filteringFavorites = false;
+                FilterPanel.favoritesButtonSelectedIndicator.SetActive(false);
+            }
+        }
+
+        [HarmonyPatch(typeof(SongListControls), "FilterMain", new Type[0])]
+        private static class FilterMain
+        {
+            private static void Prefix(SongListControls __instance)
+            {
+                FilterPanel.filteringFavorites = false;
+                FilterPanel.favoritesButtonSelectedIndicator.SetActive(false);
+            }
+        }
+
+        //[HarmonyPatch(typeof(SongListControls), "FilterExtras", new Type[0])]
+        //private static class FilterExtras
+        //{
+        //    private static void Prefix(SongListControls __instance)
+        //    {
+        //        FilterPanel.filteringFavorites = false;
+        //        FilterPanel.favoritesButtonSelectedIndicator.SetActive(false);
+        //    }
+        //}
+
+        [HarmonyPatch(typeof(LaunchPanel), "Play", new Type[0])]
+        private static class ResetFilterPanel
+        {
+            private static void Prefix(SongListControls __instance)
+            {
+                FilterPanel.firstTime = true;
             }
         }
 

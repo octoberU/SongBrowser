@@ -50,6 +50,7 @@ namespace AudicaModding
             StartSongSearch();
             var i = HarmonyInstance.Create("Song Downloader");
             Hooks.ApplyHooks(i);
+            FilterPanel.LoadFavorites();
         }
 
         private void CheckFolderDirectories()
@@ -66,6 +67,7 @@ namespace AudicaModding
 
         public override void OnApplicationQuit()
         {
+            FilterPanel.SaveFavorites();
             CleanDeletedSongs();
         }
 
@@ -106,7 +108,8 @@ namespace AudicaModding
             }
             if (Input.GetKeyDown(KeyCode.F3))
             {
-                DiffCalculatorUtil.ExportDifficultyCalculation(true);
+                FilterPanel.GetReferences();
+                FilterPanel.SetNotificationText("There are 3 new songs available in the song downloader.");
             }
         }
 

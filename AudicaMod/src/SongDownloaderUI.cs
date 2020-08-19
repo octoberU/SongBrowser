@@ -175,14 +175,14 @@ namespace AudicaModding
 			var row = new Il2CppSystem.Collections.Generic.List<GameObject>();
 			var previousPage = optionsMenu.AddButton(0,
 				"Previous Page",
-				new Action(() => { SongBrowser.PreviousPage(); SongBrowser.StartSongSearch(); optionsMenu.scrollable.ScrollTo(0); }),
+				new Action(() => { SongBrowser.PreviousPage(); SongBrowser.StartSongSearch(); optionsMenu.scrollable.SnapTo(0); }),
 				null,
 				null);
 			row.Add(previousPage.gameObject);
 
 			var nextPage = optionsMenu.AddButton(1,
 				"Next Page",
-				new Action(() => { SongBrowser.NextPage(); SongBrowser.StartSongSearch(); optionsMenu.scrollable.ScrollTo(0); }),
+				new Action(() => { SongBrowser.NextPage(); SongBrowser.StartSongSearch(); optionsMenu.scrollable.SnapTo(0); }),
 				null,
 				null);
 			row.Add(nextPage.gameObject);
