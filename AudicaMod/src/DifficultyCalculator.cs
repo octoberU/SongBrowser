@@ -1,4 +1,5 @@
-﻿using MelonLoader;
+﻿using Il2CppSystem;
+using MelonLoader;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -137,5 +138,33 @@ public class CalculatedDifficulty
                     break;
             }
         }
+    }
+}
+
+
+public class AudicaScore
+{
+    int score;
+    float maxScorePercent;
+    float difficultyRating;
+    //DateTime date;
+    //int combo;
+    //int maxCombo;
+    public AudicaScore(int score, float maxScorePercent, float difficultyRating)
+    {
+        this.score = score;
+        this.maxScorePercent = maxScorePercent;
+        this.difficultyRating = difficultyRating;
+    }
+}
+
+public class ScoreHistory
+{
+    float totalRating;
+    List<AudicaScore> scores;
+
+    public void CalculateTotalRating()
+    {
+        
     }
 }
