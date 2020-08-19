@@ -18,6 +18,27 @@ public class DifficultyCalculator
         EvaluateDifficulties(songData);
     }
 
+    public float GetRatingFromKataDifficulty(KataConfig.Difficulty difficulty)
+    {
+        switch (difficulty)
+        {
+            case KataConfig.Difficulty.Easy:
+                if (beginner != null) return beginner.difficultyRating;
+                else return 0f;
+            case KataConfig.Difficulty.Normal:
+                if (standard != null) return standard.difficultyRating;
+                else return 0f;
+            case KataConfig.Difficulty.Hard:
+                if (advanced != null) return advanced.difficultyRating;
+                else return 0f;
+            case KataConfig.Difficulty.Expert:
+                if (expert != null) return expert.difficultyRating;
+                else return 0f;
+            default:
+                return 0f;
+        }
+    }
+
     private void EvaluateDifficulties(SongList.SongData songData)
     {
         var expertCues = SongCues.GetCues(songData, KataConfig.Difficulty.Expert);
@@ -138,33 +159,5 @@ public class CalculatedDifficulty
                     break;
             }
         }
-    }
-}
-
-
-public class AudicaScore
-{
-    int score;
-    float maxScorePercent;
-    float difficultyRating;
-    //DateTime date;
-    //int combo;
-    //int maxCombo;
-    public AudicaScore(int score, float maxScorePercent, float difficultyRating)
-    {
-        this.score = score;
-        this.maxScorePercent = maxScorePercent;
-        this.difficultyRating = difficultyRating;
-    }
-}
-
-public class ScoreHistory
-{
-    float totalRating;
-    List<AudicaScore> scores;
-
-    public void CalculateTotalRating()
-    {
-        
     }
 }
