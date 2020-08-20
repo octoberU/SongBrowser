@@ -17,6 +17,9 @@ MelonLoader mod for browsing and downloading .audica files from the [Audica Modd
 * Reloading the songs folder with **F5**
 * Displaying available difficulties for a song next to the mapper tag
 * Deleting songs
+* Favoriting songs
+* Skill based ranking system (offline only during beta)
+* Displays the difficulty of a song using a calculated rating.
 
 
 ## Credits
