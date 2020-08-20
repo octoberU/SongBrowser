@@ -24,3 +24,5 @@ MelonLoader mod for browsing and downloading .audica files from the [Audica Modd
 Decoding OGG files:
 https://github.com/mono/csvorbis
   
+Random Song:
+https://github.com/Contiinuum
