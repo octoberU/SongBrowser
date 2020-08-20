@@ -220,8 +220,8 @@
     <Compile Include="csvorbis\Time0.cs" />
     <Compile Include="csvorbis\VorbisFile.cs" />
     <Compile Include="csvorbis\OggStream.cs" />
+    <Compile Include="src\RandomSong\RandomSong.cs" />
     <Compile Include="src\AudicaScore.cs" />
-    <Compile Include="src\RandomSong.cs" />
     <Compile Include="src\UI\Buttons\FavoriteButton.cs" />
     <Compile Include="src\UI\Buttons\DeleteButton.cs" />
     <Compile Include="src\DiffCalculationUtil.cs" />
