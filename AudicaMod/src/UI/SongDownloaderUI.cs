@@ -193,7 +193,7 @@ namespace AudicaModding
 		{
 			var row = new Il2CppSystem.Collections.Generic.List<GameObject>();
 			
-			var textBlock = optionsMenu.AddTextBlock(0, song.artist + " - " + song.title + " (mapped by " + song.author + ")");
+			var textBlock = optionsMenu.AddTextBlock(0, song.title + " - " + song.artist + " (mapped by " + song.author + ")");
 			var TMP = textBlock.transform.GetChild(0).GetComponent<TextMeshPro>();
 			TMP.fontSizeMax = 32;
 			TMP.fontSizeMin = 8;

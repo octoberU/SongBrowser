@@ -3,6 +3,7 @@ using Harmony;
 using MelonLoader;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -18,8 +19,9 @@ public struct AudicaScore
     public float difficultyRating;
     public float ratedScore;
     public DateTime date;
-    int combo;
-    int maxCombo;
+    public int combo;
+    public int maxCombo;
+    public int version;
     public AudicaScore(string songID, int score, float maxScorePercent, float difficultyRating, int combo, int maxCombo)
     {
         this.songID = songID;
@@ -30,6 +32,7 @@ public struct AudicaScore
         this.maxCombo = maxCombo;
         this.ratedScore = difficultyRating * maxScorePercent * 30;
         date = DateTime.Now;
+        version = 2;
     }
 }
 
@@ -37,6 +40,7 @@ internal static class ScoreHistory
 {
     static double audicaScore = 0f;
     static double lastAudicaScore = 0f;
+    static int scoreVersion = 2;
     static List<AudicaScore> scores = new List<AudicaScore>();
     static string historySavePath = Application.dataPath + "/../" + "/UserData/" + "AudicaScoreHistory.dat";
 
@@ -65,7 +69,7 @@ internal static class ScoreHistory
         MelonLogger.Log($"Max possible score from song: {(scoreToAdd.difficultyRating * 30).ToString("n2")}");
         MelonLogger.Log($"Achieved score from current song: {scoreToAdd.ratedScore.ToString("n2")}");
         MelonLogger.Log($"AudicaScore: {audicaScore.ToString("n2")}");
-        FilterPanel.SetNotificationText($"AudicaScore: {audicaScore.ToString("n2")}");
+        SongBrowser.DebugText($"AudicaScore: {audicaScore.ToString("n2")}[<color=#28bf50>+{(audicaScore - lastAudicaScore).ToString("n2")}</color>]");
         SaveHistory();
     }
 
@@ -145,6 +149,7 @@ internal static class ScoreHistory
             fs.Close();
         }
         MelonLogger.Log($"Loaded {scores.Count.ToString()} scores");
+        audicaScore = lastAudicaScore = CalculateTotalRating();
     }
 
 }
