@@ -5,6 +5,7 @@ using System;
 using MelonLoader;
 using Valve.VR.InteractionSystem;
 using TMPro;
+using SongBrowser.src.UI.Buttons;
 
 namespace AudicaModding
 {
@@ -234,6 +235,7 @@ namespace AudicaModding
                     DeleteButton.CreateDeleteButton();
                     FavoriteButtonButton.CreateFavoriteButtonButton();
                 }
+
             }
         }
 
