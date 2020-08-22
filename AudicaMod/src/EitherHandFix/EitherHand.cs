@@ -10,13 +10,13 @@ using UnityEngine;
 
 internal static class EitherHand
 {
-    //static Color eitherHandColor = new Color(1f, 1f, 1f);
-    static Color eitherHandColor = Color.green;
+    static Color eitherHandColor = new Color(1f, 1f, 1f);
+    //static Color eitherHandColor = Color.green;
     //static Color eitherHandColor = new Color(0.9f, 0.72f, 0.13f);
-    [HarmonyPatch(typeof(TargetColorSetter), "Start", new Type[0])]
+    [HarmonyPatch(typeof(TargetColorSetter), "SetColors", new Type[] {typeof(Color), typeof(Color), typeof(bool) })]
     private static class FixEitherHandColors
     {
-        private static void Postfix(TargetColorSetter __instance)
+        private static void Postfix(TargetColorSetter __instance, Color colorLeft, Color colorRight, bool simpleChange = false)
         {
             __instance.telegraphEitherMat.color = eitherHandColor;
             __instance.telegraphEitherMat.SetColor("_Color0", eitherHandColor);
@@ -258,96 +258,10 @@ internal static class EitherHand
             __instance.mStandardTargetEitherMat.SetColor("_TintColor", eitherHandColor);
             __instance.mStandardTargetEitherMat.SetColor("_swirl_alpha", eitherHandColor);
 
-
             //__instance.targetTrailEither.startColor = eitherHandColor;
         }
     }
 
-    //[HarmonyPatch(typeof(KataConfig), "Start", new Type[0])]
-    //private static class FixEitherHandColors2
-    //{
-    //    private static void Postfix(KataConfig __instance)
-    //    {
-    //        __instance.eitherHandColor = eitherHandColor;
-    //    }
-    //}
-
-
-    //[HarmonyPatch(typeof(Telegraph), "GetCircleMat", new Type[] { typeof(Target.TargetHandType) })]
-    //private static class GetCircleMat
-    //{
-    //    private static void Postfix(KataConfig __instance, Target.TargetHandType handType, Material __result)
-    //    {
-    //        __result.color = Color.green;
-    //        __result.SetColor("_Color0", Color.green);
-    //        __result.SetColor("_Color1", Color.green);
-    //        __result.SetColor("_Color1", Color.green);
-    //        __result.SetColor("_EmissionColor", Color.green);
-    //    }
-    //}
-
-    //[HarmonyPatch(typeof(Telegraph), "GetCenterMat", new Type[] { typeof(Target.TargetHandType), typeof(Target.TargetBehavior) })]
-    //private static class GetCenterMat
-    //{
-    //    private static void Postfix(Telegraph __instance, Target.TargetHandType handType, Target.TargetBehavior behavior, Material __result)
-    //    {
-    //        __result.color = Color.green;
-    //        __result.SetColor("_Color", Color.green);
-    //        __result.SetColor("_Color0", Color.green);
-    //        __result.SetColor("_Color1", Color.green);
-    //        __result.SetColor("_EmissionColor", Color.green);
-    //        __result.SetColor("_EmisColor", Color.green);
-    //        __result.SetColor("_Emission", Color.green);
-    //        __result.SetColor("_GlowColor", Color.green);
-    //        __result.SetColor("_OutlineColor", Color.green);
-    //        __result.SetColor("_RimColor", Color.green);
-    //        __result.SetColor("_SpecColor", Color.green);
-    //        __result.SetColor("_center_highlight_color", Color.green);
-    //        __result.SetColor("_TintColor", Color.green);
-    //        __result.SetColor("_swirl_alpha", Color.green);
-
-    //        __instance.cloud.material.color = Color.green;
-    //        __instance.cloud.material.SetColor("_Color", Color.green);
-    //        __instance.cloud.material.SetColor("_Color0", Color.green);
-    //        __instance.cloud.material.SetColor("_Color1", Color.green);
-    //        __instance.cloud.material.SetColor("_EmissionColor", Color.green);
-    //        __instance.cloud.material.SetColor("_EmisColor", Color.green);
-    //        __instance.cloud.material.SetColor("_Emission", Color.green);
-    //        __instance.cloud.material.SetColor("_GlowColor", Color.green);
-    //        __instance.cloud.material.SetColor("_OutlineColor", Color.green);
-    //        __instance.cloud.material.SetColor("_RimColor", Color.green);
-    //        __instance.cloud.material.SetColor("_SpecColor", Color.green);
-    //        __instance.cloud.material.SetColor("_center_highlight_color", Color.green);
-    //        __instance.cloud.material.SetColor("_TintColor", Color.green);
-    //        __instance.cloud.material.SetColor("_swirl_alpha", Color.green);
-
-
-    //        __instance.circleMesh.material.color = Color.green;
-    //        __instance.circleMesh.material.SetColor("_Color", Color.green);
-    //        __instance.circleMesh.material.SetColor("_Color0", Color.green);
-    //        __instance.circleMesh.material.SetColor("_Color1", Color.green);
-    //        __instance.circleMesh.material.SetColor("_EmissionColor", Color.green);
-    //        __instance.circleMesh.material.SetColor("_EmisColor", Color.green);
-    //        __instance.circleMesh.material.SetColor("_Emission", Color.green);
-    //        __instance.circleMesh.material.SetColor("_GlowColor", Color.green);
-    //        __instance.circleMesh.material.SetColor("_OutlineColor", Color.green);
-    //        __instance.circleMesh.material.SetColor("_RimColor", Color.green);
-    //        __instance.circleMesh.material.SetColor("_SpecColor", Color.green);
-    //        __instance.circleMesh.material.SetColor("_center_highlight_color", Color.green);
-    //        __instance.circleMesh.material.SetColor("_TintColor", Color.green);
-    //        __instance.circleMesh.material.SetColor("_swirl_alpha", Color.green);
-    //    }
-    //}
-
-
-    //[HarmonyPatch(typeof(TargetColorSetter), "GetTargetMaterial", new Type[] { typeof(Target.TargetBehavior), typeof(Target.TargetHandType) })]
-    //private static class KataFix
-    //{
-    //    private static void Postfix(TargetColorSetter __instance, Target.TargetBehavior behavior, Target.TargetHandType hand, Material __instance.circleMesh.material)
-    //    {
-    //        __result.SetColor("_EmissionColor", eitherHandColor);
-    //    }
-    //}
 
 
 }
