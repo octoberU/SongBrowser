@@ -222,7 +222,8 @@
     <Compile Include="csvorbis\OggStream.cs" />
     <Compile Include="src\EitherHandFix\EitherHand.cs" />
     <Compile Include="src\RandomSong\RandomSong.cs" />
-    <Compile Include="src\AudicaScore.cs" />
+    <Compile Include="src\UI\AudicaScore\AudicaScore.cs" />
+    <Compile Include="src\UI\AudicaScore\ScoreDisplayList.cs" />
     <Compile Include="src\UI\Buttons\FavoriteButton.cs" />
     <Compile Include="src\UI\Buttons\DeleteButton.cs" />
     <Compile Include="src\DiffCalculationUtil.cs" />

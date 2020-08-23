@@ -15,24 +15,38 @@ public struct AudicaScore
 {
     public string songID;
     public int score;
+    public string difficultyString;
     public float maxScorePercent;
-    public float difficultyRating;
-    public float ratedScore;
     public DateTime date;
     public int combo;
     public int maxCombo;
     public int version;
-    public AudicaScore(string songID, int score, float maxScorePercent, float difficultyRating, int combo, int maxCombo)
+    public AudicaScore(string songID, int score, float maxScorePercent, KataConfig.Difficulty difficulty, int combo, int maxCombo)
     {
         this.songID = songID;
         this.score = score;
         this.maxScorePercent = maxScorePercent;
-        this.difficultyRating = difficultyRating;
+        this.difficultyString = difficulty.ToString("g");
         this.combo = combo;
         this.maxCombo = maxCombo;
-        this.ratedScore = difficultyRating * maxScorePercent * 30;
         date = DateTime.Now;
-        version = 2;
+        version = 4;
+    }
+}
+
+public class CalculatedScoreEntry
+{
+    public string songID;
+    public double audicaPointsRaw;
+    public double audicaPointsWeighted;
+    public float maxScorePercent;
+    public AudicaScore localScore;
+    public CalculatedScoreEntry(AudicaScore localScore)
+    {
+        this.localScore = localScore;
+        this.songID = localScore.songID;
+        this.maxScorePercent = localScore.maxScorePercent;
+        this.audicaPointsRaw = DifficultyCalculator.GetRating(songID, localScore.difficultyString) * maxScorePercent * 30;
     }
 }
 
@@ -40,17 +54,18 @@ internal static class ScoreHistory
 {
     static double audicaScore = 0f;
     static double lastAudicaScore = 0f;
-    static int scoreVersion = 2;
+    static int scoreVersion = 4;
     static List<AudicaScore> scores = new List<AudicaScore>();
     static string historySavePath = Application.dataPath + "/../" + "/UserData/" + "AudicaScoreHistory.dat";
+    static List<CalculatedScoreEntry> calculatedScores;
 
-    public static void AddScore(string songID, int score, float maxScorePercent, float difficultyRating, int combo, int maxCombo)
+    public static void AddScore(string songID, int score, float maxScorePercent, float difficultyRating, int combo, int maxCombo, KataConfig.Difficulty difficulty)
     {
-        var scoreToAdd = new AudicaScore(songID, score, maxScorePercent, difficultyRating, combo, maxCombo);
+        var scoreToAdd = new AudicaScore(songID, score, maxScorePercent, difficulty, combo, maxCombo);
         var previousScore = scores.FirstOrDefault(previous => previous.songID == songID);
         if (!previousScore.Equals(default(AudicaScore)))
         {
-            if (scoreToAdd.ratedScore < previousScore.ratedScore)
+            if (scoreToAdd.score < previousScore.score)
             {
                 return;
             }
@@ -64,22 +79,25 @@ internal static class ScoreHistory
         {
             scores.Add(scoreToAdd);
         }
-        lastAudicaScore = audicaScore;
         audicaScore = CalculateTotalRating();
-        MelonLogger.Log($"Max possible score from song: {(scoreToAdd.difficultyRating * 30).ToString("n2")}");
-        MelonLogger.Log($"Achieved score from current song: {scoreToAdd.ratedScore.ToString("n2")}");
-        MelonLogger.Log($"AudicaScore: {audicaScore.ToString("n2")}");
-        SongBrowser.DebugText($"AudicaScore: {audicaScore.ToString("n2")}[<color=#28bf50>+{(audicaScore - lastAudicaScore).ToString("n2")}</color>]");
         SaveHistory();
     }
 
     public static double CalculateTotalRating()
     {
-        scores.Sort((a, b) => b.ratedScore.CompareTo(a.ratedScore));
-        double totalRating = 0f;
+        //scores.Sort((a, b) => b.ratedScore.CompareTo(a.ratedScore));
+        var mCalculatedScores = new List<CalculatedScoreEntry>();
         for (int i = 0; i < scores.Count; i++)
         {
-            totalRating += scores[i].ratedScore * Math.Pow(0.95f, i);
+            mCalculatedScores.Add(new CalculatedScoreEntry(scores[i]));   
+        }
+        calculatedScores = mCalculatedScores.OrderByDescending(x => x.audicaPointsRaw).ToList();
+        double totalRating = 0f;
+        for (int i = 0; i < calculatedScores.Count; i++)
+        {
+            calculatedScores[i].audicaPointsWeighted = calculatedScores[i].audicaPointsRaw * Math.Pow(0.95f, i);
+            totalRating += calculatedScores[i].audicaPointsWeighted;
+            //totalRating += scores[i].ratedScore * Math.Pow(0.95f, i);
         }
         return totalRating;
     }
@@ -96,7 +114,7 @@ internal static class ScoreHistory
                 if (noFail) return;
                 float maxScorePercent = (float)score / (float)StarThresholds.I.GetMaxRawScore(songID, difficulty);
                 float difficultyRating = new DifficultyCalculator(SongList.I.GetSong(songID)).GetRatingFromKataDifficulty(difficulty);
-                AddScore(songID, score, maxScorePercent, difficultyRating, ScoreKeeper.I.mStreak, ScoreKeeper.I.mMaxStreak); 
+                AddScore(songID, score, maxScorePercent, difficultyRating, ScoreKeeper.I.mStreak, ScoreKeeper.I.mMaxStreak, difficulty); 
             }
             counter++;
         }

@@ -66,6 +66,18 @@ namespace AudicaModding
             }
         }
 
+        public override void OnGUI()
+        {
+            if (GUI.Button(new Rect(10, 10, 150, 100), "PlatformID"))
+            {
+                MelonLogger.Log(PlatformChooser.I.GetPlatformID());
+            }
+            if (GUI.Button(new Rect(10, 110, 150, 100), "LeaderboardID"))
+            {
+                MelonLogger.Log(PlatformChooser.I.GetLeaderboardID());
+            }
+        }
+
         public override void OnApplicationQuit()
         {
             FilterPanel.SaveFavorites();
