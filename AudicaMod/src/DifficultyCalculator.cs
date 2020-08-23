@@ -18,6 +18,29 @@ public class DifficultyCalculator
         EvaluateDifficulties(songData);
     }
 
+    public static float GetRating(string songID, string difficulty)
+    {
+        var calc = new DifficultyCalculator(SongList.I.GetSong(songID));
+        var diffLower = difficulty.ToLower();
+        switch (diffLower)
+        {
+            case "beginner":
+                if (calc.beginner != null) return calc.beginner.difficultyRating;
+                else return 0f;
+            case "standard":
+                if (calc.standard != null) return calc.standard.difficultyRating;
+                else return 0f;
+            case "advanced":
+                if (calc.advanced != null) return calc.advanced.difficultyRating;
+                else return 0f;
+            case "expert":
+                if (calc.expert != null) return calc.expert.difficultyRating;
+                else return 0f;
+            default:
+                return 0f;
+        }
+    }
+
     public float GetRatingFromKataDifficulty(KataConfig.Difficulty difficulty)
     {
         switch (difficulty)
