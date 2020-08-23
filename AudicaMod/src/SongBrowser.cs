@@ -51,7 +51,6 @@ namespace AudicaModding
             var i = HarmonyInstance.Create("Song Downloader");
             Hooks.ApplyHooks(i);
             FilterPanel.LoadFavorites();
-            ScoreHistory.LoadHistory();
         }
 
         private void CheckFolderDirectories()
@@ -68,13 +67,13 @@ namespace AudicaModding
 
         public override void OnGUI()
         {
-            if (GUI.Button(new Rect(10, 10, 150, 100), "PlatformID"))
+            if (GUI.Button(new Rect(10, 10, 150, 100), "Show scores"))
             {
-                MelonLogger.Log(PlatformChooser.I.GetPlatformID());
+                ScoreDisplayList.Initialize();
             }
-            if (GUI.Button(new Rect(10, 110, 150, 100), "LeaderboardID"))
+            if (GUI.Button(new Rect(10, 110, 150, 100), "Update"))
             {
-                MelonLogger.Log(PlatformChooser.I.GetLeaderboardID());
+                ScoreDisplayList.UpdateTextFromList();
             }
         }
 

@@ -50,15 +50,27 @@ public class CalculatedScoreEntry
         this.audicaPointsRaw = DifficultyCalculator.GetRating(songID, localScore.difficultyString) * maxScorePercent * 30;
     }
 }
+[Serializable]
+public struct LocalPlayHistory
+{
+    public List<AudicaScore> scores;
+    public string leaderboardID;
 
+    public LocalPlayHistory(List<AudicaScore> scores, string leaderboardID)
+    {
+        this.scores = scores;
+        this.leaderboardID = leaderboardID;
+    }
+}
 internal static class ScoreHistory
 {
-    static double audicaScore = 0f;
+    public static double audicaScore = 0f;
     static double lastAudicaScore = 0f;
     static int scoreVersion = 4;
     static List<AudicaScore> scores = new List<AudicaScore>();
-    static string historySavePath = Application.dataPath + "/../" + "/UserData/" + "AudicaScoreHistory.dat";
-    static List<CalculatedScoreEntry> calculatedScores;
+    static string historySavePath = Application.dataPath + "/../" + "/UserData/";
+    public static List<CalculatedScoreEntry> calculatedScores = new List<CalculatedScoreEntry>();
+    static bool historyLoaded = false;
 
     public static void AddScore(string songID, int score, float maxScorePercent, float difficultyRating, int combo, int maxCombo, KataConfig.Difficulty difficulty)
     {
@@ -81,7 +93,7 @@ internal static class ScoreHistory
             scores.Add(scoreToAdd);
         }
         audicaScore = CalculateTotalRating();
-        SaveHistory();
+        SaveHistory(PlatformChooser.I.GetLeaderboardID());
     }
 
     public static double CalculateTotalRating()
@@ -121,13 +133,15 @@ internal static class ScoreHistory
         }
     }
 
-    private static void SaveHistory()
+    private static void SaveHistory(string leaderboardID)
     {
-        FileStream fs = new FileStream(historySavePath, FileMode.Create);
+        if (leaderboardID == "")
+            return;
+        FileStream fs = new FileStream(historySavePath + leaderboardID, FileMode.Create);
         BinaryFormatter formatter = new BinaryFormatter();
         try
         {
-            formatter.Serialize(fs, scores);
+            formatter.Serialize(fs, new LocalPlayHistory(scores, leaderboardID));
         }
         catch (SerializationException e)
         {
@@ -141,10 +155,15 @@ internal static class ScoreHistory
         }
     }
 
-    public static void LoadHistory()
+    public static void LoadHistory(string leaderboardID)
     {
+        if (historyLoaded) return;
+        if (leaderboardID == "")
+            return;
+        historyLoaded = true;
         scores = null;
-        if (!File.Exists(historySavePath))
+        LocalPlayHistory localhistory;
+        if (!File.Exists(historySavePath + leaderboardID))
         {
             scores = new List<AudicaScore>();
             MelonLogger.Log("No history found, creating new history");
@@ -152,11 +171,22 @@ internal static class ScoreHistory
 
         }
 
-        FileStream fs = new FileStream(historySavePath, FileMode.Open);
+        FileStream fs = new FileStream(historySavePath + leaderboardID, FileMode.Open);
         try
         {
             BinaryFormatter formatter = new BinaryFormatter();
-            scores = (List<AudicaScore>)formatter.Deserialize(fs);
+            localhistory = (LocalPlayHistory)formatter.Deserialize(fs);
+            if (localhistory.leaderboardID == leaderboardID)
+            {
+                scores = localhistory.scores;
+            }
+            else
+            {
+                scores = new List<AudicaScore>();
+                MelonLogger.Log("Wrong user, creating new history instead");
+                return;
+            }
+                
         }
         catch (SerializationException e)
         {
@@ -169,6 +199,7 @@ internal static class ScoreHistory
         }
         MelonLogger.Log($"Loaded {scores.Count.ToString()} scores");
         audicaScore = lastAudicaScore = CalculateTotalRating();
+        ScoreDisplayList.UpdateTextFromList();
     }
 
 }

@@ -229,10 +229,18 @@ namespace AudicaModding
         {
             private static void Postfix(MenuState __instance, ref MenuState.State state)
             {
-                if (state == MenuState.State.SongPage)
+                if (state == MenuState.State.LaunchPage)
                 {
                     DeleteButton.CreateDeleteButton();
                     FavoriteButtonButton.CreateFavoriteButtonButton();
+                }
+                if (state == MenuState.State.SongPage)
+                {
+                    ScoreDisplayList.Show();
+                }
+                else
+                {
+                    ScoreDisplayList.Hide();
                 }
 
             }
@@ -244,8 +252,10 @@ namespace AudicaModding
             private static void Postfix(SongSelect __instance)
             {
                 FilterPanel.Initialize();
+                ScoreHistory.LoadHistory(PlatformChooser.I.GetLeaderboardID());
             }
         }
+
 
         [HarmonyPatch(typeof(SongListControls), "FilterAll", new Type[0])]
         private static class FilterAll
