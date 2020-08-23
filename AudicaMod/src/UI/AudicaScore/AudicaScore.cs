@@ -46,6 +46,7 @@ public class CalculatedScoreEntry
         this.localScore = localScore;
         this.songID = localScore.songID;
         this.maxScorePercent = localScore.maxScorePercent;
+        this.audicaPointsWeighted = 0f;
         this.audicaPointsRaw = DifficultyCalculator.GetRating(songID, localScore.difficultyString) * maxScorePercent * 30;
     }
 }
