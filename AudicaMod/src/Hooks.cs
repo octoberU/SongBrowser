@@ -251,6 +251,7 @@ namespace AudicaModding
         {
             private static void Postfix(SongSelect __instance)
             {
+                FilterPanel.filteringFavorites = false;
                 FilterPanel.Initialize();
                 ScoreHistory.LoadHistory(PlatformChooser.I.GetLeaderboardID());
             }

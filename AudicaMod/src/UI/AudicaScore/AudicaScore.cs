@@ -92,6 +92,7 @@ internal static class ScoreHistory
         {
             scores.Add(scoreToAdd);
         }
+        lastAudicaScore = audicaScore;
         audicaScore = CalculateTotalRating();
         SongBrowser.DebugText($"<color=green>+{(audicaScore - lastAudicaScore).ToString("n2")}</color>");
         SaveHistory(PlatformChooser.I.GetLeaderboardID());

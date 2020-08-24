@@ -24,13 +24,13 @@ public class DifficultyCalculator
         var diffLower = difficulty.ToLower();
         switch (diffLower)
         {
-            case "beginner":
+            case "easy":
                 if (calc.beginner != null) return calc.beginner.difficultyRating;
                 else return 0f;
-            case "standard":
+            case "normal":
                 if (calc.standard != null) return calc.standard.difficultyRating;
                 else return 0f;
-            case "advanced":
+            case "hard":
                 if (calc.advanced != null) return calc.advanced.difficultyRating;
                 else return 0f;
             case "expert":
