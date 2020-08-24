@@ -93,6 +93,7 @@ internal static class ScoreHistory
             scores.Add(scoreToAdd);
         }
         audicaScore = CalculateTotalRating();
+        SongBrowser.DebugText($"<color=green>+{(audicaScore - lastAudicaScore).ToString("n2")}</color>");
         SaveHistory(PlatformChooser.I.GetLeaderboardID());
     }
 
@@ -125,6 +126,7 @@ internal static class ScoreHistory
             {
                 MelonLogger.Log("Recorded new score!");
                 if (noFail) return;
+                if (percent < 30f) return;
                 float maxScorePercent = (float)score / (float)StarThresholds.I.GetMaxRawScore(songID, difficulty);
                 float difficultyRating = new DifficultyCalculator(SongList.I.GetSong(songID)).GetRatingFromKataDifficulty(difficulty);
                 AddScore(songID, score, maxScorePercent, difficultyRating, ScoreKeeper.I.mStreak, ScoreKeeper.I.mMaxStreak, difficulty); 

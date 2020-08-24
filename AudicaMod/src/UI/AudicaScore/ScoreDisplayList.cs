@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AudicaModding;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,6 +33,7 @@ internal static class ScoreDisplayList
         if(scoreListDisplay != null)
         {
             scoreListDisplay.SetActive(false);
+            
         }
     }
 
@@ -40,6 +42,7 @@ internal static class ScoreDisplayList
         if (scoreListDisplay != null)
         {
             scoreListDisplay.SetActive(true);
+            UpdateTextFromList();
         }
         else
         {
@@ -65,7 +68,7 @@ internal static class ScoreDisplayList
                 {
                     output += $"\n<color=green>{scores[i].audicaPointsWeighted.ToString("n2")}AP</color>" +
                     " | " +
-                    $"{song.artist} - {song.title} " +
+                    $"{SongBrowser.RemoveFormatting(song.artist)} - {SongBrowser.RemoveFormatting(song.title)} " +
                     $"<color=#999>({scores[i].maxScorePercent.ToString("P")})</color>";
                 }
             }

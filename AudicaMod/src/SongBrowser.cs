@@ -22,7 +22,7 @@ namespace AudicaModding
             public const string Name = "SongBrowser";  // Name of the Mod.  (MUST BE SET)
             public const string Author = "octo"; // Author of the Mod.  (Set as null if none)
             public const string Company = null; // Company that made the Mod.  (Set as null if none)
-            public const string Version = "0.1.0"; // Version of the Mod.  (MUST BE SET)
+            public const string Version = "2.0.0"; // Version of the Mod.  (MUST BE SET)
             public const string DownloadLink = null; // Download Link for the Mod.  (Set as null if none)
         }
         public static string apiURL = "http://www.audica.wiki:5000/api/customsongs?pagesize=14";
@@ -65,17 +65,17 @@ namespace AudicaModding
             }
         }
 
-        public override void OnGUI()
-        {
-            if (GUI.Button(new Rect(10, 10, 150, 100), "Show scores"))
-            {
-                ScoreDisplayList.Initialize();
-            }
-            if (GUI.Button(new Rect(10, 110, 150, 100), "Update"))
-            {
-                ScoreDisplayList.UpdateTextFromList();
-            }
-        }
+        //public override void OnGUI()
+        //{
+        //    if (GUI.Button(new Rect(10, 10, 150, 100), "Show scores"))
+        //    {
+        //        ScoreDisplayList.Initialize();
+        //    }
+        //    if (GUI.Button(new Rect(10, 110, 150, 100), "Update"))
+        //    {
+        //        ScoreDisplayList.UpdateTextFromList();
+        //    }
+        //}
 
         public override void OnApplicationQuit()
         {
@@ -118,11 +118,11 @@ namespace AudicaModding
             {
                 ReloadSongList();
             }
-            if (Input.GetKeyDown(KeyCode.F3))
-            {
-                FilterPanel.GetReferences();
-                FilterPanel.SetNotificationText("There are 3 new songs available in the song downloader.");
-            }
+            //if (Input.GetKeyDown(KeyCode.F3))
+            //{
+            //    FilterPanel.GetReferences();
+            //    FilterPanel.SetNotificationText("There are 3 new songs available in the song downloader.");
+            //}
         }
 
         IEnumerator PlayOggCoroutine(string oggFilename)
