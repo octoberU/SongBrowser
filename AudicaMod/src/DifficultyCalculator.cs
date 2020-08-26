@@ -14,13 +14,16 @@ public class DifficultyCalculator
 
     public DifficultyCalculator(SongList.SongData songData)
     {
+        if (songData == null) return;
         this.songID = songData.songID;
         EvaluateDifficulties(songData);
     }
 
     public static float GetRating(string songID, string difficulty)
     {
-        var calc = new DifficultyCalculator(SongList.I.GetSong(songID));
+        var songData = SongList.I.GetSong(songID);
+        if (songData == null) return 0f;
+        var calc = new DifficultyCalculator(songData);
         var diffLower = difficulty.ToLower();
         switch (diffLower)
         {
