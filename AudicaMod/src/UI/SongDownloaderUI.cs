@@ -141,6 +141,9 @@ namespace AudicaModding
 				null,
 				"Restores all the songs you have deleted.");
 			optionsMenu.scrollable.AddRow(RestoreSongs.gameObject);
+
+			var downloadFolderBlock = optionsMenu.AddTextBlock(0, "You can hotload songs by placing them in Audica/Downloads and pressing F5");
+			optionsMenu.scrollable.AddRow(downloadFolderBlock);
 		}
 
 		private static void DownloadFullPage()
