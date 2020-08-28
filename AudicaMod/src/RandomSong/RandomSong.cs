@@ -10,6 +10,9 @@ namespace AudicaModding
 {
     public class RandomSong : MelonMod
     {
+        public static RandomSong Instance = null;
+        private static bool instanceCreated => Instance != null;
+
         private static GameObject randomSongButton;
         public static bool exists => randomSongButton != null;
 
@@ -21,13 +24,14 @@ namespace AudicaModding
         private static bool availableSongListsSetup = false;
         private static List<int> availableMainSongs = new List<int>();
         private static List<int> availableExtrasSongs = new List<int>();
+        private static List<int> availableFavouritesSongs = new List<int>();
         private static List<int> lastPickedSongs = new List<int>();
         private static List<int> availableSongs = new List<int>();
 
         private static SongSelect songSelect = null;
 
         private static Il2CppSystem.Collections.Generic.List<SongSelectItem> songs = new Il2CppSystem.Collections.Generic.List<SongSelectItem>();
-
+        private static bool favouritesChanged = false;
         private void CreateConfig()
         {
             ModPrefs.RegisterPrefInt("RandomSong", "RandomSongBagSize", randomSongBagSize);
@@ -58,6 +62,8 @@ namespace AudicaModding
                 LoadConfig();
 
             }
+
+            if (!instanceCreated) Instance = this;
         }
 
         public static void CreateRandomSongButton()
@@ -104,12 +110,34 @@ namespace AudicaModding
                 {
                     availableSongs.Add(i);
                 }
+
+                for(int i = 0; i < FilterPanel.favorites.songIDs.Count; i++)
+                {
+                    availableFavouritesSongs.Add(i);
+                }
+                
             }
+
+            if (favouritesChanged)
+            {
+                for (int i = 0; i < FilterPanel.favorites.songIDs.Count; i++)
+                {
+                    availableFavouritesSongs.Add(i);
+                }
+
+                favouritesChanged = false;
+            }
+
             SongSelect.Filter filter = songSelect.GetListFilter();
 
             var rand = new System.Random();
             int index;
-            if (filter == SongSelect.Filter.All)
+            if (FilterPanel.filteringFavorites && availableExtrasSongs.Count > 0)
+            {
+                index = availableFavouritesSongs[rand.Next(0, availableFavouritesSongs.Count - 1)];
+               // if(availableFavouritesSongs.Count > 0) availableFavouritesSongs.Remove(index);
+            }
+            else if (filter == SongSelect.Filter.All)
             {
                 index = availableSongs[rand.Next(0, availableSongs.Count - 1)];
             }
@@ -120,9 +148,21 @@ namespace AudicaModding
             }
             else
             {
+                if(availableExtrasSongs.Count < 1)
+                {
+                    foreach (int i in lastPickedSongs)
+                    {
+                        availableSongs.Add(i);
+                        if (i < 33) availableMainSongs.Add(i);
+                        else availableExtrasSongs.Add(i);
+                    }
+                    lastPickedSongs.Clear();
+                }
+
                 index = availableExtrasSongs[rand.Next(0, availableExtrasSongs.Count - 1)];
-                if (availableExtrasSongs.Count > 0) availableExtrasSongs.Remove(index);
+                availableExtrasSongs.Remove(index);                                 
             }
+
             songs[index].OnSelect();
             lastPickedSongs.Add(index);
             if (availableSongs.Count > 0) availableSongs.Remove(index);
@@ -133,16 +173,21 @@ namespace AudicaModding
                 int oldestIndex = lastPickedSongs[0];
                 lastPickedSongs.Remove(oldestIndex);
                 availableSongs.Add(oldestIndex);
-                if (oldestIndex < 33) availableMainSongs.Add(index);
-                else availableExtrasSongs.Add(index);
+                if (oldestIndex < 33) availableMainSongs.Add(oldestIndex); //was index before but why did i do that?
+                else availableExtrasSongs.Add(oldestIndex); //was index before but why did i do that?
             }
+        }
+
+        public void FavouritesChanged()
+        {
+            favouritesChanged = true;           
         }
 
         [HarmonyPatch(typeof(MenuState), "SetState", new Type[] { typeof(MenuState.State) })]
         private static class RandomSongPatchMenuState
         {
             private static void Postfix(MenuState __instance, ref MenuState.State state)
-            {
+            {               
                 if (state == MenuState.State.SongPage) CreateRandomSongButton();
             }
         }
