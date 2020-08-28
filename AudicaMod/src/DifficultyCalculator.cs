@@ -115,11 +115,15 @@ public class CalculatedDifficulty
     public void EvaluateCues(SongCues.Cue[] cues, SongList.SongData songData)
     {
         this.length = AudioDriver.TickSpanToMs(songData, cues[0].tick, cues[cues.Length - 1].tick);
-        SplitCues(cues);
-        CalculateSpacing();
-        CalculateDensity();
-        CalculateReadability();
-        difficultyRating = ((spacing + readability) / length ) * 500f + (length / 100000f * lengthMultiplier);
+        if (cues.Length >= 15 && this.length > 30000f)
+        {
+            SplitCues(cues);
+            CalculateSpacing();
+            CalculateDensity();
+            CalculateReadability();
+            difficultyRating = ((spacing + readability) / length) * 500f + (length / 100000f * lengthMultiplier);
+        }
+        else difficultyRating = 0f;
     }
 
     void CalculateReadability()
