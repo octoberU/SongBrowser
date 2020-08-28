@@ -164,7 +164,8 @@ namespace AudicaModding
             string webPage = page == 1 ? "" : "&page=" + page.ToString();
             string webDifficulty = difficulty == "All" || difficulty == "" ? "" : "&" + difficulty.ToLower() + "=true";
             string webCurated = SongDownloaderUI.curated ? "&curated=true" : "";
-            string concatURL = !total ? apiURL + webSearch + webDifficulty + webPage + webCurated : "http://www.audica.wiki:5000/api/customsongs?pagesize=all";
+            string webPlaycount = SongDownloaderUI.popularity ? "&sort=leaderboards" : "";
+            string concatURL = !total ? apiURL + webSearch + webDifficulty + webPage + webCurated + webPlaycount : "http://www.audica.wiki:5000/api/customsongs?pagesize=all";
             WWW www = new WWW(concatURL);
             yield return www;
             songlist = JSON.Load(www.text).Make<APISongList>();

@@ -19,6 +19,8 @@ namespace AudicaModding
 		public static OptionsMenuButton difficultyToggle;
 		public static bool curated;
 		public static OptionsMenuButton curatedToggle;
+		public static bool popularity;
+		public static OptionsMenuButton popularityToggle;
 		public static APISongList activeSongList;
 
 		static public void AddPageButton(OptionsMenu optionsMenu, int col)
@@ -140,7 +142,28 @@ namespace AudicaModding
 				}),
 				null,
 				"Restores all the songs you have deleted.");
-			optionsMenu.scrollable.AddRow(RestoreSongs.gameObject);
+			//optionsMenu.scrollable.AddRow(RestoreSongs.gameObject);
+
+			string popularityFilterText = "Sort by playcount: " + popularity.ToString();
+			popularityToggle = optionsMenu.AddButton
+				(1,
+				popularityFilterText,
+				new Action(() =>
+				{
+					if (popularity)
+						popularity = false;
+					else
+						popularity = true;
+
+					popularityToggle.label.text = "Sort by playcount: " + popularity.ToString();
+					SongBrowser.page = 1;
+					SongBrowser.StartSongSearch();
+				}),
+				null,
+				"Filters the search to curated maps only");
+			popularityToggle.button.doMeshExplosion = false;
+			popularityToggle.button.doParticles = false;
+			optionsMenu.scrollable.AddRow(popularityToggle.gameObject);
 
 			var downloadFolderBlock = optionsMenu.AddTextBlock(0, "You can hotload songs by placing them in Audica/Downloads and pressing F5");
 			optionsMenu.scrollable.AddRow(downloadFolderBlock);
