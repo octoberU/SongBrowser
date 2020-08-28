@@ -233,6 +233,11 @@ namespace AudicaModding
                 {
                     DeleteButton.CreateDeleteButton();
                     FavoriteButtonButton.CreateFavoriteButtonButton();
+                    DifficultyDisplay.Show();
+                }
+                else
+                {
+                    DifficultyDisplay.Hide();
                 }
                 if (state == MenuState.State.SongPage)
                 {

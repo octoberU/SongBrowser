@@ -97,7 +97,10 @@ public class RandomSong : MelonMod
     {
         if (active) yield return new WaitForSeconds(.65f);
         else yield return null;
-        randomSongButton.SetActive(active);
+        if (randomSongButton != null)
+        {
+            randomSongButton.SetActive(active); 
+        }
     }
 
     private static void OnRandomSongShot()
