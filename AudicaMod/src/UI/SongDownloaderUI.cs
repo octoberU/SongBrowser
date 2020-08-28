@@ -160,7 +160,7 @@ namespace AudicaModding
 					SongBrowser.StartSongSearch();
 				}),
 				null,
-				"Filters the search to curated maps only");
+				"Sorts downloads by leaderboard scores rather than date.");
 			popularityToggle.button.doMeshExplosion = false;
 			popularityToggle.button.doParticles = false;
 			optionsMenu.scrollable.AddRow(popularityToggle.gameObject);
