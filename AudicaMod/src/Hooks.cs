@@ -248,6 +248,8 @@ namespace AudicaModding
                     ScoreDisplayList.Hide();
                 }
 
+                if (state == MenuState.State.SongPage) RandomSong.CreateRandomSongButton();
+
             }
         }
 
@@ -256,7 +258,7 @@ namespace AudicaModding
         {
             private static void Postfix(SongSelect __instance)
             {
-                FilterPanel.filteringFavorites = false;
+                //FilterPanel.filteringFavorites = false;
                 FilterPanel.Initialize();
                 ScoreHistory.LoadHistory(PlatformChooser.I.GetLeaderboardID());
             }
