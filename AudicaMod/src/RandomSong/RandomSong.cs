@@ -8,10 +8,8 @@ using MelonLoader;
 
 namespace AudicaModding
 {
-    public class RandomSong : MelonMod
+    internal static class RandomSong
     {
-        public static RandomSong Instance = null;
-        private static bool instanceCreated => Instance != null;
 
         private static GameObject randomSongButton;
         public static bool exists => randomSongButton != null;
@@ -19,51 +17,25 @@ namespace AudicaModding
         private static Vector3 randomButtonPos = new Vector3(10.2f, -9.4f, 24.2f);
         private static Vector3 randomButtonRot = new Vector3(0f, 0f, 0f);
 
-        private static int randomSongBagSize = 10;
+        public static int randomSongBagSize = 10;
         private static int mainSongCount = 33;
         private static bool availableSongListsSetup = false;
         private static List<int> availableMainSongs = new List<int>();
         private static List<int> availableExtrasSongs = new List<int>();
-        private static List<int> availableFavouritesSongs = new List<int>();
+        private static System.Collections.Generic.List<string> availableFavouritesSongs = new System.Collections.Generic.List<string>();
+        private static System.Collections.Generic.List<string> lastPickedFavouritesSongs = new System.Collections.Generic.List<string>();
         private static List<int> lastPickedSongs = new List<int>();
         private static List<int> availableSongs = new List<int>();
 
         private static SongSelect songSelect = null;
 
         private static Il2CppSystem.Collections.Generic.List<SongSelectItem> songs = new Il2CppSystem.Collections.Generic.List<SongSelectItem>();
-        private static bool favouritesChanged = false;
-        private void CreateConfig()
+      
+
+        public static void LoadBagSize(int size)
         {
-            ModPrefs.RegisterPrefInt("RandomSong", "RandomSongBagSize", randomSongBagSize);
-
-        }
-
-        private void LoadConfig()
-        {
-            randomSongBagSize = ModPrefs.GetInt("RandomSong", "RandomSongBagSize");
-            if (randomSongBagSize > mainSongCount) randomSongBagSize = mainSongCount;
-
-        }
-
-        public static void SaveConfig()
-        {
-            ModPrefs.SetInt("RandomSong", "RandomSongBagSize", randomSongBagSize);
-        }
-
-        public override void OnLevelWasLoaded(int level)
-        {
-
-            if (!ModPrefs.HasKey("RandomSong", "RandomSongBagSize"))
-            {
-                CreateConfig();
-            }
-            else
-            {
-                LoadConfig();
-
-            }
-
-            if (!instanceCreated) Instance = this;
+            if (size > mainSongCount) randomSongBagSize = mainSongCount;
+            else randomSongBagSize = size;
         }
 
         public static void CreateRandomSongButton()
@@ -91,7 +63,7 @@ namespace AudicaModding
         {
             songSelect = GameObject.FindObjectOfType<SongSelect>();
             songs = songSelect.songSelectItems.mItems;
-            int maxLength = songs.Count - 1;
+            int maxLength = songs.Count;
             if (!availableSongListsSetup)
             {
                 availableSongListsSetup = true;
@@ -111,39 +83,45 @@ namespace AudicaModding
                     availableSongs.Add(i);
                 }
 
-                for(int i = 0; i < FilterPanel.favorites.songIDs.Count; i++)
+                foreach(string song in FilterPanel.favorites.songIDs)
                 {
-                    availableFavouritesSongs.Add(i);
+                    availableFavouritesSongs.Add(song);
                 }
                 
-            }
-
-            if (favouritesChanged)
-            {
-                for (int i = 0; i < FilterPanel.favorites.songIDs.Count; i++)
-                {
-                    availableFavouritesSongs.Add(i);
-                }
-
-                favouritesChanged = false;
             }
 
             SongSelect.Filter filter = songSelect.GetListFilter();
 
             var rand = new System.Random();
             int index;
-            if (FilterPanel.filteringFavorites && availableExtrasSongs.Count > 0)
+            if (FilterPanel.filteringFavorites && availableFavouritesSongs.Count > 0)
             {
-                index = availableFavouritesSongs[rand.Next(0, availableFavouritesSongs.Count - 1)];
-               // if(availableFavouritesSongs.Count > 0) availableFavouritesSongs.Remove(index);
+                string id = availableFavouritesSongs[rand.Next(0, availableFavouritesSongs.Count)];  
+                for(int i = 0; i < songs.Count; i++)
+                {
+                    if(id == songs[i].mSongData.songID)
+                    {
+                        lastPickedFavouritesSongs.Add(id);
+                        availableFavouritesSongs.Remove(id);
+                        songs[i].OnSelect();
+                        break;
+                    }
+                }
+
+                if (availableFavouritesSongs.Count < 1)
+                {
+                    foreach (string s in lastPickedFavouritesSongs) availableFavouritesSongs.Add(s);
+                    lastPickedFavouritesSongs = new System.Collections.Generic.List<string>();
+                }
+                return;               
             }
             else if (filter == SongSelect.Filter.All)
             {
-                index = availableSongs[rand.Next(0, availableSongs.Count - 1)];
+                index = availableSongs[rand.Next(0, availableSongs.Count)];
             }
             else if (filter == SongSelect.Filter.Main)
             {
-                index = availableMainSongs[rand.Next(0, availableMainSongs.Count - 1)];
+                index = availableMainSongs[rand.Next(0, availableMainSongs.Count)];
                 if (availableMainSongs.Count > 0) availableMainSongs.Remove(index);
             }
             else
@@ -159,7 +137,7 @@ namespace AudicaModding
                     lastPickedSongs.Clear();
                 }
 
-                index = availableExtrasSongs[rand.Next(0, availableExtrasSongs.Count - 1)];
+                index = availableExtrasSongs[rand.Next(0, availableExtrasSongs.Count)];
                 availableExtrasSongs.Remove(index);                                 
             }
 
@@ -177,10 +155,17 @@ namespace AudicaModding
                 else availableExtrasSongs.Add(oldestIndex); //was index before but why did i do that?
             }
         }
-
-        public void FavouritesChanged()
+        public static void FavouritesChanged(string id, bool add)
         {
-            favouritesChanged = true;           
+            if (add)
+            {
+                availableFavouritesSongs.Add(id);
+            }
+            else
+            {
+                if (lastPickedFavouritesSongs.Contains(id)) lastPickedFavouritesSongs.Remove(id);                 
+                else if (availableFavouritesSongs.Contains(id)) availableFavouritesSongs.Remove(id);
+            }
         }
 
         [HarmonyPatch(typeof(MenuState), "SetState", new Type[] { typeof(MenuState.State) })]
