@@ -41,6 +41,34 @@ namespace AudicaModding
         public static List<string> deletedSongs = new List<string>();
         public static List<string> deletedSongPaths = new List<string>();
 
+        private void CreateConfig()
+        {
+            ModPrefs.RegisterPrefInt("RandomSong", "RandomSongBagSize", 10);
+
+        }
+
+        private void LoadConfig()
+        {
+            RandomSong.LoadBagSize(ModPrefs.GetInt("RandomSong", "RandomSongBagSize"));
+        }
+
+        public static void SaveConfig()
+        {
+            ModPrefs.SetInt("RandomSong", "RandomSongBagSize", RandomSong.randomSongBagSize);
+        }
+
+        public override void OnLevelWasLoaded(int level)
+        {
+
+            if (!ModPrefs.HasKey("RandomSong", "RandomSongBagSize"))
+            {
+                CreateConfig();
+            }
+            else
+            {
+                LoadConfig();
+            }
+        }
 
         public override void OnApplicationStart()
         {
