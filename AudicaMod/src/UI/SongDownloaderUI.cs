@@ -51,6 +51,8 @@ namespace AudicaModding
 			CleanUpPage(optionsMenu);
 			AddButtons(optionsMenu);
 			optionsMenu.screenTitle.text = "Filters";
+			SongBrowser.lastSongCount = SongBrowser.newSongCount; //User has seen new songs
+			SongBrowser.SaveConfig();
 		}
 		
 		private static void SpawnSecondaryPanel(GameObject secondaryPanel)

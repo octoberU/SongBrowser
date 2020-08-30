@@ -7,6 +7,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using MelonLoader;
 
 namespace AudicaModding
 {
@@ -17,7 +18,7 @@ namespace AudicaModding
         static GameObject filterButton;
         static GameObject favoritesButton;
         
-        static GameObject notificationPanel;
+        public static GameObject notificationPanel;
         static TextMeshPro notificationText;
 
         public static GameObject favoritesButtonSelectedIndicator;

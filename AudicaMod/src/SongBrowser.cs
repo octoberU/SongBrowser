@@ -40,27 +40,31 @@ namespace AudicaModding
         public static bool addedCustomsDir = false;
         public static List<string> deletedSongs = new List<string>();
         public static List<string> deletedSongPaths = new List<string>();
+        public static int newSongCount;
+        public static int lastSongCount;
 
         private void CreateConfig()
         {
-            ModPrefs.RegisterPrefInt("RandomSong", "RandomSongBagSize", 10);
-
+            MelonPrefs.RegisterInt("RandomSong", "RandomSongBagSize", 10);
+            MelonPrefs.RegisterInt("SongBrowser", "LastSongCount", 0);
         }
 
         private void LoadConfig()
         {
-            RandomSong.LoadBagSize(ModPrefs.GetInt("RandomSong", "RandomSongBagSize"));
+            RandomSong.LoadBagSize(MelonPrefs.GetInt("RandomSong", "RandomSongBagSize"));
+            lastSongCount = MelonPrefs.GetInt("SongBrowser", "LastSongCount");
         }
 
         public static void SaveConfig()
         {
-            ModPrefs.SetInt("RandomSong", "RandomSongBagSize", RandomSong.randomSongBagSize);
+            MelonPrefs.SetInt("RandomSong", "RandomSongBagSize", RandomSong.randomSongBagSize);
+            MelonPrefs.SetInt("SongBrowser", "LastSongCount", lastSongCount);
         }
 
         public override void OnLevelWasLoaded(int level)
         {
 
-            if (!ModPrefs.HasKey("RandomSong", "RandomSongBagSize"))
+            if (!MelonPrefs.HasKey("RandomSong", "RandomSongBagSize") || !MelonPrefs.HasKey("SongBrowser", "LastSongCount"))
             {
                 CreateConfig();
             }
@@ -240,6 +244,20 @@ namespace AudicaModding
             yield return null;
         }
 
+        public static IEnumerator UpdateLastSongCount()
+        {
+            string URL = "http://www.audica.wiki:5000/api/customsongstotal";
+            WWW www = new WWW(URL);
+            yield return www;
+            var songcount = JSON.Load(www.text).Make<TotalSongs>();
+            newSongCount = songcount.song_count;
+            if (FilterPanel.notificationPanel != null)
+            {
+                if (lastSongCount == newSongCount) FilterPanel.SetNotificationText("There are no new songs available");
+                else FilterPanel.SetNotificationText($"There are {(newSongCount - lastSongCount).ToString()} new songs available");
+            }
+        }
+
 
         public static void DebugText(string text)
         {
@@ -326,4 +344,11 @@ public class Song
             Int32.Parse(time[2]),
             Int32.Parse(time[3]));
     }
+}
+
+[Serializable]
+public class TotalSongs
+{
+    public int song_count;
+    public int author_count;
 }

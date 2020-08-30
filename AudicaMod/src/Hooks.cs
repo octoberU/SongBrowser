@@ -261,6 +261,7 @@ namespace AudicaModding
                 //FilterPanel.filteringFavorites = false;
                 FilterPanel.Initialize();
                 ScoreHistory.LoadHistory(PlatformChooser.I.GetLeaderboardID());
+                MelonCoroutines.Start(SongBrowser.UpdateLastSongCount());
             }
         }
 
