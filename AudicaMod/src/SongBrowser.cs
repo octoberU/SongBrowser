@@ -201,7 +201,7 @@ namespace AudicaModding
             WWW www = new WWW(concatURL);
             yield return www;
             songlist = JSON.Load(www.text).Make<APISongList>();
-            if(SongDownloaderUI.songItemPanel != null)
+            if (SongDownloaderUI.songItemPanel != null)
             {
                 SongDownloaderUI.AddSongItems(SongDownloaderUI.songItemMenu, songlist);
             }
@@ -254,7 +254,15 @@ namespace AudicaModding
             if (FilterPanel.notificationPanel != null)
             {
                 if (lastSongCount == newSongCount) FilterPanel.SetNotificationText("There are no new songs available");
-                else FilterPanel.SetNotificationText($"There are {(newSongCount - lastSongCount).ToString()} new songs available");
+                else
+                {
+                    int _count = newSongCount - lastSongCount;
+                    bool isSingular = (newSongCount - lastSongCount) == 1;
+                    string preSongtxt = isSingular ? "is " : "are ";
+                    string songtxt = isSingular ? "song" : "songs";
+                    FilterPanel.SetNotificationText("There " + preSongtxt + _count.ToString() + " new " + songtxt + " available");
+                }
+                    
             }
         }
 
