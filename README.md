@@ -29,3 +29,6 @@ https://github.com/mono/csvorbis
   
 Random Song:
 https://github.com/Contiinuum
+
+Custom Difficulty Names:
+https://github.com/meepsalot69
