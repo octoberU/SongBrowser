@@ -182,6 +182,7 @@ namespace AudicaModding
             {
                 SongList.OnSongListLoaded.On(new Action(() => { songSelect.ShowSongList(); }));
             }
+            CustomDifficultyNames.NamesAlreadyLoaded = false;
             CustomDifficultyNames.LoadCustomNames();
 			DebugText("Reloading Songs");
 			
