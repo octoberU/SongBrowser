@@ -15,7 +15,6 @@ namespace AudicaModding
         {
             yield return new WaitForSeconds(0.05f);
 
-            __instance.difficultySelect.gameObject.SetActive(false);
             var song = SongDataHolder.I.songData;
             CustomDifficultyNames.CustomNameData data;
             if (CustomDifficultyNames.CustomDifficulties.ContainsKey(song.songID))
@@ -76,9 +75,6 @@ namespace AudicaModding
             }
         }
 
-        /// <summary>
-        /// Author: MeepsKitten
-        /// </summary>
         [HarmonyPatch(typeof(LaunchPanel), "OnEnable", new Type[0])]
         private static class DisplayCustomNameLP
         {
