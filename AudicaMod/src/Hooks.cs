@@ -12,11 +12,13 @@ namespace AudicaModding
     {
         private static int buttonCount = 0;
         private static int scrollCounter = 2;
-
+        
+        /*
         public static void ApplyHooks(HarmonyInstance instance)
         {
             instance.PatchAll(Assembly.GetExecutingAssembly());
         }
+        */
 
         [HarmonyPatch(typeof(OptionsMenu), "AddButton", new Type[] { typeof(int), typeof(string), typeof(OptionsMenuButton.SelectedActionDelegate), typeof(OptionsMenuButton.IsCheckedDelegate), typeof(string), typeof(OptionsMenuButton), })]
         private static class AddButtonButton
@@ -26,7 +28,7 @@ namespace AudicaModding
                 if(__instance.mPage == OptionsMenu.Page.Main)
                 {
                     buttonCount++;
-                    if (buttonCount == 18)
+                    if (buttonCount == 9)
                     {
                         SongDownloaderUI.AddPageButton(__instance, 0);
                     }
@@ -209,18 +211,14 @@ namespace AudicaModding
         {
             private static void Postfix(SongSelect __instance, SongSelect.SongSelectItemEntry entry)
             {
-                if (scrollCounter % 2 == 0)
+                var song = SongList.I.GetSong(entry.songID);
+                if (entry.item.mapperLabel != null)
                 {
-                    var song = SongList.I.GetSong(entry.songID);
-                    if (entry.item.mapperLabel != null)
-                    {
-                        entry.item.mapperLabel.text += SongBrowser.GetDifficultyString(song.hasEasy,
-                                        song.hasNormal,
-                                        song.hasHard,
-                                        song.hasExpert);  
-                    }
+                    entry.item.mapperLabel.text += SongBrowser.GetDifficultyString(song.hasEasy,
+                                    song.hasNormal,
+                                    song.hasHard,
+                                    song.hasExpert);  
                 }
-                scrollCounter++;
             }
         }
 
