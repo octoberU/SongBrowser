@@ -82,6 +82,9 @@
       <HintPath>lib\Sanford.Multimedia.Midi.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="SongDataLoader">
+      <HintPath>src\lib\SongDataLoader.dll</HintPath>
+    </Reference>
     <Reference Include="SonyNP">
       <HintPath>lib\SonyNP.dll</HintPath>
       <Private>False</Private>
@@ -237,7 +240,6 @@
     <Compile Include="src\CustomDifficultyNames\CustomDifficultyNames.cs" />
     <Compile Include="src\EitherHandFix\EitherHand.cs" />
     <Compile Include="src\RandomSong\RandomSong.cs" />
-    <Compile Include="src\SongDataLoader\SongDataLoader.cs" />
     <Compile Include="src\UI\AudicaScore\AudicaScore.cs" />
     <Compile Include="src\UI\AudicaScore\DifficultyDisplay.cs" />
     <Compile Include="src\UI\AudicaScore\ScoreDisplayList.cs" />

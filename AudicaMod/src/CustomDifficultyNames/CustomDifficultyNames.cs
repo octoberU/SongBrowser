@@ -6,7 +6,7 @@ using Harmony;
 using System;
 using System.Linq;
 
-//[assembly: MelonOptionalDependencies("CustomSongDataLoader")]
+//[assembly: MelonOptionalDependencies("SongDataLoader")]
 
 
 namespace AudicaModding
