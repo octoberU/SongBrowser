@@ -22,6 +22,9 @@ A MelonLoader mod to improve the song browsing experience in Audica & downloadin
 * Displays the difficulty of a song using a calculated rating.
 * Displays [Custom Difficulty Names](https://github.com/meepsalot69/Audica-CustomDifficultyNames/blob/master/README.md#changing-difficulty-names-in-your-map)
 
+## Utilities 
+* [Song Data Loading](https://github.com/MeepsKitten/Audica-SongDataLoader)
+
 ## Credits
 
 Decoding OGG files:
@@ -31,4 +34,6 @@ Random Song:
 https://github.com/Contiinuum
 
 Custom Difficulty Names:
-https://github.com/meepsalot69
+https://github.com/MeepsKitten
+
+
