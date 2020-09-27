@@ -235,9 +235,9 @@
     <Compile Include="csvorbis\VorbisFile.cs" />
     <Compile Include="csvorbis\OggStream.cs" />
     <Compile Include="src\CustomDifficultyNames\CustomDifficultyNames.cs" />
-    <Compile Include="src\CustomSongDataLoader\SongDataLoader.cs" />
     <Compile Include="src\EitherHandFix\EitherHand.cs" />
     <Compile Include="src\RandomSong\RandomSong.cs" />
+    <Compile Include="src\SongDataLoader\SongDataLoader.cs" />
     <Compile Include="src\UI\AudicaScore\AudicaScore.cs" />
     <Compile Include="src\UI\AudicaScore\DifficultyDisplay.cs" />
     <Compile Include="src\UI\AudicaScore\ScoreDisplayList.cs" />
@@ -262,7 +262,6 @@
   <ItemGroup>
     <Content Include="csogg\csogg.csproj.user" />
     <Content Include="csvorbis\csvorbis.csproj.user" />
-    <Content Include="src\lib\CustomSongData.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

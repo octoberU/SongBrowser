@@ -81,7 +81,6 @@ namespace AudicaModding
             CheckFolderDirectories();
             StartSongSearch();
             var i = HarmonyInstance.Create("Song Downloader");
-            Hooks.ApplyHooks(i);
             FilterPanel.LoadFavorites();
         }
 
