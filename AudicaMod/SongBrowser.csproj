@@ -39,6 +39,10 @@
       <HintPath>lib\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="CustomSongData, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>src\lib\CustomSongData.dll</HintPath>
+    </Reference>
     <Reference Include="Il2CppMono.Security">
       <HintPath>lib\Il2CppMono.Security.dll</HintPath>
       <Private>False</Private>
@@ -70,6 +74,9 @@
     <Reference Include="MelonLoader.ModHandler">
       <HintPath>lib\MelonLoader.ModHandler.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Oculus.VR">
       <HintPath>lib\Oculus.VR.dll</HintPath>
@@ -231,8 +238,8 @@
     <Compile Include="csvorbis\Time0.cs" />
     <Compile Include="csvorbis\VorbisFile.cs" />
     <Compile Include="csvorbis\OggStream.cs" />
-    <Compile Include="src\CustomDifficultyName\CustomDifficultyNames.cs" />
-    <Compile Include="src\CustomDifficultyName\DifficultyHooks.cs" />
+    <Compile Include="src\CustomDifficultyNames\CustomDifficultyNames.cs" />
+    <Compile Include="src\CustomSongDataLoader\SongDataLoader.cs" />
     <Compile Include="src\EitherHandFix\EitherHand.cs" />
     <Compile Include="src\RandomSong\RandomSong.cs" />
     <Compile Include="src\UI\AudicaScore\AudicaScore.cs" />
@@ -259,6 +266,7 @@
   <ItemGroup>
     <Content Include="csogg\csogg.csproj.user" />
     <Content Include="csvorbis\csvorbis.csproj.user" />
+    <Content Include="src\lib\CustomSongData.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
