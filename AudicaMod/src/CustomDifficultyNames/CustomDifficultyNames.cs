@@ -19,10 +19,9 @@ namespace AudicaModding
 
             var song = SongDataHolder.I.songData;
 
-            if (!SongDataLoader.AllSongData[song.songID].HasCustomData())
-                yield break;
+            bool hasCustom = SongDataLoader.AllSongData[song.songID].HasCustomData();
 
-            if (SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customExpert"))
+            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customExpert"))
             {
                 __instance.expert.GetComponentInChildren<TextMeshPro>().text = SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customExpert");
             }
@@ -31,7 +30,7 @@ namespace AudicaModding
                 __instance.expert.GetComponentInChildren<TextMeshPro>().text = "Expert";
             }
 
-            if (SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customAdvanced"))
+            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customAdvanced"))
             {
                 __instance.hard.GetComponentInChildren<TextMeshPro>().text = SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customAdvanced");
             }
@@ -41,7 +40,7 @@ namespace AudicaModding
 
             }
 
-            if (SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customModerate"))
+            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customModerate"))
             {
                 __instance.normal.GetComponentInChildren<TextMeshPro>().text = SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customModerate");
             }
@@ -51,7 +50,7 @@ namespace AudicaModding
 
             }
 
-            if (SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customBeginner"))
+            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customBeginner"))
             {
                 __instance.easy.GetComponentInChildren<TextMeshPro>().text = SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customBeginner");
             }
@@ -68,10 +67,9 @@ namespace AudicaModding
 
             var song = SongDataHolder.I.songData;
 
-            if (!SongDataLoader.AllSongData[song.songID].HasCustomData())
-                yield break;
+            bool hasCustom = SongDataLoader.AllSongData[song.songID].HasCustomData();
 
-            if (SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customExpert"))
+            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customExpert"))
             {
                 __instance.expert.label.SetText(SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customExpert"));
             }
@@ -80,7 +78,7 @@ namespace AudicaModding
                 __instance.expert.label.text = "Expert";
             }
 
-            if (SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customAdvanced"))
+            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customAdvanced"))
             {
                 __instance.hard.label.SetText(SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customAdvanced"));
             }
@@ -90,7 +88,7 @@ namespace AudicaModding
 
             }
 
-            if (SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customModerate"))
+            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customModerate"))
             {
                 __instance.normal.label.SetText(SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customModerate"));
             }
@@ -100,7 +98,7 @@ namespace AudicaModding
 
             }
 
-            if (SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customBeginner"))
+            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customBeginner"))
             {
                 __instance.easy.label.SetText(SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customBeginner"));
             }
@@ -108,7 +106,6 @@ namespace AudicaModding
             {
                 __instance.easy.label.text = "Beginner";
             }
-
 
 
         }
