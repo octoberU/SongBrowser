@@ -8,7 +8,7 @@ A MelonLoader mod to improve the song browsing experience in Audica & downloadin
 ## Installation
 * Download the latest MelonLoader version from [here](https://github.com/HerpDerpinstine/MelonLoader/releases/latest)
 * Grab the latest mod release from [here](https://github.com/octoberU/SongBrowser/releases/latest)
-* Place the dll into Audica/Mods
+* Place all the dll files into Audica/Mods
 * Use the **Download Songs** button from the ingame settings menu. 
 
 
@@ -22,7 +22,7 @@ A MelonLoader mod to improve the song browsing experience in Audica & downloadin
 * Displays the difficulty of a song using a calculated rating.
 * Displays [Custom Difficulty Names](https://github.com/meepsalot69/Audica-CustomDifficultyNames/blob/master/README.md#changing-difficulty-names-in-your-map)
 
-## Utilities 
+## Modding Utilities 
 * [Song Data Loading](https://github.com/MeepsKitten/Audica-SongDataLoader)
 
 ## Credits
