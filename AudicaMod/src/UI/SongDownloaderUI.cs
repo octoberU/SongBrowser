@@ -226,9 +226,23 @@ namespace AudicaModding
 			TMP.fontSizeMax = 32;
 			TMP.fontSizeMin = 8;
 			optionsMenu.scrollable.AddRow(textBlock.gameObject);
-			
-			var downloadButton = optionsMenu.AddButton(0,
-				"Download" + SongBrowser.GetDifficultyString(song.beginner, song.standard, song.advanced, song.expert),
+
+            //package data to be used for display
+            SongBrowser.SongDisplayPackage songd = new SongBrowser.SongDisplayPackage();
+
+            songd.hasEasy = song.beginner;
+            songd.hasStandard = song.standard;
+            songd.hasAdvanced = song.advanced;
+            songd.hasExpert = song.expert;
+
+            //if song data loader is installed look for 360 tag
+            if (SongBrowser.songDataLoaderInstalled)
+            {
+                songd = SongBrowser.SongDisplayPackage.Fill360Data(songd, song.song_id);
+            }
+
+            var downloadButton = optionsMenu.AddButton(0,
+				"Download" + SongBrowser.GetDifficultyString(songd),
 				new Action(() => { MelonCoroutines.Start(SongBrowser.DownloadSong(song.download_url)); TMP.text = "Added song to download queue!"; }),
 				null,
 				null);

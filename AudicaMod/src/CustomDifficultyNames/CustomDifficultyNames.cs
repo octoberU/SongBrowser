@@ -6,7 +6,7 @@ using Harmony;
 using System;
 using System.Linq;
 
-//[assembly: MelonOptionalDependencies("SongDataLoader")]
+
 
 
 namespace AudicaModding
@@ -115,9 +115,11 @@ namespace AudicaModding
         {
             private static void Prefix(LaunchPanel __instance)
             {
-
-                IEnumerator coroutine = ChangeNamesLP(__instance);
-                MelonCoroutines.Start(coroutine);
+                if (SongBrowser.songDataLoaderInstalled)
+                {
+                    IEnumerator coroutine = ChangeNamesLP(__instance);
+                    MelonCoroutines.Start(coroutine);
+                }
 
             }
 
@@ -128,9 +130,11 @@ namespace AudicaModding
         {
             private static void Prefix(DifficultySelect __instance)
             {
-
-                IEnumerator coroutine = ChangeNamesDS(__instance);
-                MelonCoroutines.Start(coroutine);
+                if (SongBrowser.songDataLoaderInstalled)
+                {
+                    IEnumerator coroutine = ChangeNamesDS(__instance);
+                    MelonCoroutines.Start(coroutine);
+                }
 
             }
 
