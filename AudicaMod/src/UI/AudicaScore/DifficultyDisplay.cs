@@ -56,7 +56,13 @@ internal static class DifficultyDisplay
         difficultyText.text = CreateDisplayString(ScoreHistory.calculatedScores);
     }
 
-
+    private struct fillData
+    {
+        public string easyAdditions;
+        public string standardAdditions;
+        public string advancedAdditions;
+        public string expertAdditions;
+    }
     //could be used for other info in the future
     public static string CreateDisplayStringAdditions(SongDataLoader.SongData currentSong, string tagtofind, string textcolor)
     {
@@ -80,13 +86,15 @@ internal static class DifficultyDisplay
         return "";
     }
 
-    private static void fillAdditions(string songID, string easyAdditions, string standardAdditions, string advancedAdditions, string expertAdditions)
+    private static fillData fillAdditions(string songID, fillData d)
     {
         SongDataLoader.SongData currentSong = SongDataLoader.AllSongData[songID];
-        easyAdditions = CreateDisplayStringAdditions(currentSong, "easy360", "b119f7");
-        advancedAdditions = CreateDisplayStringAdditions(currentSong, "advanced360", "f7a919");
-        standardAdditions = CreateDisplayStringAdditions(currentSong, "standard360", "19d2f7");
-        expertAdditions = CreateDisplayStringAdditions(currentSong, "expert360", "54f719");
+        d.easyAdditions = CreateDisplayStringAdditions(currentSong, "easy360", "54f719");
+        d.advancedAdditions = CreateDisplayStringAdditions(currentSong, "advanced360", "f7a919");
+        d.standardAdditions = CreateDisplayStringAdditions(currentSong, "standard360", "19d2f7");
+        d.expertAdditions = CreateDisplayStringAdditions(currentSong, "expert360", "b119f7");
+
+        return d;
     }
 
     public static string CreateDisplayString(List<CalculatedScoreEntry> scores)
@@ -95,10 +103,7 @@ internal static class DifficultyDisplay
         var songData = SongDataHolder.I.songData;
         var calc = new DifficultyCalculator(songData);
 
-        string easyAdditions = "";
-        string standardAdditions = "";
-        string advancedAdditions = "";
-        string expertAdditions = "";
+        fillData AdditionHolder = new fillData();
 
         if (SongBrowser.songDataLoaderInstalled)
         {
@@ -110,28 +115,33 @@ internal static class DifficultyDisplay
             CreateDisplayString() won't run. Since all mentions of Son Data Loader are in fillAdditions(), which 
             is behind a conditional we wont have that issue.
             */
-            fillAdditions(songData.songID, easyAdditions, standardAdditions, advancedAdditions, expertAdditions);
+            AdditionHolder.easyAdditions = "";
+            AdditionHolder.advancedAdditions = "";
+            AdditionHolder.standardAdditions = "";
+            AdditionHolder.expertAdditions = "";
+
+            AdditionHolder = fillAdditions(songData.songID, AdditionHolder);
         }
 
         if (calc.expert != null)
         {
             output += $"<color=#b119f7>{calc.expert.difficultyRating.ToString("n2")}</color>  ";
-            output += expertAdditions;
+            output += AdditionHolder.expertAdditions;
         }
         if (calc.advanced != null)
         {
             output += $"<color=#f7a919>{calc.advanced.difficultyRating.ToString("n2")}</color>  ";
-            output += advancedAdditions;
+            output += AdditionHolder.advancedAdditions;
         }
         if (calc.standard != null)
         {
             output += $"<color=#19d2f7>{calc.standard.difficultyRating.ToString("n2")}</color>  ";
-            output += standardAdditions;
+            output += AdditionHolder.standardAdditions;
         }
         if (calc.beginner != null)
         {
             output += $"<color=#54f719>{calc.beginner.difficultyRating.ToString("n2")}</color>  ";
-            output += easyAdditions;
+            output += AdditionHolder.easyAdditions;
         }
         return output;
     }
