@@ -1,4 +1,5 @@
 ﻿
+using AudicaModding;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -60,21 +61,35 @@ internal static class DifficultyDisplay
         string output = "Difficulty Rating\n";
         var songData = SongDataHolder.I.songData;
         var calc = new DifficultyCalculator(songData);
+
+        bool hasCustomData = false;
+        SongDataLoader.SongData currentSong = SongDataLoader.AllSongData[songData.songID];
+        if (currentSong.HasCustomData())
+            hasCustomData = true;
+
         if (calc.expert != null)
         {
             output += $"<color=#b119f7>{calc.expert.difficultyRating.ToString("n2")}</color>  ";
+            if (hasCustomData && currentSong.SongHasCustomDataKey("easy360"))
+                output += " <color=#b119f7> (360) </color>";
         }
         if (calc.advanced != null)
         {
             output += $"<color=#f7a919>{calc.advanced.difficultyRating.ToString("n2")}</color>  ";
+            if (hasCustomData && currentSong.SongHasCustomDataKey("advanced360"))
+                output += " <color=#f7a919> (360) </color>";
         }
         if (calc.standard != null)
         {
             output += $"<color=#19d2f7>{calc.standard.difficultyRating.ToString("n2")}</color>  ";
+            if (hasCustomData && currentSong.SongHasCustomDataKey("standard360"))
+                output += " <color=#19d2f7>(360) </color>";
         }
         if (calc.beginner != null)
         {
             output += $"<color=#54f719>{calc.beginner.difficultyRating.ToString("n2")}</color>  ";
+            if (hasCustomData && currentSong.SongHasCustomDataKey("expert360"))
+                output += " <color=#54f719> (360)</color>";
         }
         return output;
     }
