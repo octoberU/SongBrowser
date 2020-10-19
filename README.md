@@ -7,7 +7,7 @@ A MelonLoader mod to improve the song browsing experience in Audica & downloadin
 
 ## Installation
 * Download the latest MelonLoader version from [here](https://github.com/HerpDerpinstine/MelonLoader/releases/latest)
-* Grab the latest mod release from [here](https://github.com/MeepsKitten/SongBrowser/releases/latest)
+* Grab the latest mod release from [here](https://github.com/octoberU/SongBrowser/releases/latest)
 * Place all the dll files into Audica/Mods
 * Use the **Download Songs** button from the ingame settings menu. 
 
