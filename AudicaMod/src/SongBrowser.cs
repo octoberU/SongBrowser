@@ -12,6 +12,7 @@ using OggDecoder;
 using System.Linq;
 using TMPro;
 using UnityEngine.Events;
+[assembly: MelonOptionalDependencies("SongDataLoader")]
 
 namespace AudicaModding
 {
@@ -42,6 +43,53 @@ namespace AudicaModding
         public static List<string> deletedSongPaths = new List<string>();
         public static int newSongCount;
         public static int lastSongCount;
+
+        //Meeps' Stuff
+        public static bool songDataLoaderInstalled = false;
+        public class SongDisplayPackage
+        {
+            public bool hasEasy = false;
+            public bool hasStandard = false;
+            public bool hasAdvanced = false;
+            public bool hasExpert = false;
+
+            //360 tag
+            public bool easy360 = false;
+            public bool standard360 = false;
+            public bool advanced360 = false;
+            public bool expert360 = false;
+
+            public static SongDisplayPackage Fill360Data(SongDisplayPackage songd, string songID)
+            {
+                if (SongDataLoader.AllSongData.ContainsKey(songID))
+                {
+                    SongDataLoader.SongData currentSong = SongDataLoader.AllSongData[songID];
+                    if (currentSong.HasCustomData())
+                    {
+                        if (currentSong.SongHasCustomDataKey("easy360"))
+                        {
+                            songd.easy360 = currentSong.GetCustomData<bool>("easy360");
+                        }
+
+                        if (currentSong.SongHasCustomDataKey("standard360"))
+                        {
+                            songd.standard360 = currentSong.GetCustomData<bool>("standard360");
+                        }
+
+                        if (currentSong.SongHasCustomDataKey("advanced360"))
+                        {
+                            songd.advanced360 = currentSong.GetCustomData<bool>("advanced360");
+                        }
+
+                        if (currentSong.SongHasCustomDataKey("expert360"))
+                        {
+                            songd.expert360 = currentSong.GetCustomData<bool>("expert360");
+                        }
+                    }
+                }
+                return songd;
+            }
+        }
 
         private void CreateConfig()
         {
@@ -82,6 +130,14 @@ namespace AudicaModding
             StartSongSearch();
             var i = HarmonyInstance.Create("Song Downloader");
             FilterPanel.LoadFavorites();
+
+            if (MelonHandler.Mods.Any(it => it.Info.SystemType.Name == nameof(SongDataLoader)))
+            {
+                songDataLoaderInstalled = true;
+                MelonLogger.Log("Song Data Loader is installed. Enabling integration");
+            }
+            else
+                MelonLogger.LogWarning("Song Data Loader is not installed. Consider downloading it for the best experience :3");
         }
 
         private void CheckFolderDirectories()
@@ -182,8 +238,13 @@ namespace AudicaModding
                 SongList.OnSongListLoaded.On(new Action(() => { songSelect.ShowSongList(); }));
             }
 
-            SongDataLoader.ReloadSongData();
-			DebugText("Reloading Songs");
+            if (songDataLoaderInstalled)
+            {
+                SongDataLoader.ReloadSongData();
+                MelonLogger.Log("Song Data Reloaded");
+            }
+
+            DebugText("Reloading Songs");
 			
         }
 
@@ -295,13 +356,13 @@ namespace AudicaModding
         }
 
 
-        public static string GetDifficultyString(bool hasEasy, bool hasStandard, bool hasAdvanced, bool hasExpert)
+        public static string GetDifficultyString(SongDisplayPackage songD)
         {
             return "[" +
-                (hasEasy ? "<color=#54f719>B</color>" : "") +
-                (hasStandard ? "<color=#19d2f7>S</color>" : "") +
-                (hasAdvanced ? "<color=#f7a919>A</color>" : "") +
-                (hasExpert ? "<color=#b119f7>E</color>" : "") +
+                (songD.hasEasy ? "<color=#54f719>B</color>" : "") + (songD.hasEasy && songD.easy360 ? "<color=#32a8a4>(360) </color>" : "") +
+                (songD.hasStandard ? "<color=#19d2f7>S</color>" : "") + (songD.hasStandard && songD.standard360 ? "<color=#32a8a4> (360) </color>" : "") +
+                (songD.hasAdvanced ? "<color=#f7a919>A</color>" : "") + (songD.advanced360 && songD.hasAdvanced ? "<color=#32a8a4> (360) </color>" : "") +
+                (songD.hasExpert ? "<color=#b119f7>E</color>" : "") + (songD.hasExpert && songD.expert360 ? "<color=#32a8a4> (360)</color>" : "") +
                 "]";
         }
 

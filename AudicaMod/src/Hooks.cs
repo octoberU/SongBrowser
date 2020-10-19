@@ -214,13 +214,26 @@ namespace AudicaModding
                 var song = SongList.I.GetSong(entry.songID);
                 if (entry.item.mapperLabel != null)
                 {
-                    entry.item.mapperLabel.text += SongBrowser.GetDifficultyString(song.hasEasy,
-                                    song.hasNormal,
-                                    song.hasHard,
-                                    song.hasExpert);  
+                    //package data to be used for display
+                    SongBrowser.SongDisplayPackage songd = new SongBrowser.SongDisplayPackage();
+
+                    songd.hasEasy = song.hasEasy;
+                    songd.hasStandard = song.hasNormal;
+                    songd.hasAdvanced = song.hasHard;
+                    songd.hasExpert = song.hasExpert;
+
+                    //if song data loader is installed look for 360 tag
+                    if (SongBrowser.songDataLoaderInstalled)
+                    {
+                        songd = SongBrowser.SongDisplayPackage.Fill360Data(songd, song.songID);
+                    }
+
+                    entry.item.mapperLabel.text += SongBrowser.GetDifficultyString(songd);  
                 }
             }
         }
+
+        
 
         [HarmonyPatch(typeof(MenuState), "SetState", new Type[] { typeof(MenuState.State) })]
         private static class Patch2SetMenuState
