@@ -5,6 +5,7 @@ using System;
 using MelonLoader;
 using Valve.VR.InteractionSystem;
 using TMPro;
+using System.Linq;
 
 namespace AudicaModding
 {
@@ -222,11 +223,29 @@ namespace AudicaModding
                     songd.hasAdvanced = song.hasHard;
                     songd.hasExpert = song.hasExpert;
 
-                    //if song data loader is installed look for 360 tag
+                    //if song data loader is installed look for custom tags
                     if (SongBrowser.songDataLoaderInstalled)
                     {
-                        songd = SongBrowser.SongDisplayPackage.Fill360Data(songd, song.songID);
+                        songd = SongBrowser.SongDisplayPackage.FillCustomData(songd, song.songID);
                     }
+
+                    //add 360 tag
+                    DifficultyCalculator calc = SongBrowser.DiffCache.getDifficultyCalculations(song);
+
+                    if (song.hasEasy && calc.beginner.is360) songd.customEasyTags.Insert(0, "360");
+
+                    if (song.hasNormal && calc.standard.is360) songd.customStandardTags.Insert(0, "360");
+
+
+                    if (song.hasHard && calc.advanced.is360) songd.customAdvancedTags.Insert(0, "360");
+
+
+                    if (song.hasExpert && calc.expert.is360) songd.customExpertTags.Insert(0, "360");
+
+                    songd.customExpertTags = songd.customExpertTags.Distinct().ToList();
+                    songd.customStandardTags = songd.customStandardTags.Distinct().ToList();
+                    songd.customAdvancedTags = songd.customAdvancedTags.Distinct().ToList();
+                    songd.customEasyTags = songd.customEasyTags.Distinct().ToList();
 
                     entry.item.mapperLabel.text += SongBrowser.GetDifficultyString(songd);  
                 }

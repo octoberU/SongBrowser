@@ -13,7 +13,7 @@ internal static class DiffCalculatorUtil
             for (int i = 0; i < songIDs.Count; i++)
             {
                 var songData = SongList.I.GetSong(songIDs[i]);
-                var calc = new DifficultyCalculator(songData);
+                var calc = SongBrowser.DiffCache.getDifficultyCalculations(songData);
                 if (calc.expert != null) file.WriteLine($"{SongBrowser.RemoveFormatting(songData.artist).Replace(",", "")} - {SongBrowser.RemoveFormatting(songData.title).Replace(",", "")}," +
                     "Expert," +
                     $"{calc.expert.difficultyRating.ToString("n2")}," +
@@ -40,7 +40,7 @@ internal static class DiffCalculatorUtil
 
     public static void LogCurrentSongDifficulty()
     {
-        var calc = new DifficultyCalculator(SongDataHolder.I.songData);
+        var calc = SongBrowser.DiffCache.getDifficultyCalculations(SongDataHolder.I.songData);
         MelonLogger.Log("\n" + calc.songID);
         if (calc.expert != null) MelonLogger.Log("\nExpert: " + calc.expert.difficultyRating.ToString());
         if (calc.advanced != null) MelonLogger.Log("\nAdvanced: " + calc.advanced.difficultyRating.ToString());

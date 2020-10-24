@@ -1,7 +1,33 @@
-﻿using Il2CppSystem;
+﻿using AudicaModding;
+using Il2CppSystem;
 using MelonLoader;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+
+public class DifficultyCache
+{
+    private Dictionary<string, DifficultyCalculator> cachedDifficultyCalculations = new Dictionary<string, DifficultyCalculator>();
+
+    public bool songCached(string songID)
+    {
+        return cachedDifficultyCalculations.ContainsKey(songID);
+    }
+
+    public DifficultyCalculator getDifficultyCalculations(SongList.SongData songData)
+    {
+        if(songCached(songData.songID))
+        {
+            return cachedDifficultyCalculations[songData.songID];
+        }
+        else
+        {
+            DifficultyCalculator diff = new DifficultyCalculator(songData);
+            cachedDifficultyCalculations[songData.songID] = diff;
+            return diff;
+        }
+    }
+}
 
 public class DifficultyCalculator
 {
@@ -23,7 +49,7 @@ public class DifficultyCalculator
     {
         var songData = SongList.I.GetSong(songID);
         if (songData == null) return 0f;
-        var calc = new DifficultyCalculator(songData);
+        var calc = SongBrowser.DiffCache.getDifficultyCalculations(songData);
         var diffLower = difficulty.ToLower();
         switch (diffLower)
         {
@@ -89,11 +115,20 @@ public class CalculatedDifficulty
     public float density;
     public float readability;
 
+    (float lowest, float highest) cueExtremesX = (0, 0);
+    (float lowest, float highest) cueExtremesY = (0, 0);
+    public bool is360 = false;
+
+
     float length;
 
     public CalculatedDifficulty(SongCues.Cue[] cues, SongList.SongData songData)
     {
         EvaluateCues(cues, songData);
+
+        //autodetect 360
+        is360 = (Math.Abs(cueExtremesX.highest - cueExtremesX.lowest) >= 20);
+        
     }
 
     public static Dictionary<Target.TargetBehavior, float> objectDifficultyModifier = new Dictionary<Target.TargetBehavior, float>()
@@ -128,11 +163,39 @@ public class CalculatedDifficulty
 
     void CalculateReadability()
     {
+        //init vals
+        cueExtremesX.lowest = GetTrueCoordinates(allCues[0]).x;
+        cueExtremesX.highest = GetTrueCoordinates(allCues[0]).x;
+
+        cueExtremesY.lowest = GetTrueCoordinates(allCues[0]).y;
+        cueExtremesY.highest = GetTrueCoordinates(allCues[0]).y;
+
         for (int i = 0; i < allCues.Count; i++)
         {
             float modifierValue = 0f;
             objectDifficultyModifier.TryGetValue(allCues[i].behavior, out modifierValue);
             readability += modifierValue * readabilityMultiplier;
+
+            //calculate extremes
+            float truCoord = 0;
+
+            //x extremes
+            truCoord = GetTrueCoordinates(allCues[i]).x;
+
+            if (truCoord < cueExtremesX.lowest)
+                cueExtremesX.lowest = truCoord;
+
+            if (truCoord > cueExtremesX.highest)
+                cueExtremesX.highest = truCoord;
+
+            //y extremes
+            truCoord = GetTrueCoordinates(allCues[i]).y;
+
+            if (truCoord < cueExtremesY.lowest)
+                cueExtremesY.lowest = truCoord;
+
+            if (truCoord > cueExtremesY.highest)
+                cueExtremesY.highest = truCoord;
         }
         //readability /= length;
     }

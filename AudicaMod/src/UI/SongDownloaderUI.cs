@@ -6,6 +6,7 @@ using MelonLoader;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.Experimental.XR;
+using System.Linq;
 
 namespace AudicaModding
 {
@@ -235,11 +236,16 @@ namespace AudicaModding
             songd.hasAdvanced = song.advanced;
             songd.hasExpert = song.expert;
 
-            //if song data loader is installed look for 360 tag
+            //if song data loader is installed look for custom tags
             if (SongBrowser.songDataLoaderInstalled)
             {
-                songd = SongBrowser.SongDisplayPackage.Fill360Data(songd, song.song_id);
+                songd = SongBrowser.SongDisplayPackage.FillCustomData(songd, song.song_id);
             }
+
+            songd.customExpertTags = songd.customExpertTags.Distinct().ToList();
+            songd.customStandardTags = songd.customStandardTags.Distinct().ToList();
+            songd.customAdvancedTags = songd.customAdvancedTags.Distinct().ToList();
+            songd.customEasyTags = songd.customEasyTags.Distinct().ToList();
 
             var downloadButton = optionsMenu.AddButton(0,
 				"Download" + SongBrowser.GetDifficultyString(songd),
