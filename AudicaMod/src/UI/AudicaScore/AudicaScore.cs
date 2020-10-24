@@ -129,7 +129,7 @@ internal static class ScoreHistory
                 if (noFail) return;
                 if (percent < 30f) return;
                 float maxScorePercent = (float)score / (float)StarThresholds.I.GetMaxRawScore(songID, difficulty);
-                float difficultyRating = SongBrowser.DiffCache.getDifficultyCalculations(SongList.I.GetSong(songID)).GetRatingFromKataDifficulty(difficulty);
+                float difficultyRating = DifficultyCalculator.GetRating(songID, difficulty.ToString());
                 AddScore(songID, score, maxScorePercent, difficultyRating, ScoreKeeper.I.mStreak, ScoreKeeper.I.mMaxStreak, difficulty); 
             }
             counter++;
