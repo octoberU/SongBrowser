@@ -7,7 +7,7 @@ public class DifficultyCalculator
 {
     public string songID;
 
-    public static Dictionary<string, float> calculatorCache = new Dictionary<string, float>();
+    public static Dictionary<string, (float value, bool is360)> calculatorCache = new Dictionary<string, (float value, bool is360)>();
 
     public CalculatedDifficulty expert;
     public CalculatedDifficulty advanced;
@@ -21,47 +21,51 @@ public class DifficultyCalculator
         EvaluateDifficulties(songData);
     }
 
-    public static float GetRating(string songID, string difficulty)
+    public static (float value, bool is360) GetRating(string songID, string difficulty)
     {
         var songData = SongList.I.GetSong(songID);
         var diffLower = difficulty.ToLower();
         if (calculatorCache.ContainsKey(songID + diffLower)) return calculatorCache[songID + diffLower];
         else
         {
-            if (songData == null) return 0f;
+            if (songData == null) return (0f,false);
             var calc = new DifficultyCalculator(songData);
             switch (diffLower)
             {
                 case "easy":
                     if (calc.beginner != null)
                     {
-                        calculatorCache.Add(songID + diffLower, calc.beginner.difficultyRating);
-                        return calc.beginner.difficultyRating;
+                        (float value, bool is360) data = (calc.beginner.difficultyRating, calc.beginner.is360);
+                        calculatorCache.Add(songID + diffLower, data);
+                        return data;
                     }
-                    else return 0f;
+                    else return (0f, false);
                 case "normal":
                     if (calc.standard != null)
                     {
-                        calculatorCache.Add(songID + diffLower, calc.standard.difficultyRating);
-                        return calc.standard.difficultyRating;
+                        (float value, bool is360) data = (calc.standard.difficultyRating, calc.standard.is360);
+                        calculatorCache.Add(songID + diffLower, data);
+                        return data;
                     }
-                    else return 0f;
+                    else return (0f, false);
                 case "hard":
                     if (calc.advanced != null)
                     {
-                        calculatorCache.Add(songID + diffLower, calc.advanced.difficultyRating);
-                        return calc.advanced.difficultyRating;
+                        (float value, bool is360) data = (calc.advanced.difficultyRating, calc.advanced.is360);
+                        calculatorCache.Add(songID + diffLower, data);
+                        return (0f, false);
                     }
-                    else return 0f;
+                    else return (0f, false);
                 case "expert":
                     if (calc.expert != null)
                     {
-                        calculatorCache.Add(songID + diffLower, calc.expert.difficultyRating);
-                        return calc.expert.difficultyRating;
+                        (float value, bool is360) data = (calc.expert.difficultyRating, calc.expert.is360);
+                        calculatorCache.Add(songID + diffLower, data);
+                        return (0f, false);
                     }
-                    else return 0f;
+                    else return (0f, false);
                 default:
-                    return 0f;
+                    return (0f, false);
             }
         }
 

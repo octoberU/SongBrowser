@@ -230,17 +230,20 @@ namespace AudicaModding
                     }
 
                     //add 360 tag
-                    DifficultyCalculator calc = SongBrowser.DiffCache.getDifficultyCalculations(song);
+                    (float value, bool is360) easy = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Easy.ToString());
+                    (float value, bool is360) normal = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Normal.ToString());
+                    (float value, bool is360) hard = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Hard.ToString());
+                    (float value, bool is360) expert = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Expert.ToString());
 
-                    if (song.hasEasy && calc.beginner.is360) songd.customEasyTags.Insert(0, "360");
+                    if (song.hasEasy && easy.is360) songd.customEasyTags.Insert(0, "360");
 
-                    if (song.hasNormal && calc.standard.is360) songd.customStandardTags.Insert(0, "360");
-
-
-                    if (song.hasHard && calc.advanced.is360) songd.customAdvancedTags.Insert(0, "360");
+                    if (song.hasNormal && normal.is360) songd.customStandardTags.Insert(0, "360");
 
 
-                    if (song.hasExpert && calc.expert.is360) songd.customExpertTags.Insert(0, "360");
+                    if (song.hasHard && hard.is360) songd.customAdvancedTags.Insert(0, "360");
+
+
+                    if (song.hasExpert && expert.is360) songd.customExpertTags.Insert(0, "360");
 
                     songd.customExpertTags = songd.customExpertTags.Distinct().ToList();
                     songd.customStandardTags = songd.customStandardTags.Distinct().ToList();

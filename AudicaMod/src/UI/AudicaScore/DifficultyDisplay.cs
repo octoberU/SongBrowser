@@ -87,7 +87,7 @@ internal static class DifficultyDisplay
         return new List<string>();
     }
 
-    private static fillData fillAdditions(string songID, fillData d, DifficultyCalculator calc)
+    private static fillData fillAdditions(string songID, fillData d)
     {
         SongDataLoader.SongData currentSong = SongDataLoader.AllSongData[songID];
         d.easyAdditions = CreateDisplayStringAdditions(currentSong, "customEasyTags");
@@ -102,7 +102,6 @@ internal static class DifficultyDisplay
     {
         string output = "Difficulty Rating\n";
         var songData = SongDataHolder.I.songData;
-        var calc = SongBrowser.DiffCache.getDifficultyCalculations(songData);
 
         fillData AdditionHolder = new fillData();
         AdditionHolder.easyAdditions = new List<string>();
@@ -121,19 +120,24 @@ internal static class DifficultyDisplay
             is behind a conditional we wont have that issue.
             */
            
-            AdditionHolder = fillAdditions(songData.songID, AdditionHolder, calc);
+            AdditionHolder = fillAdditions(songData.songID, AdditionHolder);
         }
+
+        (float value, bool is360) easy = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Easy.ToString());
+        (float value, bool is360) normal = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Normal.ToString());
+        (float value, bool is360) hard = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Hard.ToString());
+        (float value, bool is360) expert = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Expert.ToString());
+
 
         //add 360 if it is
 
-        if (songData.hasEasy && calc.beginner.is360) AdditionHolder.easyAdditions.Insert(0, "360");
+        if (songData.hasEasy && easy.is360) AdditionHolder.easyAdditions.Insert(0, "360");
 
-        if (songData.hasNormal && calc.standard.is360) AdditionHolder.standardAdditions.Insert(0, "360");
+        if (songData.hasNormal && normal.is360) AdditionHolder.standardAdditions.Insert(0, "360");
 
-        if (songData.hasHard && calc.advanced.is360) AdditionHolder.advancedAdditions.Insert(0, "360");
+        if (songData.hasHard && hard.is360) AdditionHolder.advancedAdditions.Insert(0, "360");
 
-
-        if (songData.hasExpert && calc.expert.is360) AdditionHolder.expertAdditions.Insert(0, "360");
+        if (songData.hasExpert && expert.is360) AdditionHolder.expertAdditions.Insert(0, "360");
 
         AdditionHolder.expertAdditions = AdditionHolder.expertAdditions.Distinct().ToList();
         AdditionHolder.standardAdditions = AdditionHolder.standardAdditions.Distinct().ToList();
@@ -141,24 +145,24 @@ internal static class DifficultyDisplay
         AdditionHolder.easyAdditions = AdditionHolder.easyAdditions.Distinct().ToList();
 
 
-        if (calc.expert != null)
+        if (expert.value != 0)
         {
-            output += $"<color=#b119f7>{calc.expert.difficultyRating.ToString("n2")} ";
+            output += $"<color=#b119f7>{expert.value.ToString("n2")} ";
             output += AdditionHolder.expertAdditions.Count > 0 ? "(" + string.Join(", ", AdditionHolder.expertAdditions.ToArray()) + ")</color> " : "</color> ";
         }
-        if (calc.advanced != null)
+        if (hard.value != 0)
         {
-            output += $"<color=#f7a919>{calc.advanced.difficultyRating.ToString("n2")} ";
+            output += $"<color=#f7a919>{hard.value.ToString("n2")} ";
             output += AdditionHolder.advancedAdditions.Count > 0 ? "(" + string.Join(", ", AdditionHolder.advancedAdditions.ToArray()) + ")</color> " : "</color> ";
         }
-        if (calc.standard != null)
+        if (normal.value != 0)
         {
-            output += $"<color=#19d2f7>{calc.standard.difficultyRating.ToString("n2")} ";
+            output += $"<color=#19d2f7>{normal.value.ToString("n2")} ";
             output += AdditionHolder.standardAdditions.Count > 0 ? "(" + string.Join(", ", AdditionHolder.standardAdditions.ToArray()) + ")</color> " : "</color> ";
         }
-        if (calc.beginner != null)
+        if (easy.value != 0)
         {
-            output += $"<color=#54f719>{calc.beginner.difficultyRating.ToString("n2")} ";
+            output += $"<color=#54f719>{easy.value.ToString("n2")} ";
             output += AdditionHolder.easyAdditions.Count > 0 ? "(" + string.Join(", ", AdditionHolder.easyAdditions.ToArray()) + ")</color> " : "</color> ";
         }
         return output;

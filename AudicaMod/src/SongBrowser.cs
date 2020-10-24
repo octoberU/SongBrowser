@@ -46,8 +46,6 @@ namespace AudicaModding
 
         //Meeps' Stuff
         public static bool songDataLoaderInstalled = false;
-
-        public static DifficultyCache DiffCache = new DifficultyCache();
         public class SongDisplayPackage
         {
             public bool hasEasy = false;
