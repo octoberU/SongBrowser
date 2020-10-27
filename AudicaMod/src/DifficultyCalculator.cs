@@ -7,7 +7,7 @@ public class DifficultyCalculator
 {
     public string songID;
 
-    public static Dictionary<string, (float value, bool is360)> calculatorCache = new Dictionary<string, (float value, bool is360)>();
+    public static Dictionary<string, CachedCalculation> calculatorCache = new Dictionary<string, CachedCalculation>();
 
     public CalculatedDifficulty expert;
     public CalculatedDifficulty advanced;
@@ -21,51 +21,71 @@ public class DifficultyCalculator
         EvaluateDifficulties(songData);
     }
 
-    public static (float value, bool is360) GetRating(string songID, string difficulty)
+    public struct CachedCalculation
     {
+        public float value;
+        public bool is360;
+        public bool hasMines;
+
+        public CachedCalculation(float valuef = 0, bool is360b = false, bool hasMinesb = false)
+        {
+            value = valuef;
+            is360 = is360b;
+            hasMines = hasMinesb;
+        }
+    }
+
+    public static CachedCalculation GetRating(string songID, string difficulty)
+    {       
         var songData = SongList.I.GetSong(songID);
         var diffLower = difficulty.ToLower();
         if (calculatorCache.ContainsKey(songID + diffLower)) return calculatorCache[songID + diffLower];
         else
         {
-            if (songData == null) return (0f,false);
+            if (songData == null) return new CachedCalculation(); 
             var calc = new DifficultyCalculator(songData);
             switch (diffLower)
             {
                 case "easy":
                     if (calc.beginner != null)
                     {
-                        (float value, bool is360) data = (calc.beginner.difficultyRating, calc.beginner.is360);
+                        CachedCalculation data = new CachedCalculation( calc.beginner.difficultyRating, calc.beginner.is360, calc.beginner.hasMines);
                         calculatorCache.Add(songID + diffLower, data);
+                        //MelonLogger.Log(songData.title + " (beginner) span: " + Math.Abs(calc.beginner.cueExtremesX.highest - calc.beginner.cueExtremesX.lowest));
                         return data;
                     }
-                    else return (0f, false);
+                    else return new CachedCalculation();
                 case "normal":
                     if (calc.standard != null)
                     {
-                        (float value, bool is360) data = (calc.standard.difficultyRating, calc.standard.is360);
+                        CachedCalculation data = new CachedCalculation(calc.standard.difficultyRating, calc.standard.is360, calc.standard.hasMines);
                         calculatorCache.Add(songID + diffLower, data);
+                        //MelonLogger.Log(songData.title + " (normal) span: " + Math.Abs(calc.standard.cueExtremesX.highest - calc.standard.cueExtremesX.lowest));
+
                         return data;
                     }
-                    else return (0f, false);
+                    else return new CachedCalculation();
                 case "hard":
                     if (calc.advanced != null)
                     {
-                        (float value, bool is360) data = (calc.advanced.difficultyRating, calc.advanced.is360);
+                        CachedCalculation data = new CachedCalculation(calc.advanced.difficultyRating, calc.advanced.is360,calc.advanced.hasMines);
                         calculatorCache.Add(songID + diffLower, data);
-                        return (0f, false);
+                        //MelonLogger.Log(songData.title + " (hard) span: " + Math.Abs(calc.advanced.cueExtremesX.highest - calc.advanced.cueExtremesX.lowest));
+
+                        return new CachedCalculation();
                     }
-                    else return (0f, false);
+                    else return new CachedCalculation();
                 case "expert":
                     if (calc.expert != null)
                     {
-                        (float value, bool is360) data = (calc.expert.difficultyRating, calc.expert.is360);
+                        CachedCalculation data = new CachedCalculation(calc.expert.difficultyRating, calc.expert.is360, calc.expert.hasMines);
                         calculatorCache.Add(songID + diffLower, data);
-                        return (0f, false);
+                        //MelonLogger.Log(songData.title + " (expert) span: " + Math.Abs(calc.expert.cueExtremesX.highest - calc.expert.cueExtremesX.lowest));
+                        return new CachedCalculation();
                     }
-                    else return (0f, false);
+                    else return new CachedCalculation();
                 default:
-                    return (0f, false);
+                    return new CachedCalculation();
             }
         }
 
@@ -95,13 +115,28 @@ public class DifficultyCalculator
     private void EvaluateDifficulties(SongList.SongData songData)
     {
         var expertCues = SongCues.GetCues(songData, KataConfig.Difficulty.Expert);
-        if (expertCues.Length > 0 && expertCues != null) this.expert = new CalculatedDifficulty(expertCues, songData);
+        if (expertCues.Length > 0 && expertCues != null)
+        {
+            this.expert = new CalculatedDifficulty(expertCues, songData);
+        }
+
         var advancedCues = SongCues.GetCues(songData, KataConfig.Difficulty.Hard);
-        if (advancedCues.Length > 0 && advancedCues != null) this.advanced = new CalculatedDifficulty(advancedCues, songData);
+        if (advancedCues.Length > 0 && advancedCues != null)
+        {
+            this.advanced = new CalculatedDifficulty(advancedCues, songData);
+
+        }
         var standardCues = SongCues.GetCues(songData, KataConfig.Difficulty.Normal);
-        if (standardCues.Length > 0 && standardCues != null) this.standard = new CalculatedDifficulty(standardCues, songData);
+        if (standardCues.Length > 0 && standardCues != null)
+        {
+            this.standard = new CalculatedDifficulty(standardCues, songData);
+
+        }
         var beginnerCues = SongCues.GetCues(songData, KataConfig.Difficulty.Easy);
-        if (beginnerCues.Length > 0 && beginnerCues != null) this.beginner = new CalculatedDifficulty(beginnerCues, songData);
+        if (beginnerCues.Length > 0 && beginnerCues != null)
+        {
+            this.beginner = new CalculatedDifficulty(beginnerCues, songData);
+        }
     }
 }
 public class CalculatedDifficulty
@@ -116,9 +151,10 @@ public class CalculatedDifficulty
     public float density;
     public float readability;
 
-    (float lowest, float highest) cueExtremesX = (0, 0);
-    (float lowest, float highest) cueExtremesY = (0, 0);
+    public (float lowest, float highest) cueExtremesX = (0, 0);
+    public (float lowest, float highest) cueExtremesY = (0, 0);
     public bool is360 = false;
+    public bool hasMines = false;
 
 
     float length;
@@ -129,6 +165,7 @@ public class CalculatedDifficulty
 
         //autodetect 360
         is360 = (Math.Abs(cueExtremesX.highest - cueExtremesX.lowest) >= 20);
+        
 
     }
 
@@ -177,6 +214,12 @@ public class CalculatedDifficulty
             objectDifficultyModifier.TryGetValue(allCues[i].behavior, out modifierValue);
             readability += modifierValue * readabilityMultiplier;
 
+            //detect mines
+            if(allCues[i].behavior == Target.TargetBehavior.Dodge)
+            {
+                hasMines = true;
+            }
+            
             //calculate extremes
             float truCoord = 0;
 

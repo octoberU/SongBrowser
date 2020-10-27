@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using static DifficultyCalculator;
 
 internal static class DifficultyDisplay
 {
@@ -123,11 +124,21 @@ internal static class DifficultyDisplay
             AdditionHolder = fillAdditions(songData.songID, AdditionHolder);
         }
 
-        (float value, bool is360) easy = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Easy.ToString());
-        (float value, bool is360) normal = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Normal.ToString());
-        (float value, bool is360) hard = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Hard.ToString());
-        (float value, bool is360) expert = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Expert.ToString());
+        CachedCalculation easy = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Easy.ToString());
+        CachedCalculation normal = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Normal.ToString());
+        CachedCalculation hard = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Hard.ToString());
+        CachedCalculation expert = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Expert.ToString());
 
+
+        //add mine tags if it has mines
+
+        if (songData.hasEasy && easy.hasMines) AdditionHolder.easyAdditions.Insert(0, "Mines");
+
+        if (songData.hasNormal && normal.hasMines) AdditionHolder.standardAdditions.Insert(0, "Mines");
+
+        if (songData.hasHard && hard.hasMines) AdditionHolder.advancedAdditions.Insert(0, "Mines");
+
+        if (songData.hasExpert && expert.hasMines) AdditionHolder.expertAdditions.Insert(0, "Mines");
 
         //add 360 if it is
 
