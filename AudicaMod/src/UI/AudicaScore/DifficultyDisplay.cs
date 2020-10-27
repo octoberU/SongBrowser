@@ -1,8 +1,10 @@
 ﻿
 using AudicaModding;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using static DifficultyCalculator;
 
 internal static class DifficultyDisplay
 {
@@ -58,41 +60,41 @@ internal static class DifficultyDisplay
 
     private struct fillData
     {
-        public string easyAdditions;
-        public string standardAdditions;
-        public string advancedAdditions;
-        public string expertAdditions;
+        public List<string> easyAdditions;
+        public List<string> standardAdditions;
+        public List<string> advancedAdditions;
+        public List<string> expertAdditions;
     }
     //could be used for other info in the future
-    public static string CreateDisplayStringAdditions(SongDataLoader.SongData currentSong, string tagtofind, string textcolor)
+    public static List<string> CreateDisplayStringAdditions(SongDataLoader.SongData currentSong, string tagtofind)
     {
         if (currentSong.HasCustomData())
         {
             //if adding 360 tags
-            if (tagtofind == "easy360" || tagtofind == "advanced360" || tagtofind == "standard360" || tagtofind == "expert360")
+            if (tagtofind == "customExpertTags" || tagtofind == "customEasyTags" || tagtofind == "customStandardTags" || tagtofind == "customAdvancedTags")
             {
                 if (currentSong.SongHasCustomDataKey(tagtofind))
                 {
-                    if(currentSong.GetCustomData<bool>(tagtofind))
-                    {
-                        return "<color=#" + textcolor + ">(360) </color>";
-                    }
+                    List<string> customTags = currentSong.GetCustomData<List<string>>(tagtofind);
+
+             
+                    return customTags;
                 }
             }
 
             //TODO: could do more tags here
         }
 
-        return "";
+        return new List<string>();
     }
 
     private static fillData fillAdditions(string songID, fillData d)
     {
         SongDataLoader.SongData currentSong = SongDataLoader.AllSongData[songID];
-        d.easyAdditions = CreateDisplayStringAdditions(currentSong, "easy360", "54f719");
-        d.advancedAdditions = CreateDisplayStringAdditions(currentSong, "advanced360", "f7a919");
-        d.standardAdditions = CreateDisplayStringAdditions(currentSong, "standard360", "19d2f7");
-        d.expertAdditions = CreateDisplayStringAdditions(currentSong, "expert360", "b119f7");
+        d.easyAdditions = CreateDisplayStringAdditions(currentSong, "customEasyTags");
+        d.advancedAdditions = CreateDisplayStringAdditions(currentSong, "customAdvancedTags");
+        d.standardAdditions = CreateDisplayStringAdditions(currentSong, "customStandardTags");
+        d.expertAdditions = CreateDisplayStringAdditions(currentSong, "customExpertTags");
 
         return d;
     }
@@ -101,9 +103,12 @@ internal static class DifficultyDisplay
     {
         string output = "Difficulty Rating\n";
         var songData = SongDataHolder.I.songData;
-        var calc = new DifficultyCalculator(songData);
 
         fillData AdditionHolder = new fillData();
+        AdditionHolder.easyAdditions = new List<string>();
+        AdditionHolder.advancedAdditions = new List<string>();
+        AdditionHolder.standardAdditions = new List<string>();
+        AdditionHolder.expertAdditions = new List<string>();
 
         if (SongBrowser.songDataLoaderInstalled)
         {
@@ -115,33 +120,61 @@ internal static class DifficultyDisplay
             CreateDisplayString() won't run. Since all mentions of Son Data Loader are in fillAdditions(), which 
             is behind a conditional we wont have that issue.
             */
-            AdditionHolder.easyAdditions = "";
-            AdditionHolder.advancedAdditions = "";
-            AdditionHolder.standardAdditions = "";
-            AdditionHolder.expertAdditions = "";
-
+           
             AdditionHolder = fillAdditions(songData.songID, AdditionHolder);
         }
 
-        if (calc.expert != null)
+        CachedCalculation easy = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Easy.ToString());
+        CachedCalculation normal = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Normal.ToString());
+        CachedCalculation hard = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Hard.ToString());
+        CachedCalculation expert = DifficultyCalculator.GetRating(songData.songID, KataConfig.Difficulty.Expert.ToString());
+
+
+        //add mine tags if it has mines
+
+        if (songData.hasEasy && easy.hasMines) AdditionHolder.easyAdditions.Insert(0, "Mines");
+
+        if (songData.hasNormal && normal.hasMines) AdditionHolder.standardAdditions.Insert(0, "Mines");
+
+        if (songData.hasHard && hard.hasMines) AdditionHolder.advancedAdditions.Insert(0, "Mines");
+
+        if (songData.hasExpert && expert.hasMines) AdditionHolder.expertAdditions.Insert(0, "Mines");
+
+        //add 360 if it is
+
+        if (songData.hasEasy && easy.is360) AdditionHolder.easyAdditions.Insert(0, "360");
+
+        if (songData.hasNormal && normal.is360) AdditionHolder.standardAdditions.Insert(0, "360");
+
+        if (songData.hasHard && hard.is360) AdditionHolder.advancedAdditions.Insert(0, "360");
+
+        if (songData.hasExpert && expert.is360) AdditionHolder.expertAdditions.Insert(0, "360");
+
+        AdditionHolder.expertAdditions = AdditionHolder.expertAdditions.Distinct().ToList();
+        AdditionHolder.standardAdditions = AdditionHolder.standardAdditions.Distinct().ToList();
+        AdditionHolder.advancedAdditions = AdditionHolder.advancedAdditions.Distinct().ToList();
+        AdditionHolder.easyAdditions = AdditionHolder.easyAdditions.Distinct().ToList();
+
+
+        if (expert.value != 0)
         {
-            output += $"<color=#b119f7>{calc.expert.difficultyRating.ToString("n2")}</color>  ";
-            output += AdditionHolder.expertAdditions;
+            output += $"<color=#b119f7>{expert.value.ToString("n2")} ";
+            output += AdditionHolder.expertAdditions.Count > 0 ? "(" + string.Join(", ", AdditionHolder.expertAdditions.ToArray()) + ")</color> " : "</color> ";
         }
-        if (calc.advanced != null)
+        if (hard.value != 0)
         {
-            output += $"<color=#f7a919>{calc.advanced.difficultyRating.ToString("n2")}</color>  ";
-            output += AdditionHolder.advancedAdditions;
+            output += $"<color=#f7a919>{hard.value.ToString("n2")} ";
+            output += AdditionHolder.advancedAdditions.Count > 0 ? "(" + string.Join(", ", AdditionHolder.advancedAdditions.ToArray()) + ")</color> " : "</color> ";
         }
-        if (calc.standard != null)
+        if (normal.value != 0)
         {
-            output += $"<color=#19d2f7>{calc.standard.difficultyRating.ToString("n2")}</color>  ";
-            output += AdditionHolder.standardAdditions;
+            output += $"<color=#19d2f7>{normal.value.ToString("n2")} ";
+            output += AdditionHolder.standardAdditions.Count > 0 ? "(" + string.Join(", ", AdditionHolder.standardAdditions.ToArray()) + ")</color> " : "</color> ";
         }
-        if (calc.beginner != null)
+        if (easy.value != 0)
         {
-            output += $"<color=#54f719>{calc.beginner.difficultyRating.ToString("n2")}</color>  ";
-            output += AdditionHolder.easyAdditions;
+            output += $"<color=#54f719>{easy.value.ToString("n2")} ";
+            output += AdditionHolder.easyAdditions.Count > 0 ? "(" + string.Join(", ", AdditionHolder.easyAdditions.ToArray()) + ")</color> " : "</color> ";
         }
         return output;
     }

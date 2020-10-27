@@ -53,38 +53,35 @@ namespace AudicaModding
             public bool hasAdvanced = false;
             public bool hasExpert = false;
 
-            //360 tag
-            public bool easy360 = false;
-            public bool standard360 = false;
-            public bool advanced360 = false;
-            public bool expert360 = false;
+            public List<string> customEasyTags = new List<string>();
+            public List<string> customStandardTags = new List<string>();
+            public List<string> customAdvancedTags = new List<string>();
+            public List<string> customExpertTags = new List<string>();
 
-            public static SongDisplayPackage Fill360Data(SongDisplayPackage songd, string songID)
+            public static SongDisplayPackage FillCustomData(SongDisplayPackage songd, string songID)
             {
                 if (SongDataLoader.AllSongData.ContainsKey(songID))
                 {
                     SongDataLoader.SongData currentSong = SongDataLoader.AllSongData[songID];
                     if (currentSong.HasCustomData())
                     {
-                        if (currentSong.SongHasCustomDataKey("easy360"))
+                        if (currentSong.SongHasCustomDataKey("customEasyTags"))
                         {
-                            songd.easy360 = currentSong.GetCustomData<bool>("easy360");
+                            songd.customEasyTags = currentSong.GetCustomData<List<string>>("customEasyTags");                           
+                        }
+                        if (currentSong.SongHasCustomDataKey("customStandardTags"))
+                        {
+                            songd.customStandardTags = currentSong.GetCustomData<List<string>>("customStandardTags");
+                        }
+                        if (currentSong.SongHasCustomDataKey("customAdvancedTags"))
+                        {
+                            songd.customAdvancedTags = currentSong.GetCustomData<List<string>>("customAdvancedTags");
+                        }
+                        if (currentSong.SongHasCustomDataKey("customExpertTags"))
+                        {
+                            songd.customExpertTags = currentSong.GetCustomData<List<string>>("customExpertTags");
                         }
 
-                        if (currentSong.SongHasCustomDataKey("standard360"))
-                        {
-                            songd.standard360 = currentSong.GetCustomData<bool>("standard360");
-                        }
-
-                        if (currentSong.SongHasCustomDataKey("advanced360"))
-                        {
-                            songd.advanced360 = currentSong.GetCustomData<bool>("advanced360");
-                        }
-
-                        if (currentSong.SongHasCustomDataKey("expert360"))
-                        {
-                            songd.expert360 = currentSong.GetCustomData<bool>("expert360");
-                        }
                     }
                 }
                 return songd;
@@ -359,10 +356,10 @@ namespace AudicaModding
         public static string GetDifficultyString(SongDisplayPackage songD)
         {
             return "[" +
-                (songD.hasEasy ? "<color=#54f719>B</color>" : "") + (songD.hasEasy && songD.easy360 ? "<color=#32a8a4>(360) </color>" : "") +
-                (songD.hasStandard ? "<color=#19d2f7>S</color>" : "") + (songD.hasStandard && songD.standard360 ? "<color=#32a8a4> (360) </color>" : "") +
-                (songD.hasAdvanced ? "<color=#f7a919>A</color>" : "") + (songD.advanced360 && songD.hasAdvanced ? "<color=#32a8a4> (360) </color>" : "") +
-                (songD.hasExpert ? "<color=#b119f7>E</color>" : "") + (songD.hasExpert && songD.expert360 ? "<color=#32a8a4> (360)</color>" : "") +
+                (songD.hasEasy ? "<color=#54f719>B</color>" : "") + (songD.hasEasy && (songD.customEasyTags.Count) > 0 ? "<color=#54f719>(" + songD.customEasyTags.ToArray<string>().Join() + ") </color>" : "") +
+                (songD.hasStandard ? "<color=#19d2f7>S</color>" : "") + (songD.hasStandard && (songD.customStandardTags.Count) > 0 ? "<color=#19d2f7> (" + songD.customStandardTags.ToArray<string>().Join() + ") </color>" : "") +
+                (songD.hasAdvanced ? "<color=#f7a919>A</color>" : "") + (songD.hasAdvanced && (songD.customAdvancedTags.Count) > 0 ? "<color=#f7a919> (" + songD.customAdvancedTags.ToArray<string>().Join() + ") </color>" : "") +
+                (songD.hasExpert ? "<color=#b119f7>E</color>" : "") + (songD.hasExpert && (songD.customExpertTags.Count) > 0 ? "<color=#b119f7> (" + songD.customExpertTags.ToArray<string>().Join() + ")</color>" : "") +
                 "]";
         }
 

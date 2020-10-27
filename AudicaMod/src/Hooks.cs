@@ -5,6 +5,8 @@ using System;
 using MelonLoader;
 using Valve.VR.InteractionSystem;
 using TMPro;
+using System.Linq;
+using static DifficultyCalculator;
 
 namespace AudicaModding
 {
@@ -222,11 +224,34 @@ namespace AudicaModding
                     songd.hasAdvanced = song.hasHard;
                     songd.hasExpert = song.hasExpert;
 
-                    //if song data loader is installed look for 360 tag
+                    //if song data loader is installed look for custom tags
                     if (SongBrowser.songDataLoaderInstalled)
                     {
-                        songd = SongBrowser.SongDisplayPackage.Fill360Data(songd, song.songID);
+                        songd = SongBrowser.SongDisplayPackage.FillCustomData(songd, song.songID);
                     }
+
+                    
+                    CachedCalculation easy = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Easy.ToString());
+                    CachedCalculation normal = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Normal.ToString());
+                    CachedCalculation hard = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Hard.ToString());
+                    CachedCalculation expert = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Expert.ToString());
+
+                    //add mine tag if there are mines
+                    if (song.hasEasy && easy.hasMines) songd.customEasyTags.Insert(0, "Mines");
+                    if (song.hasNormal && normal.hasMines) songd.customStandardTags.Insert(0, "Mines");
+                    if (song.hasHard && hard.hasMines) songd.customAdvancedTags.Insert(0, "Mines");
+                    if (song.hasExpert && expert.hasMines) songd.customExpertTags.Insert(0, "Mines");
+
+                    //add 360 tag
+                    if (song.hasEasy && easy.is360) songd.customEasyTags.Insert(0, "360");
+                    if (song.hasNormal && normal.is360) songd.customStandardTags.Insert(0, "360");
+                    if (song.hasHard && hard.is360) songd.customAdvancedTags.Insert(0, "360");
+                    if (song.hasExpert && expert.is360) songd.customExpertTags.Insert(0, "360");         
+
+                    songd.customExpertTags = songd.customExpertTags.Distinct().ToList();
+                    songd.customStandardTags = songd.customStandardTags.Distinct().ToList();
+                    songd.customAdvancedTags = songd.customAdvancedTags.Distinct().ToList();
+                    songd.customEasyTags = songd.customEasyTags.Distinct().ToList();
 
                     entry.item.mapperLabel.text += SongBrowser.GetDifficultyString(songd);  
                 }

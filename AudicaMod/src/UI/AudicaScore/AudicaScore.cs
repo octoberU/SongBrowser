@@ -47,7 +47,7 @@ public class CalculatedScoreEntry
         this.songID = localScore.songID;
         this.maxScorePercent = localScore.maxScorePercent;
         this.audicaPointsWeighted = 0f;
-        this.audicaPointsRaw = DifficultyCalculator.GetRating(songID, localScore.difficultyString) * maxScorePercent * 30;
+        this.audicaPointsRaw = DifficultyCalculator.GetRating(songID, localScore.difficultyString).value * maxScorePercent * 30;
     }
 }
 [Serializable]
@@ -129,8 +129,8 @@ internal static class ScoreHistory
                 if (noFail) return;
                 if (percent < 30f) return;
                 float maxScorePercent = (float)score / (float)StarThresholds.I.GetMaxRawScore(songID, difficulty);
-                float difficultyRating = DifficultyCalculator.GetRating(songID, difficulty.ToString());
-                AddScore(songID, score, maxScorePercent, difficultyRating, ScoreKeeper.I.mStreak, ScoreKeeper.I.mMaxStreak, difficulty); 
+                DifficultyCalculator.CachedCalculation difficultyRating = DifficultyCalculator.GetRating(songID, difficulty.ToString());
+                AddScore(songID, score, maxScorePercent, difficultyRating.value, ScoreKeeper.I.mStreak, ScoreKeeper.I.mMaxStreak, difficulty); 
             }
             counter++;
         }
