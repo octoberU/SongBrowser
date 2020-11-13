@@ -237,12 +237,18 @@ namespace AudicaModding
 
             if (songDataLoaderInstalled)
             {
-                SongDataLoader.ReloadSongData();
+                SafeDataLoaderReload();
                 MelonLogger.Log("Song Data Reloaded");
             }
 
             DebugText("Reloading Songs");
 			
+        }
+
+        private static void SafeDataLoaderReload()
+        {
+            SongDataLoader.ReloadSongData();
+
         }
 
         public static void StartSongSearch()
