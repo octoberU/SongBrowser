@@ -7,6 +7,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using MelonLoader;
 
 namespace AudicaModding
 {
@@ -17,7 +18,7 @@ namespace AudicaModding
         static GameObject filterButton;
         static GameObject favoritesButton;
         
-        static GameObject notificationPanel;
+        public static GameObject notificationPanel;
         static TextMeshPro notificationText;
 
         public static GameObject favoritesButtonSelectedIndicator;
@@ -44,7 +45,7 @@ namespace AudicaModding
                 PrepareFavoritesButton();
                 favoritesButtonSelectedIndicator = favoritesButton.transform.GetChild(3).gameObject;
                 favoritesButtonSelectedIndicator.SetActive(false);
-                filterButton.GetComponentInChildren<GunButton>().onHitEvent.AddListener(new Action(() => { FilterFavorites(); }));
+                filterButton.GetComponentInChildren<GunButton>().onHitEvent.AddListener(new Action(() => { DisableFavoritesFilter(); }));
             }
         }
 
@@ -65,6 +66,7 @@ namespace AudicaModding
             favoritesButtonSelectedIndicator.SetActive(false);
             GameObject.FindObjectOfType<SongSelect>().ShowSongList();
         }
+
 
         public static void FilterFavorites()
         {
@@ -125,16 +127,20 @@ namespace AudicaModding
             if (!song.extrasSong) return;
             if (favorites.songIDs.Contains(songID))
             {
+                RandomSong.FavouritesChanged(songID, false);
                 favorites.songIDs.Remove(songID);
                 SongBrowser.DebugText($"Removed {song.title} from favorites!");
                 SaveFavorites();
             }
             else
             {
+                RandomSong.FavouritesChanged(songID, true);
                 favorites.songIDs.Add(songID);
                 SongBrowser.DebugText($"Added {song.title} to favorites!");
                 SaveFavorites();
             }
+
+            
         }
     }
 }

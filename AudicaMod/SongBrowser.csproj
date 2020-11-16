@@ -71,6 +71,9 @@
       <HintPath>lib\MelonLoader.ModHandler.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Oculus.VR">
       <HintPath>lib\Oculus.VR.dll</HintPath>
       <Private>False</Private>
@@ -78,6 +81,9 @@
     <Reference Include="Sanford.Multimedia.Midi">
       <HintPath>lib\Sanford.Multimedia.Midi.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="SongDataLoader">
+      <HintPath>src\lib\SongDataLoader.dll</HintPath>
     </Reference>
     <Reference Include="SonyNP">
       <HintPath>lib\SonyNP.dll</HintPath>
@@ -89,6 +95,17 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.IO.Compression.ZipFile, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>packages\System.IO.Compression.ZipFile.4.3.0\lib\net46\System.IO.Compression.ZipFile.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -220,12 +237,17 @@
     <Compile Include="csvorbis\Time0.cs" />
     <Compile Include="csvorbis\VorbisFile.cs" />
     <Compile Include="csvorbis\OggStream.cs" />
-    <Compile Include="src\AudicaScore.cs" />
-    <Compile Include="src\RandomSong.cs" />
+    <Compile Include="src\CustomDifficultyNames\CustomDifficultyNames.cs" />
+    <Compile Include="src\EitherHandFix\EitherHand.cs" />
+    <Compile Include="src\RandomSong\RandomSong.cs" />
+    <Compile Include="src\UI\AudicaScore\AudicaScore.cs" />
+    <Compile Include="src\UI\AudicaScore\DifficultyDisplay.cs" />
+    <Compile Include="src\UI\AudicaScore\ScoreDisplayList.cs" />
     <Compile Include="src\UI\Buttons\FavoriteButton.cs" />
     <Compile Include="src\UI\Buttons\DeleteButton.cs" />
     <Compile Include="src\DiffCalculationUtil.cs" />
     <Compile Include="src\DifficultyCalculator.cs" />
+    <Compile Include="src\UI\Buttons\RefreshButton.cs" />
     <Compile Include="src\UI\FilterPanel.cs" />
     <Compile Include="src\Hooks.cs" />
     <Compile Include="src\UI\SongDownloaderUI.cs" />
@@ -238,6 +260,7 @@
     <None Include="csogg\Makefile" />
     <None Include="csvorbis\csvorbis.csproj" />
     <None Include="csvorbis\Makefile" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="csogg\csogg.csproj.user" />
@@ -245,6 +268,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "E:\Steam\steamapps\common\Audica\Mods\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "F:\DATA HDD\Steam\SteamApps\common\Audica\Mods\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

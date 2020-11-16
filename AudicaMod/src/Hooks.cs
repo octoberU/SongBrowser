@@ -5,7 +5,8 @@ using System;
 using MelonLoader;
 using Valve.VR.InteractionSystem;
 using TMPro;
-using SongBrowser.src.UI.Buttons;
+using System.Linq;
+using static DifficultyCalculator;
 
 namespace AudicaModding
 {
@@ -13,11 +14,13 @@ namespace AudicaModding
     {
         private static int buttonCount = 0;
         private static int scrollCounter = 2;
-
+        
+        /*
         public static void ApplyHooks(HarmonyInstance instance)
         {
             instance.PatchAll(Assembly.GetExecutingAssembly());
         }
+        */
 
         [HarmonyPatch(typeof(OptionsMenu), "AddButton", new Type[] { typeof(int), typeof(string), typeof(OptionsMenuButton.SelectedActionDelegate), typeof(OptionsMenuButton.IsCheckedDelegate), typeof(string), typeof(OptionsMenuButton), })]
         private static class AddButtonButton
@@ -27,7 +30,7 @@ namespace AudicaModding
                 if(__instance.mPage == OptionsMenu.Page.Main)
                 {
                     buttonCount++;
-                    if (buttonCount == 18)
+                    if (buttonCount == 9)
                     {
                         SongDownloaderUI.AddPageButton(__instance, 0);
                     }
@@ -210,31 +213,78 @@ namespace AudicaModding
         {
             private static void Postfix(SongSelect __instance, SongSelect.SongSelectItemEntry entry)
             {
-                if (scrollCounter % 2 == 0)
+                var song = SongList.I.GetSong(entry.songID);
+                if (entry.item.mapperLabel != null)
                 {
-                    var song = SongList.I.GetSong(entry.songID);
-                    if (entry.item.mapperLabel != null)
+                    //package data to be used for display
+                    SongBrowser.SongDisplayPackage songd = new SongBrowser.SongDisplayPackage();
+
+                    songd.hasEasy = song.hasEasy;
+                    songd.hasStandard = song.hasNormal;
+                    songd.hasAdvanced = song.hasHard;
+                    songd.hasExpert = song.hasExpert;
+
+                    //if song data loader is installed look for custom tags
+                    if (SongBrowser.songDataLoaderInstalled)
                     {
-                        entry.item.mapperLabel.text += SongBrowser.GetDifficultyString(song.hasEasy,
-                                        song.hasNormal,
-                                        song.hasHard,
-                                        song.hasExpert);  
+                        songd = SongBrowser.SongDisplayPackage.FillCustomData(songd, song.songID);
                     }
+
+                    
+                    CachedCalculation easy = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Easy.ToString());
+                    CachedCalculation normal = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Normal.ToString());
+                    CachedCalculation hard = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Hard.ToString());
+                    CachedCalculation expert = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Expert.ToString());
+
+                    //add mine tag if there are mines
+                    if (song.hasEasy && easy.hasMines) songd.customEasyTags.Insert(0, "Mines");
+                    if (song.hasNormal && normal.hasMines) songd.customStandardTags.Insert(0, "Mines");
+                    if (song.hasHard && hard.hasMines) songd.customAdvancedTags.Insert(0, "Mines");
+                    if (song.hasExpert && expert.hasMines) songd.customExpertTags.Insert(0, "Mines");
+
+                    //add 360 tag
+                    if (song.hasEasy && easy.is360) songd.customEasyTags.Insert(0, "360");
+                    if (song.hasNormal && normal.is360) songd.customStandardTags.Insert(0, "360");
+                    if (song.hasHard && hard.is360) songd.customAdvancedTags.Insert(0, "360");
+                    if (song.hasExpert && expert.is360) songd.customExpertTags.Insert(0, "360");         
+
+                    songd.customExpertTags = songd.customExpertTags.Distinct().ToList();
+                    songd.customStandardTags = songd.customStandardTags.Distinct().ToList();
+                    songd.customAdvancedTags = songd.customAdvancedTags.Distinct().ToList();
+                    songd.customEasyTags = songd.customEasyTags.Distinct().ToList();
+
+                    entry.item.mapperLabel.text += SongBrowser.GetDifficultyString(songd);  
                 }
-                scrollCounter++;
             }
         }
+
+        
 
         [HarmonyPatch(typeof(MenuState), "SetState", new Type[] { typeof(MenuState.State) })]
         private static class Patch2SetMenuState
         {
             private static void Postfix(MenuState __instance, ref MenuState.State state)
             {
-                if (state == MenuState.State.SongPage)
+                if (state == MenuState.State.LaunchPage)
                 {
                     DeleteButton.CreateDeleteButton();
                     FavoriteButtonButton.CreateFavoriteButtonButton();
+                    DifficultyDisplay.Show();
                 }
+                else
+                {
+                    DifficultyDisplay.Hide();
+                }
+                if (state == MenuState.State.SongPage)
+                {
+                    ScoreDisplayList.Show();
+                }
+                else
+                {
+                    ScoreDisplayList.Hide();
+                }
+
+                if (state == MenuState.State.SongPage) RandomSong.CreateRandomSongButton();
 
             }
         }
@@ -244,9 +294,13 @@ namespace AudicaModding
         {
             private static void Postfix(SongSelect __instance)
             {
+                //FilterPanel.filteringFavorites = false;
                 FilterPanel.Initialize();
+                ScoreHistory.LoadHistory(PlatformChooser.I.GetLeaderboardID());
+                MelonCoroutines.Start(SongBrowser.UpdateLastSongCount());
             }
         }
+
 
         [HarmonyPatch(typeof(SongListControls), "FilterAll", new Type[0])]
         private static class FilterAll

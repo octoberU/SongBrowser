@@ -6,6 +6,7 @@ using MelonLoader;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.Experimental.XR;
+using System.Linq;
 
 namespace AudicaModding
 {
@@ -19,6 +20,8 @@ namespace AudicaModding
 		public static OptionsMenuButton difficultyToggle;
 		public static bool curated;
 		public static OptionsMenuButton curatedToggle;
+		public static bool popularity;
+		public static OptionsMenuButton popularityToggle;
 		public static APISongList activeSongList;
 
 		static public void AddPageButton(OptionsMenu optionsMenu, int col)
@@ -49,6 +52,8 @@ namespace AudicaModding
 			CleanUpPage(optionsMenu);
 			AddButtons(optionsMenu);
 			optionsMenu.screenTitle.text = "Filters";
+			SongBrowser.lastSongCount = SongBrowser.newSongCount; //User has seen new songs
+			SongBrowser.SaveConfig();
 		}
 		
 		private static void SpawnSecondaryPanel(GameObject secondaryPanel)
@@ -140,7 +145,31 @@ namespace AudicaModding
 				}),
 				null,
 				"Restores all the songs you have deleted.");
-			optionsMenu.scrollable.AddRow(RestoreSongs.gameObject);
+			//optionsMenu.scrollable.AddRow(RestoreSongs.gameObject);
+
+			string popularityFilterText = "Sort by playcount: " + popularity.ToString();
+			popularityToggle = optionsMenu.AddButton
+				(1,
+				popularityFilterText,
+				new Action(() =>
+				{
+					if (popularity)
+						popularity = false;
+					else
+						popularity = true;
+
+					popularityToggle.label.text = "Sort by playcount: " + popularity.ToString();
+					SongBrowser.page = 1;
+					SongBrowser.StartSongSearch();
+				}),
+				null,
+				"Sorts downloads by leaderboard scores rather than date.");
+			popularityToggle.button.doMeshExplosion = false;
+			popularityToggle.button.doParticles = false;
+			optionsMenu.scrollable.AddRow(popularityToggle.gameObject);
+
+			var downloadFolderBlock = optionsMenu.AddTextBlock(0, "You can hotload songs by placing them in Audica/Downloads and pressing F5");
+			optionsMenu.scrollable.AddRow(downloadFolderBlock);
 		}
 
 		private static void DownloadFullPage()
@@ -198,9 +227,28 @@ namespace AudicaModding
 			TMP.fontSizeMax = 32;
 			TMP.fontSizeMin = 8;
 			optionsMenu.scrollable.AddRow(textBlock.gameObject);
-			
-			var downloadButton = optionsMenu.AddButton(0,
-				"Download" + SongBrowser.GetDifficultyString(song.beginner, song.standard, song.advanced, song.expert),
+
+            //package data to be used for display
+            SongBrowser.SongDisplayPackage songd = new SongBrowser.SongDisplayPackage();
+
+            songd.hasEasy = song.beginner;
+            songd.hasStandard = song.standard;
+            songd.hasAdvanced = song.advanced;
+            songd.hasExpert = song.expert;
+
+            //if song data loader is installed look for custom tags
+            if (SongBrowser.songDataLoaderInstalled)
+            {
+                songd = SongBrowser.SongDisplayPackage.FillCustomData(songd, song.song_id);
+            }
+
+            songd.customExpertTags = songd.customExpertTags.Distinct().ToList();
+            songd.customStandardTags = songd.customStandardTags.Distinct().ToList();
+            songd.customAdvancedTags = songd.customAdvancedTags.Distinct().ToList();
+            songd.customEasyTags = songd.customEasyTags.Distinct().ToList();
+
+            var downloadButton = optionsMenu.AddButton(0,
+				"Download" + SongBrowser.GetDifficultyString(songd),
 				new Action(() => { MelonCoroutines.Start(SongBrowser.DownloadSong(song.download_url)); TMP.text = "Added song to download queue!"; }),
 				null,
 				null);
