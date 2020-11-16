@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using Il2CppSystem.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -38,12 +39,13 @@ namespace AudicaModding
             else randomSongBagSize = size;
         }
 
-        public static void CreateRandomSongButton()
+        public static IEnumerator CreateRandomSongButton()
         {
+            yield return new WaitForSeconds(.8f);
             if (randomSongButton != null)
             {
                 randomSongButton.SetActive(true);
-                return;
+                yield break;
             }
             var backButton = GameObject.Find("menu/ShellPage_Song/page/backParent/back");
             randomSongButton = GameObject.Instantiate(backButton, backButton.transform.parent.transform);
@@ -173,7 +175,7 @@ namespace AudicaModding
         {
             private static void Postfix(MenuState __instance, ref MenuState.State state)
             {               
-                if (state == MenuState.State.SongPage) CreateRandomSongButton();
+                if (state == MenuState.State.SongPage) MelonCoroutines.Start(CreateRandomSongButton());
             }
         }
 
