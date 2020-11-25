@@ -237,8 +237,7 @@ namespace AudicaModding
 
             if (songDataLoaderInstalled)
             {
-                SafeDataLoaderReload();
-                MelonLogger.Log("Song Data Reloaded");
+                SongList.OnSongListLoaded.On(new Action(() => { SafeDataLoaderReload(); }));
             }
 
             DebugText("Reloading Songs");
@@ -248,7 +247,7 @@ namespace AudicaModding
         private static void SafeDataLoaderReload()
         {
             SongDataLoader.ReloadSongData();
-
+            MelonLogger.Log("Song Data Reloaded");
         }
 
         public static void StartSongSearch()
