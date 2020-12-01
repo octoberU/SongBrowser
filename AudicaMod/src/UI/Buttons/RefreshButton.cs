@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using Harmony;
 using MelonLoader;
+using System.Collections;
 
 namespace AudicaModding
 {
@@ -19,12 +20,13 @@ namespace AudicaModding
         private static SongSelect songSelect = null;
 
 
-        public static void CreateRefreshButton()
+        public static IEnumerator CreateRefreshButton()
         {
+            yield return new WaitForSeconds(.8f);
             if (refreshButton != null)
             {
                 refreshButton.SetActive(true);
-                return;
+                yield break;
             }
             var backButton = GameObject.Find("menu/ShellPage_Song/page/backParent/back");
             refreshButton = GameObject.Instantiate(backButton, backButton.transform.parent.transform);
@@ -44,7 +46,7 @@ namespace AudicaModding
         {
             SongBrowser.ReloadSongList();
             refreshButton = null;
-            CreateRefreshButton();
+            MelonCoroutines.Start(CreateRefreshButton());
         }
        
 
@@ -53,7 +55,7 @@ namespace AudicaModding
         {
             private static void Postfix(MenuState __instance, ref MenuState.State state)
             {               
-                if (state == MenuState.State.SongPage) CreateRefreshButton();
+                if (state == MenuState.State.SongPage) MelonCoroutines.Start(CreateRefreshButton());
             }
         }
 

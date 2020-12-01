@@ -90,11 +90,14 @@ internal static class DifficultyDisplay
 
     private static fillData fillAdditions(string songID, fillData d)
     {
-        SongDataLoader.SongData currentSong = SongDataLoader.AllSongData[songID];
-        d.easyAdditions = CreateDisplayStringAdditions(currentSong, "customEasyTags");
-        d.advancedAdditions = CreateDisplayStringAdditions(currentSong, "customAdvancedTags");
-        d.standardAdditions = CreateDisplayStringAdditions(currentSong, "customStandardTags");
-        d.expertAdditions = CreateDisplayStringAdditions(currentSong, "customExpertTags");
+        if (SongDataLoader.AllSongData.ContainsKey(songID))
+        {
+            SongDataLoader.SongData currentSong = SongDataLoader.AllSongData[songID];
+            d.easyAdditions = CreateDisplayStringAdditions(currentSong, "customEasyTags");
+            d.advancedAdditions = CreateDisplayStringAdditions(currentSong, "customAdvancedTags");
+            d.standardAdditions = CreateDisplayStringAdditions(currentSong, "customStandardTags");
+            d.expertAdditions = CreateDisplayStringAdditions(currentSong, "customExpertTags");
+        }
 
         return d;
     }
