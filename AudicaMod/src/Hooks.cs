@@ -341,5 +341,130 @@ namespace AudicaModding
             }
         }
 
+        [HarmonyPatch(typeof(SongList), "GetSong", new Type[] { typeof(string) })]
+        private static class AddToScrollerPatch
+        {
+            private static void Postfix(SongList __instance, string songID, SongList.SongData __result)
+            {
+                if (__result.songID == "destiny" ||
+                    __result.songID == "adrenaline" ||
+                    __result.songID == "collider" ||
+                    __result.songID == "golddust" ||
+                    __result.songID == "hr8938cephei" ||
+                    __result.songID == "ifeellove" ||
+                    __result.songID == "iwantu" ||
+                    __result.songID == "lazerface" ||
+                    __result.songID == "popstars" ||
+                    __result.songID == "perfectexceeder" ||
+                    __result.songID == "predator" ||
+                    __result.songID == "resistance" ||
+                    __result.songID == "smoke" ||
+                    __result.songID == "splinter" ||
+                    __result.songID == "synthesized" ||
+                    __result.songID == "thespace" ||
+                    __result.songID == "titanium_cazzette" ||
+                    __result.songID == "reedsofmitatrush" ||
+                    __result.songID == "destiny_full" ||
+                    __result.songID == "popstars_full")
+                {
+                    __result.author = "HMXJeff";
+                }
+                else if (__result.songID == "addictedtoamemory" ||
+                         __result.songID == "breakforme" ||
+                         __result.songID == "channel42" ||
+                         __result.songID == "everyday" ||
+                         __result.songID == "gametime" ||
+                         __result.songID == "highwaytooblivion_short" ||
+                         __result.songID == "overtime" ||
+                         __result.songID == "tothestars" ||
+                         __result.songID == "addictedtoamemory_full" ||
+                         __result.songID == "highwaytooblivion_full" ||
+                         __result.songID == "avalanche" ||
+                         __result.songID == "badguy" ||
+                         __result.songID == "believer" ||
+                         __result.songID == "betternow" ||
+                         __result.songID == "cantfeelmyface" ||
+                         __result.songID == "centuries" ||
+                         __result.songID == "countingstars" ||
+                         __result.songID == "dontletmedown" ||
+                         __result.songID == "exitwounds" ||
+                         __result.songID == "gdfr" ||
+                         __result.songID == "girlsbedancing" ||
+                         __result.songID == "intoyou" ||
+                         __result.songID == "juice" ||
+                         __result.songID == "longrun" ||
+                         __result.songID == "methanebreather" ||
+                         __result.songID == "moveslikejagger" ||
+                         __result.songID == "newrules" ||
+                         __result.songID == "sorryforpartyrocking" ||
+                         __result.songID == "starships" ||
+                         __result.songID == "stook" ||
+                         __result.songID == "thegreatest" ||
+                         __result.songID == "themiddle" ||
+                         __result.songID == "themotherweshare" ||
+                         __result.songID == "urprey" ||
+                         __result.songID == "weallbecome" ||
+                         __result.songID == "youngblood")
+                {
+                    __result.author = "HMXRick";
+                }
+                else if (__result.songID == "boomboom" ||
+                         __result.songID == "raiseyourweapon_noisia" ||
+                         __result.songID == "timeforcrime")
+                {
+                    __result.author = "HMXJeff & HMXRick";
+                }
+                else if (__result.songID == "eyeforaneye" ||
+                         __result.songID == "goatpolyphia" ||
+                         __result.songID == "illmerica" ||
+                         __result.songID == "funkycomputer")
+                {
+                    __result.author = "Simon";
+                }
+                else if (__result.songID == "loyal")
+                {
+                    __result.author = "Simon & HMXRick";
+                }
+                else if (__result.songID == "highhopes" ||
+                         __result.songID == "goodbyedearsorrows_ab42b2e6b0934471474875729b4f9934" ||
+                         __result.songID == "shatterme_30eb4181110577459bc89b8650d3386a")
+                {
+                    __result.author = "aggrogahu";
+                }
+                else if (__result.songID == "bigppwoo_0966cf748cb5f637e3b0f00feeda9d9a")
+                {
+                    __result.author = "Sleepyhead";
+                }
+                else if (__result.songID == "children-of-a-miracle_bc34b4da4eea98a2a2e7c28d378738e6" ||
+                         __result.songID == "get-jinxed_bd9d8a475804d6e2086fc3d2090ea9fb" ||
+                         __result.songID == "no-worries_b48e9121c4f412e2da920212ff375a45")
+                {
+                    __result.author = "Fredrix";
+                }
+                else if (__result.songID == "LegendsNeverDie_96f3da6e3455fc7b74535f4ad3171955")
+                {
+                    __result.author = "CircuitLord";
+                }
+                else if (__result.songID == "Camellia_The_King_of_Lions_f39276e8867fbfd9c0d9c1e99dc03052")
+                {
+                    __result.author = "CriminalCannoli";
+                }
+                else if (__result.songID == "weaponizedcelldwellershark_a0508d763c057c198291149233c4d150")
+                {
+                    __result.author = "whattheshark";
+                }
+                else if (__result.songID == "ainideaikoiwatsudzukuoctober_d674ca136c43e57ef82a92cb8f80da87" ||
+                         __result.songID == "sadmachine_a49b6978f4ab867057f8bb22bcf53580")
+                {
+                    __result.author = "october";
+                }
+                else if (__result.songID == "deviltrigger_728ff099c5d7d1f2ad0f724fb53b9b43" ||
+                         __result.songID == "onceagain_ProtoPip_0e8bb6d431dd2fdabb62a4d988c263eb")
+                {
+                    __result.author = "ProtoPip";
+                }
+            }
+        }
+
     }
 }
