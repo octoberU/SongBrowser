@@ -149,7 +149,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.JSONSerializeModule">
-      <HintPath>E:\Steam\steamapps\common\Audica\MelonLoader\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
+      <HintPath>lib\UnityEngine.JSONSerializeModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.ParticleSystemModule">
       <HintPath>lib\UnityEngine.ParticleSystemModule.dll</HintPath>
@@ -239,6 +239,7 @@
     <Compile Include="csvorbis\OggStream.cs" />
     <Compile Include="src\CustomDifficultyNames\CustomDifficultyNames.cs" />
     <Compile Include="src\EitherHandFix\EitherHand.cs" />
+    <Compile Include="src\MapperNames\MapperNames.cs" />
     <Compile Include="src\RandomSong\RandomSong.cs" />
     <Compile Include="src\UI\AudicaScore\AudicaScore.cs" />
     <Compile Include="src\UI\AudicaScore\DifficultyDisplay.cs" />
@@ -268,6 +269,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "F:\DATA HDD\Steam\SteamApps\common\Audica\Mods\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "C:\SteamLibrary\SteamApps\common\Audica\Mods\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>
