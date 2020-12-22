@@ -70,6 +70,9 @@ namespace AudicaModding
                     case "urprey":
                     case "weallbecome":
                     case "youngblood":
+                    case "allstars":
+                    case "howweknow":
+                    case "preexistingcondition":
                         SongList.I.songs[i].author = "HMXRick";
                         break;
                     case "boomboom":
