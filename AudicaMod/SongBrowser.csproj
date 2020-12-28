@@ -248,6 +248,7 @@
     <Compile Include="src\UI\Buttons\DeleteButton.cs" />
     <Compile Include="src\DiffCalculationUtil.cs" />
     <Compile Include="src\DifficultyCalculator.cs" />
+    <Compile Include="src\UI\Buttons\ButtonUtils.cs" />
     <Compile Include="src\UI\Buttons\RefreshButton.cs" />
     <Compile Include="src\UI\FilterPanel.cs" />
     <Compile Include="src\Hooks.cs" />

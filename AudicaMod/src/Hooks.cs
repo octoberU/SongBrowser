@@ -268,7 +268,7 @@ namespace AudicaModding
                 if (state == MenuState.State.LaunchPage)
                 {
                     DeleteButton.CreateDeleteButton();
-                    FavoriteButtonButton.CreateFavoriteButtonButton();
+                    FavoriteButton.CreateFavoriteButton();
                     DifficultyDisplay.Show();
                 }
                 else
@@ -285,7 +285,25 @@ namespace AudicaModding
                 }
 
                 if (state == MenuState.State.SongPage) RandomSong.CreateRandomSongButton();
+            
+            }
+        }
 
+        [HarmonyPatch(typeof(InGameUI), "SetState", new Type[] { typeof(InGameUI.State), typeof(bool) })]
+        private static class PatchSetInGameUIState
+        {
+            private static void Postfix(InGameUI __instance, InGameUI.State state, bool instant)
+            {
+                if (state == InGameUI.State.FailedPage)
+                {
+                    DeleteButton.CreateDeleteButton(ButtonUtils.ButtonLocation.Failed);
+                    FavoriteButton.CreateFavoriteButton(ButtonUtils.ButtonLocation.Failed);
+                }
+                else if (state == InGameUI.State.ResultsPage)
+                {
+                    DeleteButton.CreateDeleteButton(ButtonUtils.ButtonLocation.Results);
+                    FavoriteButton.CreateFavoriteButton(ButtonUtils.ButtonLocation.Results);
+                }
             }
         }
 
