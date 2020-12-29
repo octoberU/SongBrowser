@@ -14,7 +14,7 @@ namespace AudicaModding
     {
         private static int buttonCount = 0;
         private static int scrollCounter = 2;
-        
+
         /*
         public static void ApplyHooks(HarmonyInstance instance)
         {
@@ -27,7 +27,7 @@ namespace AudicaModding
         {
             private static void Postfix(OptionsMenu __instance, int col, string label, OptionsMenuButton.SelectedActionDelegate onSelected, OptionsMenuButton.IsCheckedDelegate isChecked)
             {
-                if(__instance.mPage == OptionsMenu.Page.Main)
+                if (__instance.mPage == OptionsMenu.Page.Main)
                 {
                     buttonCount++;
                     if (buttonCount == 9)
@@ -59,7 +59,7 @@ namespace AudicaModding
                     SongDownloaderUI.songItemPanel.SetPageActive(false);
                 if (SongBrowser.needRefresh)
                     SongBrowser.ReloadSongList();
-                    
+
             }
         }
 
@@ -79,7 +79,7 @@ namespace AudicaModding
             }
         }
 
-        [HarmonyPatch(typeof(KeyboardEntry), "OnKey", new Type[] {typeof(KeyCode), typeof(string) })]
+        [HarmonyPatch(typeof(KeyboardEntry), "OnKey", new Type[] { typeof(KeyCode), typeof(string) })]
         private static class KeyboardEntry_OnKey
         {
             private static bool Prefix(KeyboardEntry __instance, KeyCode keyCode, string label)
@@ -101,8 +101,8 @@ namespace AudicaModding
                             SongBrowser.searchString += label;
                             break;
                     }
-                    
-                    if(SongDownloaderUI.searchText != null)
+
+                    if (SongDownloaderUI.searchText != null)
                     {
                         SongDownloaderUI.searchText.text = SongBrowser.searchString;
                     }
@@ -179,7 +179,7 @@ namespace AudicaModding
             }
         }
 
-        [HarmonyPatch(typeof(SongSelect), "GetSongIDs", new Type[] {typeof(bool) })]
+        [HarmonyPatch(typeof(SongSelect), "GetSongIDs", new Type[] { typeof(bool) })]
         private static class RemoveDeletedScrollerItems
         {
             private static void Postfix(SongSelect __instance, ref bool extras, ref Il2CppSystem.Collections.Generic.List<string> __result)
@@ -230,7 +230,7 @@ namespace AudicaModding
                         songd = SongBrowser.SongDisplayPackage.FillCustomData(songd, song.songID);
                     }
 
-                    
+
                     CachedCalculation easy = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Easy.ToString());
                     CachedCalculation normal = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Normal.ToString());
                     CachedCalculation hard = DifficultyCalculator.GetRating(song.songID, KataConfig.Difficulty.Hard.ToString());
@@ -246,19 +246,19 @@ namespace AudicaModding
                     if (song.hasEasy && easy.is360) songd.customEasyTags.Insert(0, "360");
                     if (song.hasNormal && normal.is360) songd.customStandardTags.Insert(0, "360");
                     if (song.hasHard && hard.is360) songd.customAdvancedTags.Insert(0, "360");
-                    if (song.hasExpert && expert.is360) songd.customExpertTags.Insert(0, "360");         
+                    if (song.hasExpert && expert.is360) songd.customExpertTags.Insert(0, "360");
 
                     songd.customExpertTags = songd.customExpertTags.Distinct().ToList();
                     songd.customStandardTags = songd.customStandardTags.Distinct().ToList();
                     songd.customAdvancedTags = songd.customAdvancedTags.Distinct().ToList();
                     songd.customEasyTags = songd.customEasyTags.Distinct().ToList();
 
-                    entry.item.mapperLabel.text += SongBrowser.GetDifficultyString(songd);  
+                    entry.item.mapperLabel.text += SongBrowser.GetDifficultyString(songd);
                 }
             }
         }
 
-        
+
 
         [HarmonyPatch(typeof(MenuState), "SetState", new Type[] { typeof(MenuState.State) })]
         private static class Patch2SetMenuState
@@ -341,5 +341,6 @@ namespace AudicaModding
             }
         }
 
+        
     }
 }
