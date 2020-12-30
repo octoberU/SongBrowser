@@ -9,7 +9,7 @@ using UnityEngine;
 namespace AudicaModding
 {
     internal static class Utility
-    {        public static void EmptyDownloadsFolderFolder()
+    {        public static void EmptyDownloadsFolder()
         {
             String directoryName = Application.dataPath + @"\StreamingAssets\HmxAudioAssets\songs";
             if (!Directory.Exists(directoryName))

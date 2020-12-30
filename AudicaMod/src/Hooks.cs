@@ -39,27 +39,42 @@ namespace AudicaModding
         }
 
         [HarmonyPatch(typeof(OptionsMenu), "ShowPage", new Type[] { typeof(OptionsMenu.Page) })]
-        private static class ResetButtons
+        private static class PatchShowOptionsPage
         {
             private static void Prefix(OptionsMenu __instance, OptionsMenu.Page page)
             {
                 SongBrowser.shouldShowKeyboard = false;
                 buttonCount = 0;
                 SongBrowser.searchString = "";
-
+            }
+            private static void Postfix(InGameUI __instance, OptionsMenu.Page page)
+            {
+                if (page == OptionsMenu.Page.Main && SongSearch.searchInProgress)
+                {
+                    SongDownloaderUI.GoToLocalSearchPage();
+                }
             }
         }
 
         [HarmonyPatch(typeof(OptionsMenu), "BackOut", new Type[0])]
         private static class Backout
         {
-            private static void Prefix(OptionsMenu __instance)
+            private static bool Prefix(OptionsMenu __instance)
             {
-                if (SongDownloaderUI.songItemPanel != null)
-                    SongDownloaderUI.songItemPanel.SetPageActive(false);
-                if (SongBrowser.needRefresh)
-                    SongBrowser.ReloadSongList();
-
+                // should always be on the search page when this happens
+                if (SongSearch.searchInProgress)
+                {
+                    SongSearch.CancelSearch();
+                    return false;
+                }
+                else
+                {
+                    if (SongDownloaderUI.songItemPanel != null)
+                        SongDownloaderUI.songItemPanel.SetPageActive(false);
+                    if (SongBrowser.needRefresh)
+                        SongBrowser.ReloadSongList();
+                }
+                return true;
             }
         }
 
@@ -86,25 +101,51 @@ namespace AudicaModding
             {
                 if (SongBrowser.shouldShowKeyboard)
                 {
-                    switch (label)
+                    if (SongSearch.searchInProgress)
                     {
-                        case "done":
-                            __instance.Hide();
-                            SongBrowser.shouldShowKeyboard = false;
-                            SongBrowser.page = 1;
-                            SongBrowser.StartSongSearch();
-                            break;
-                        case "clear":
-                            SongBrowser.searchString = "";
-                            break;
-                        default:
-                            SongBrowser.searchString += label;
-                            break;
-                    }
+                        switch (label)
+                        {
+                            case "done":
+                                __instance.Hide();
+                                SongBrowser.shouldShowKeyboard = false;
+                                    SongSearch.Search();
+                                    GameObject.FindObjectOfType<MenuState>().GoToSongPage();
+                                break;
+                            case "clear":
+                                    SongSearch.query = "";
+                                break;
+                            default:
+                                    SongSearch.query += label;
+                                break;
+                        }
 
-                    if (SongDownloaderUI.searchText != null)
+                        if (SongDownloaderUI.searchText != null)
+                        {
+                            SongDownloaderUI.searchText.text = SongSearch.query;
+                        }
+                    }
+                    else
                     {
-                        SongDownloaderUI.searchText.text = SongBrowser.searchString;
+                        switch (label)
+                        {
+                            case "done":
+                                __instance.Hide();
+                                SongBrowser.shouldShowKeyboard = false;
+                                SongBrowser.page = 1;
+                                SongBrowser.StartSongSearch();
+                                break;
+                            case "clear":
+                                SongBrowser.searchString = "";
+                                break;
+                            default:
+                                SongBrowser.searchString += label;
+                                break;
+                        }
+
+                        if (SongDownloaderUI.searchText != null)
+                        {
+                            SongDownloaderUI.searchText.text = SongBrowser.searchString;
+                        }
                     }
                     return false;
                 }
@@ -122,11 +163,23 @@ namespace AudicaModding
             {
                 if (SongBrowser.shouldShowKeyboard)
                 {
-                    SongBrowser.searchString += " ";
-
-                    if (SongDownloaderUI.searchText != null)
+                    if (SongSearch.searchInProgress)
                     {
-                        SongDownloaderUI.searchText.text = SongBrowser.searchString;
+                        SongSearch.query += " ";
+
+                        if (SongDownloaderUI.searchText != null)
+                        {
+                            SongDownloaderUI.searchText.text = SongSearch.query;
+                        }
+                    }
+                    else
+                    {
+                        SongBrowser.searchString += " ";
+
+                        if (SongDownloaderUI.searchText != null)
+                        {
+                            SongDownloaderUI.searchText.text = SongBrowser.searchString;
+                        }
                     }
                     return false;
                 }
@@ -144,14 +197,27 @@ namespace AudicaModding
             {
                 if (SongBrowser.shouldShowKeyboard)
                 {
-                    if (SongBrowser.searchString == "" || SongBrowser.searchString == null)
-                        return false;
-                    SongBrowser.searchString = SongBrowser.searchString.Substring(0, SongBrowser.searchString.Length - 1);
-
-
-                    if (SongDownloaderUI.searchText != null)
+                    if (SongSearch.searchInProgress)
                     {
-                        SongDownloaderUI.searchText.text = SongBrowser.searchString;
+                        if (SongSearch.query == "" || SongSearch.query == null)
+                            return false;
+                        SongSearch.query = SongSearch.query.Substring(0, SongSearch.query.Length - 1);
+
+                        if (SongDownloaderUI.searchText != null)
+                        {
+                            SongDownloaderUI.searchText.text = SongSearch.query;
+                        }
+                    }
+                    else
+                    {
+                        if (SongBrowser.searchString == "" || SongBrowser.searchString == null)
+                            return false;
+                        SongBrowser.searchString = SongBrowser.searchString.Substring(0, SongBrowser.searchString.Length - 1);
+                        
+                        if (SongDownloaderUI.searchText != null)
+                        {
+                            SongDownloaderUI.searchText.text = SongBrowser.searchString;
+                        }
                     }
                     return false;
                 }
@@ -169,7 +235,7 @@ namespace AudicaModding
             {
                 if (!SongBrowser.emptiedDownloadsFolder)
                 {
-                    Utility.EmptyDownloadsFolderFolder();
+                    Utility.EmptyDownloadsFolder();
                 }
                 //if (!AudicaMod.addedCustomsDir)
                 //{
@@ -180,7 +246,7 @@ namespace AudicaModding
         }
 
         [HarmonyPatch(typeof(SongSelect), "GetSongIDs", new Type[] { typeof(bool) })]
-        private static class RemoveDeletedScrollerItems
+        private static class FilterScrollerItems
         {
             private static void Postfix(SongSelect __instance, ref bool extras, ref Il2CppSystem.Collections.Generic.List<string> __result)
             {
@@ -197,6 +263,19 @@ namespace AudicaModding
                     }
                     __instance.scroller.SnapTo(0, true);
 
+                }
+                else if (FilterPanel.filteringSearch)
+                {
+                    extras = true;
+                    if (SongSearch.searchResult != null)
+                    {
+                        __result.Clear();
+                        for (int i = 0; i < SongSearch.searchResult.Count; i++)
+                        {
+                            __result.Add(SongSearch.searchResult[i]);
+                        }
+                    }
+                    __instance.scroller.SnapTo(0, true);
                 }
                 if (SongBrowser.deletedSongs.Count > 0)
                 {
@@ -278,14 +357,13 @@ namespace AudicaModding
                 if (state == MenuState.State.SongPage)
                 {
                     ScoreDisplayList.Show();
+                    RandomSong.CreateRandomSongButton();
+                    SongSearch.CreateSearchButton();
                 }
                 else
                 {
                     ScoreDisplayList.Hide();
-                }
-
-                if (state == MenuState.State.SongPage) RandomSong.CreateRandomSongButton();
-            
+                }           
             }
         }
 
@@ -326,7 +404,9 @@ namespace AudicaModding
             private static void Prefix(SongListControls __instance)
             {
                 FilterPanel.filteringFavorites = false;
+                FilterPanel.filteringSearch = false;
                 FilterPanel.favoritesButtonSelectedIndicator.SetActive(false);
+                FilterPanel.searchButtonSelectedIndicator.SetActive(false);
             }
         }
 
@@ -336,7 +416,9 @@ namespace AudicaModding
             private static void Prefix(SongListControls __instance)
             {
                 FilterPanel.filteringFavorites = false;
+                FilterPanel.filteringSearch = false;
                 FilterPanel.favoritesButtonSelectedIndicator.SetActive(false);
+                FilterPanel.searchButtonSelectedIndicator.SetActive(false);
             }
         }
 

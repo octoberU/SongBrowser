@@ -237,6 +237,7 @@
     <Compile Include="csvorbis\Time0.cs" />
     <Compile Include="csvorbis\VorbisFile.cs" />
     <Compile Include="csvorbis\OggStream.cs" />
+    <Compile Include="src\UI\SongSearch.cs" />
     <Compile Include="src\CustomDifficultyNames\CustomDifficultyNames.cs" />
     <Compile Include="src\EitherHandFix\EitherHand.cs" />
     <Compile Include="src\MapperNames\MapperNames.cs" />

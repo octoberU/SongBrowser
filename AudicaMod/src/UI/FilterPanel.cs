@@ -17,17 +17,20 @@ namespace AudicaModding
         static GameObject highlights;
         static GameObject filterButton;
         static GameObject favoritesButton;
-        
+        static GameObject searchButton;
+
         public static GameObject notificationPanel;
         static TextMeshPro notificationText;
 
         public static GameObject favoritesButtonSelectedIndicator;
+        public static GameObject searchButtonSelectedIndicator;
 
         public static Favorites favorites;
 
         public static bool firstTime = true;
 
         public static bool filteringFavorites = false;
+        public static bool filteringSearch = false;
 
         static string favoritesPath = Application.dataPath + "/../" + "/UserData/"+ "SongBrowserFavorites.json";
 
@@ -37,22 +40,36 @@ namespace AudicaModding
             {
                 GetReferences();
                 firstTime = false;
-                notificationPanel.transform.localPosition = new Vector3(0f, -15.07f, 0f);
-                glass.transform.localScale = new Vector3(10.9f, 16.52f, 3);
-                glass.transform.localPosition = new Vector3(0f, -2.27f, 0.15f);
-                highlights.transform.localScale = new Vector3(1f, 1.2172f, 1f);
-                highlights.transform.localPosition = new Vector3(0f, -12.36f, 0f);
+                notificationPanel.transform.localPosition = new Vector3(0f, -17.5f, 0f);
+                glass.transform.localScale = new Vector3(10.9f, 20.52f, 3);
+                glass.transform.localPosition = new Vector3(0f, -4.27f, 0.15f);
+                highlights.transform.localScale = new Vector3(1f, 1.4272f, 1f);
+                highlights.transform.localPosition = new Vector3(0f, -14.36f, 0f);
+                PrepareSearchButton();
+                searchButtonSelectedIndicator = searchButton.transform.GetChild(3).gameObject;
+                searchButtonSelectedIndicator.SetActive(false);
                 PrepareFavoritesButton();
                 favoritesButtonSelectedIndicator = favoritesButton.transform.GetChild(3).gameObject;
                 favoritesButtonSelectedIndicator.SetActive(false);
-                filterButton.GetComponentInChildren<GunButton>().onHitEvent.AddListener(new Action(() => { DisableFavoritesFilter(); }));
+                filterButton.GetComponentInChildren<GunButton>().onHitEvent.AddListener(new Action(() => { DisableCustomFilters(); }));
             }
+        }
+
+        private static void PrepareSearchButton()
+        {
+            searchButton = GameObject.Instantiate(filterButton, filterButton.transform.parent);
+            searchButton.transform.localPosition = new Vector3(0f, -8.09f, 0f);
+            GameObject.Destroy(searchButton.GetComponentInChildren<Localizer>());
+            GunButton button = searchButton.GetComponentInChildren<GunButton>();
+            button.onHitEvent = new UnityEvent();
+            button.onHitEvent.AddListener(new Action(() => { FilterSearch(); }));
+            searchButton.GetComponentInChildren<TextMeshPro>().text = "search";
         }
 
         private static void PrepareFavoritesButton()
         {
             favoritesButton = GameObject.Instantiate(filterButton, filterButton.transform.parent);
-            favoritesButton.transform.localPosition = new Vector3(0f, -8.09f, 0f);
+            favoritesButton.transform.localPosition = new Vector3(0f, -11.65f, 0f);
             GameObject.Destroy(favoritesButton.GetComponentInChildren<Localizer>());
             GunButton button = favoritesButton.GetComponentInChildren<GunButton>();
             button.onHitEvent = new UnityEvent();
@@ -60,13 +77,33 @@ namespace AudicaModding
             favoritesButton.GetComponentInChildren<TextMeshPro>().text = "favorites";
         }
 
-        private static void DisableFavoritesFilter()
+        private static void DisableCustomFilters()
         {
             filteringFavorites = false;
             favoritesButtonSelectedIndicator.SetActive(false);
+            filteringSearch = false;
+            searchButtonSelectedIndicator.SetActive(false);
             GameObject.FindObjectOfType<SongSelect>().ShowSongList();
         }
 
+        public static void FilterSearch()
+        {
+            GameObject.FindObjectOfType<SongListControls>().FilterExtras(); // this seems to fix duplicated songs;
+            if (!filteringSearch)
+            {
+                filteringSearch = true;
+                searchButtonSelectedIndicator.SetActive(true);
+
+                filteringFavorites = false;
+                favoritesButtonSelectedIndicator.SetActive(false);
+            }
+            else
+            {
+                filteringSearch = false;
+                searchButtonSelectedIndicator.SetActive(false);
+            }
+            GameObject.FindObjectOfType<SongSelect>().ShowSongList();
+        }
 
         public static void FilterFavorites()
         {
@@ -75,6 +112,9 @@ namespace AudicaModding
             {
                 filteringFavorites = true;
                 favoritesButtonSelectedIndicator.SetActive(true);
+
+                filteringSearch = false;
+                searchButtonSelectedIndicator.SetActive(false);
             }
             else
             {
@@ -105,7 +145,7 @@ namespace AudicaModding
         {
             if (File.Exists(favoritesPath))
             {
-                string text = System.IO.File.ReadAllText(favoritesPath);
+                string text = File.ReadAllText(favoritesPath);
                 favorites = JSON.Load(text).Make<Favorites>();
             }
             else

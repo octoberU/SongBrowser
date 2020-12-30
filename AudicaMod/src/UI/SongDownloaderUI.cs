@@ -3,9 +3,6 @@ using System;
 using TMPro;
 using UnityEngine;
 using MelonLoader;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using UnityEngine.Experimental.XR;
 using System.Linq;
 
 namespace AudicaModding
@@ -24,19 +21,31 @@ namespace AudicaModding
 		public static OptionsMenuButton popularityToggle;
 		public static APISongList activeSongList;
 
+		private static OptionsMenu primaryMenu;
+
 		static public void AddPageButton(OptionsMenu optionsMenu, int col)
 		{
-			optionsMenu.AddButton(col, "Download Songs", new System.Action(() => {
-				GoToArenaPage(optionsMenu);
+			primaryMenu = optionsMenu;
+			primaryMenu.AddButton(col, "Download Songs", new System.Action(() => {
+				GoToArenaPage();
 				if (songItemPanel != null)
 					songItemPanel.SetPageActive(true);
-				}), null, "Download new maps from the Audica Modding Discord");
+			}), null, "Download new maps from the Audica Modding Discord");
 		}
 
-		public static void GoToArenaPage(OptionsMenu optionsMenu)
+		static public void GoToLocalSearchPage()
+		{
+			SongSearch.query = "";
+			primaryMenu.ShowPage(OptionsMenu.Page.Customization);
+			CleanUpPage(primaryMenu);
+			AddBasicButtons(primaryMenu);
+			primaryMenu.screenTitle.text = "Search";
+		}
+
+		public static void GoToArenaPage()
 		{
 			SongBrowser.page = 1;
-			if(songItemPanel == null)
+			if (songItemPanel == null)
 			{
 				secondaryPanel = GameObject.Instantiate(GameObject.Find("ShellPage_Settings"));
 				secondaryPanel.SetActive(true);
@@ -47,11 +56,12 @@ namespace AudicaModding
 			{
 				SpawnSecondaryPanel(secondaryPanel);
 			}
-			
-			optionsMenu.ShowPage(OptionsMenu.Page.Customization);	
-			CleanUpPage(optionsMenu);
-			AddButtons(optionsMenu);
-			optionsMenu.screenTitle.text = "Filters";
+
+			primaryMenu.ShowPage(OptionsMenu.Page.Customization);
+			CleanUpPage(primaryMenu);
+			AddBasicButtons(primaryMenu);
+			AddWebSearchButtons(primaryMenu);
+			primaryMenu.screenTitle.text = "Filters";
 			SongBrowser.lastSongCount = SongBrowser.newSongCount; //User has seen new songs
 			SongBrowser.SaveConfig();
 		}
@@ -64,7 +74,7 @@ namespace AudicaModding
 			MelonCoroutines.Start(WaitForSpawningMenu(secondaryPanel));
 		}
 
-		private static void SetupSeoondaryPanel(GameObject secondaryPanel)
+		private static void SetupSecondaryPanel(GameObject secondaryPanel)
 		{
 			songItemMenu = secondaryPanel.GetComponentInChildren<OptionsMenu>();
 			songItemMenu.ShowPage(OptionsMenu.Page.Customization);
@@ -72,7 +82,7 @@ namespace AudicaModding
 			songItemMenu.screenTitle.text = "Songs";
 		}
 
-		private static void AddButtons(OptionsMenu optionsMenu)
+		private static void AddBasicButtons(OptionsMenu optionsMenu)
 		{
 			var header = optionsMenu.AddHeader(0, "Filter by: Artist, Title, Mapper");
 			optionsMenu.scrollable.AddRow(header);
@@ -80,7 +90,10 @@ namespace AudicaModding
 			var searchField = optionsMenu.AddButton(0, "Search:", new Action(() => { SongBrowser.shouldShowKeyboard = true; optionsMenu.keyboard.Show(); }), null, "Filter by: Artist, Title, Mapper", optionsMenu.textEntryButtonPrefab);
 			optionsMenu.scrollable.AddRow(searchField.gameObject);
 			searchText = searchField.gameObject.GetComponentInChildren<TextMeshPro>();
+		}
 
+		private static void AddWebSearchButtons(OptionsMenu optionsMenu)
+		{
 			var difficultyHeader = optionsMenu.AddHeader(0, "Filter difficulty");
 			optionsMenu.scrollable.AddRow(difficultyHeader);
 
@@ -285,8 +298,8 @@ namespace AudicaModding
 
 		static IEnumerator WaitForSpawningMenu(GameObject panel)
 		{
-			yield return new WaitForSeconds(0.01f);
-			SetupSeoondaryPanel(panel);
+			yield return new WaitForSeconds(0.02f);
+			SetupSecondaryPanel(panel);
 			AddSongItems(panel.GetComponentInChildren<OptionsMenu>(), SongBrowser.songlist);
 		}
 	}
