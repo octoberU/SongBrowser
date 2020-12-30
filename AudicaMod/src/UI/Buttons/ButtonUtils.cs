@@ -11,7 +11,7 @@ namespace AudicaModding
         {
             Menu,
             Failed,
-            Results
+            EndGame
         }
 
         public static void InitButton(GameObject button, string label, Action listener, Vector3 localPosition, 
