@@ -359,6 +359,7 @@ namespace AudicaModding
                     ScoreDisplayList.Show();
                     RandomSong.CreateRandomSongButton();
                     SongSearch.CreateSearchButton();
+                    RefreshButton.CreateRefreshButton();
                 }
                 else
                 {
@@ -403,10 +404,7 @@ namespace AudicaModding
         {
             private static void Prefix(SongListControls __instance)
             {
-                FilterPanel.filteringFavorites = false;
-                FilterPanel.filteringSearch = false;
-                FilterPanel.favoritesButtonSelectedIndicator.SetActive(false);
-                FilterPanel.searchButtonSelectedIndicator.SetActive(false);
+                FilterPanel.DisableCustomFilters();
             }
         }
 
@@ -415,10 +413,7 @@ namespace AudicaModding
         {
             private static void Prefix(SongListControls __instance)
             {
-                FilterPanel.filteringFavorites = false;
-                FilterPanel.filteringSearch = false;
-                FilterPanel.favoritesButtonSelectedIndicator.SetActive(false);
-                FilterPanel.searchButtonSelectedIndicator.SetActive(false);
+                FilterPanel.DisableCustomFilters();
             }
         }
 

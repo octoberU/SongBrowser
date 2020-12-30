@@ -51,7 +51,11 @@ namespace AudicaModding
                 PrepareFavoritesButton();
                 favoritesButtonSelectedIndicator = favoritesButton.transform.GetChild(3).gameObject;
                 favoritesButtonSelectedIndicator.SetActive(false);
-                filterButton.GetComponentInChildren<GunButton>().onHitEvent.AddListener(new Action(() => { DisableCustomFilters(); }));
+                filterButton.GetComponentInChildren<GunButton>().onHitEvent.AddListener(new Action(() => 
+                { 
+                    DisableCustomFilters();
+                    GameObject.FindObjectOfType<SongSelect>().ShowSongList();
+                }));
             }
         }
 
@@ -77,13 +81,12 @@ namespace AudicaModding
             favoritesButton.GetComponentInChildren<TextMeshPro>().text = "favorites";
         }
 
-        private static void DisableCustomFilters()
+        public static void DisableCustomFilters()
         {
             filteringFavorites = false;
             favoritesButtonSelectedIndicator.SetActive(false);
             filteringSearch = false;
             searchButtonSelectedIndicator.SetActive(false);
-            GameObject.FindObjectOfType<SongSelect>().ShowSongList();
         }
 
         public static void FilterSearch()
