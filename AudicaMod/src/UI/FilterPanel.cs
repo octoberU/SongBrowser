@@ -52,10 +52,10 @@ namespace AudicaModding
                 highlights.transform.localPosition = new Vector3(0f, -14.36f, 0f);
                 PrepareSearchButton();
                 searchButtonSelectedIndicator = searchButton.transform.GetChild(3).gameObject;
-                searchButtonSelectedIndicator.SetActive(false);
+                searchButtonSelectedIndicator.SetActive(filteringSearch);
                 PrepareFavoritesButton();
                 favoritesButtonSelectedIndicator = favoritesButton.transform.GetChild(3).gameObject;
-                favoritesButtonSelectedIndicator.SetActive(false);
+                favoritesButtonSelectedIndicator.SetActive(filteringFavorites);
                 filterButton.GetComponentInChildren<GunButton>().onHitEvent.AddListener(new Action(() => 
                 { 
                     DisableCustomFilters();
