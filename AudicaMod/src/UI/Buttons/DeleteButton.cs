@@ -24,7 +24,6 @@ namespace AudicaModding
                 return;
             }
 
-            panel                 = GameObject.FindObjectOfType<LaunchPanel>();
             string  name          = "InGameUI/ShellPage_EndGameContinue/page/ShellPanel_Center/exit";
             Vector3 localPosition = delButtonInGameUIPosition;
             Vector3 rotation      = delButtonInGameUIRotation;
@@ -53,6 +52,11 @@ namespace AudicaModding
         private static void OnDeleteButtonShot()
         {
             Delete();
+
+            if (panel == null)
+            {
+                panel = GameObject.FindObjectOfType<LaunchPanel>();
+            }
             panel.Back();
         }
         private static void OnInGameUIDeleteButtonShot()

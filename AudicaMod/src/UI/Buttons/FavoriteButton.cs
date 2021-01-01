@@ -24,8 +24,7 @@ namespace AudicaModding
                 favoriteButton.SetActive(true);
                 return;
             }
-            
-            panel                 = GameObject.FindObjectOfType<LaunchPanel>();
+
             string  name          = "InGameUI/ShellPage_EndGameContinue/page/ShellPanel_Center/exit";
             Vector3 localPosition = favButtonInGameUIPosition;
             Vector3 rotation      = favButtonInGameUIRotation;
@@ -54,7 +53,11 @@ namespace AudicaModding
         private static void OnFavoriteButtonShot()
         {
             Favorite();
-            GameObject.FindObjectOfType<LaunchPanel>().Back();
+            if (panel == null)
+            {
+                panel = GameObject.FindObjectOfType<LaunchPanel>();
+            }
+            panel.Back();
         }
         private static void OnInGameUIFavoriteButtonShot()
         {

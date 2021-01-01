@@ -17,7 +17,11 @@ namespace AudicaModding
                 refreshButton.SetActive(true);
                 return;
             }
+
             var backButton = GameObject.Find("menu/ShellPage_Song/page/backParent/back");
+            if (backButton == null)
+                return;
+
             refreshButton  = GameObject.Instantiate(backButton, backButton.transform.parent.transform);
             ButtonUtils.InitButton(refreshButton, "Refresh Songs", new Action(() => { OnRefreshButtonShot(); }), 
                                    refreshButtonPos, refreshButtonRot);
