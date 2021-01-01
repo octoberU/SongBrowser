@@ -10,6 +10,7 @@ namespace AudicaModding
         public enum ButtonLocation
         {
             Menu,
+            Pause,
             Failed,
             EndGame
         }

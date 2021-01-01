@@ -376,6 +376,11 @@ namespace AudicaModding
                     DeleteButton.CreateDeleteButton(ButtonUtils.ButtonLocation.Failed);
                     FavoriteButton.CreateFavoriteButton(ButtonUtils.ButtonLocation.Failed);
                 }
+                else if (state == InGameUI.State.PausePage)
+                {
+                    DeleteButton.CreateDeleteButton(ButtonUtils.ButtonLocation.Pause);
+                    FavoriteButton.CreateFavoriteButton(ButtonUtils.ButtonLocation.Pause);
+                }
                 else if (state == InGameUI.State.EndGameContinuePage)
                 {
                     DeleteButton.CreateDeleteButton(ButtonUtils.ButtonLocation.EndGame);

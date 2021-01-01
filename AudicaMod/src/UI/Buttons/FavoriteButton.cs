@@ -33,6 +33,10 @@ namespace AudicaModding
             {
                 name = "InGameUI/ShellPage_Failed/page/ShellPanel_Center/exit";
             }
+            else if (location == ButtonUtils.ButtonLocation.Pause)
+            {
+                name = "InGameUI/ShellPage_Pause/page/ShellPanel_Center/exit";
+            }
             else if (location == ButtonUtils.ButtonLocation.Menu)
             {
                 name          = "menu/ShellPage_Launch/page/backParent/back";
