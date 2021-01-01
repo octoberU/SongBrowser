@@ -53,6 +53,7 @@ namespace AudicaModding
                 if (currentSong.artist.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
                     currentSong.title.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
                     currentSong.songID.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
+                    currentSong.author.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
                     currentSong.artist.ToLowerInvariant().Replace(" ", "").Contains(query.ToLowerInvariant()) ||
                     currentSong.title.ToLowerInvariant().Replace(" ", "").Contains(query.ToLowerInvariant()))
                 {
