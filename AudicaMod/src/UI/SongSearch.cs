@@ -10,31 +10,6 @@ namespace AudicaModding
         public static string query;
         public static bool   searchInProgress = false;
 
-        private static GameObject searchButton;
-
-        private static Vector3 searchButtonPos = new Vector3(0f, 15.1f, 0.0f);
-        private static Vector3 searchButtonRot = new Vector3(0f, 0f, 0f);
-
-        public static void CreateSearchButton()
-        {
-
-            if (searchButton != null)
-            {
-                searchButton.SetActive(true);
-                return;
-            }
-            var backButton = GameObject.Find("menu/ShellPage_Song/page/backParent/back");
-            searchButton = GameObject.Instantiate(backButton, backButton.transform.parent.transform);
-            ButtonUtils.InitButton(searchButton, "Search", new Action(() => { OnSearchButtonShot(); }),
-                                   searchButtonPos, searchButtonRot);
-        }
-        private static void OnSearchButtonShot()
-        {
-            searchInProgress = true;
-            MenuState.I.GoToSettingsPage();
-            // moves to search page next via Hooks.PatchShowOptionsPage.Postfix()
-        }
-
         public static void CancelSearch()
         {
             searchInProgress = false;

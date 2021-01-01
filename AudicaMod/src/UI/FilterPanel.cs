@@ -22,15 +22,15 @@ namespace AudicaModding
         public static GameObject notificationPanel;
         static TextMeshPro notificationText;
 
-        public static GameObject favoritesButtonSelectedIndicator;
-        public static GameObject searchButtonSelectedIndicator;
+        private static GameObject favoritesButtonSelectedIndicator;
+        private static GameObject searchButtonSelectedIndicator;
 
         public static Favorites favorites;
 
         public static bool firstTime = true;
 
-        public static bool filteringFavorites = false;
-        public static bool filteringSearch    = false;
+        public static bool filteringFavorites { get; private set; }
+        public static bool filteringSearch    { get; private set; }
 
         static string favoritesPath = Application.dataPath + "/../" + "/UserData/"+ "SongBrowserFavorites.json";
 
@@ -88,10 +88,19 @@ namespace AudicaModding
 
         public static void DisableCustomFilters()
         {
+            DisableFavoritesFilter();
+            DisableSearchFilter();
+        }
+        private static void DisableFavoritesFilter()
+        {
             filteringFavorites = false;
             favoritesButtonSelectedIndicator.SetActive(false);
+        }
+        private static void DisableSearchFilter()
+        {
             filteringSearch = false;
             searchButtonSelectedIndicator.SetActive(false);
+            SongSearchButton.HideSearchButton();
         }
 
         public static void FilterSearch()
@@ -101,14 +110,13 @@ namespace AudicaModding
             {
                 filteringSearch = true;
                 searchButtonSelectedIndicator.SetActive(true);
+                SongSearchButton.ShowSearchButton();
 
-                filteringFavorites = false;
-                favoritesButtonSelectedIndicator.SetActive(false);
+                DisableFavoritesFilter();
             }
             else
             {
-                filteringSearch = false;
-                searchButtonSelectedIndicator.SetActive(false);
+                DisableSearchFilter();
             }
             songSelect.ShowSongList();
         }
@@ -121,13 +129,11 @@ namespace AudicaModding
                 filteringFavorites = true;
                 favoritesButtonSelectedIndicator.SetActive(true);
 
-                filteringSearch = false;
-                searchButtonSelectedIndicator.SetActive(false);
+                DisableSearchFilter();
             }
             else
             {
-                filteringFavorites = false;
-                favoritesButtonSelectedIndicator.SetActive(false);
+                DisableFavoritesFilter();
             }
             songSelect.ShowSongList();
         }

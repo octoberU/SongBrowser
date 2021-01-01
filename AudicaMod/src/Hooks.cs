@@ -1,10 +1,7 @@
 ﻿using Harmony;
 using UnityEngine;
-using System.Reflection;
 using System;
 using MelonLoader;
-using Valve.VR.InteractionSystem;
-using TMPro;
 using System.Linq;
 using static DifficultyCalculator;
 
@@ -13,7 +10,6 @@ namespace AudicaModding
     internal static class Hooks
     {
         private static int buttonCount = 0;
-        private static int scrollCounter = 2;
 
         /*
         public static void ApplyHooks(HarmonyInstance instance)
@@ -33,6 +29,7 @@ namespace AudicaModding
                     if (buttonCount == 9)
                     {
                         SongDownloaderUI.AddPageButton(__instance, 0);
+                        SongSearchScreen.SetMenu(__instance);
                     }
                 }
             }
@@ -51,7 +48,7 @@ namespace AudicaModding
             {
                 if (page == OptionsMenu.Page.Main && SongSearch.searchInProgress)
                 {
-                    SongDownloaderUI.GoToLocalSearchPage();
+                    SongSearchScreen.GoToSearch();
                 }
             }
         }
@@ -110,6 +107,7 @@ namespace AudicaModding
                                 SongBrowser.shouldShowKeyboard = false;
                                 SongSearch.Search();
                                 MenuState.I.GoToSongPage();
+                                SongSearchButton.UpdateSearchButton();
                                 break;
                             case "clear":
                                     SongSearch.query = "";
@@ -119,9 +117,9 @@ namespace AudicaModding
                                 break;
                         }
 
-                        if (SongDownloaderUI.searchText != null)
+                        if (SongSearchScreen.searchText != null)
                         {
-                            SongDownloaderUI.searchText.text = SongSearch.query;
+                            SongSearchScreen.searchText.text = SongSearch.query;
                         }
                     }
                     else
@@ -167,9 +165,9 @@ namespace AudicaModding
                     {
                         SongSearch.query += " ";
 
-                        if (SongDownloaderUI.searchText != null)
+                        if (SongSearchScreen.searchText != null)
                         {
-                            SongDownloaderUI.searchText.text = SongSearch.query;
+                            SongSearchScreen.searchText.text = SongSearch.query;
                         }
                     }
                     else
@@ -203,9 +201,9 @@ namespace AudicaModding
                             return false;
                         SongSearch.query = SongSearch.query.Substring(0, SongSearch.query.Length - 1);
 
-                        if (SongDownloaderUI.searchText != null)
+                        if (SongSearchScreen.searchText != null)
                         {
-                            SongDownloaderUI.searchText.text = SongSearch.query;
+                            SongSearchScreen.searchText.text = SongSearch.query;
                         }
                     }
                     else
@@ -358,7 +356,7 @@ namespace AudicaModding
                 {
                     ScoreDisplayList.Show();
                     RandomSong.CreateRandomSongButton();
-                    SongSearch.CreateSearchButton();
+                    SongSearchButton.CreateSearchButton();
                     RefreshButton.CreateRefreshButton();
                 }
                 else

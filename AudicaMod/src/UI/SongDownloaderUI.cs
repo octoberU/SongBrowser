@@ -27,22 +27,14 @@ namespace AudicaModding
 		{
 			primaryMenu = optionsMenu;
 			primaryMenu.AddButton(col, "Download Songs", new System.Action(() => {
-				GoToArenaPage();
+				GoToWebSearchPage();
 				if (songItemPanel != null)
 					songItemPanel.SetPageActive(true);
 			}), null, "Download new maps from the Audica Modding Discord");
+
 		}
 
-		static public void GoToLocalSearchPage()
-		{
-			SongSearch.query = "";
-			primaryMenu.ShowPage(OptionsMenu.Page.Customization);
-			CleanUpPage(primaryMenu);
-			AddBasicButtons(primaryMenu);
-			primaryMenu.screenTitle.text = "Search";
-		}
-
-		public static void GoToArenaPage()
+		public static void GoToWebSearchPage()
 		{
 			SongBrowser.page = 1;
 			if (songItemPanel == null)
@@ -59,8 +51,7 @@ namespace AudicaModding
 
 			primaryMenu.ShowPage(OptionsMenu.Page.Customization);
 			CleanUpPage(primaryMenu);
-			AddBasicButtons(primaryMenu);
-			AddWebSearchButtons(primaryMenu);
+			AddButtons(primaryMenu);
 			primaryMenu.screenTitle.text = "Filters";
 			SongBrowser.lastSongCount = SongBrowser.newSongCount; //User has seen new songs
 			SongBrowser.SaveConfig();
@@ -82,7 +73,7 @@ namespace AudicaModding
 			songItemMenu.screenTitle.text = "Songs";
 		}
 
-		private static void AddBasicButtons(OptionsMenu optionsMenu)
+		private static void AddButtons(OptionsMenu optionsMenu)
 		{
 			var header = optionsMenu.AddHeader(0, "Filter by: Artist, Title, Mapper");
 			optionsMenu.scrollable.AddRow(header);
@@ -90,10 +81,7 @@ namespace AudicaModding
 			var searchField = optionsMenu.AddButton(0, "Search:", new Action(() => { SongBrowser.shouldShowKeyboard = true; optionsMenu.keyboard.Show(); }), null, "Filter by: Artist, Title, Mapper", optionsMenu.textEntryButtonPrefab);
 			optionsMenu.scrollable.AddRow(searchField.gameObject);
 			searchText = searchField.gameObject.GetComponentInChildren<TextMeshPro>();
-		}
 
-		private static void AddWebSearchButtons(OptionsMenu optionsMenu)
-		{
 			var difficultyHeader = optionsMenu.AddHeader(0, "Filter difficulty");
 			optionsMenu.scrollable.AddRow(difficultyHeader);
 
@@ -298,7 +286,7 @@ namespace AudicaModding
 
 		static IEnumerator WaitForSpawningMenu(GameObject panel)
 		{
-			yield return new WaitForSeconds(0.02f);
+			yield return new WaitForSeconds(0.05f);
 			SetupSecondaryPanel(panel);
 			AddSongItems(panel.GetComponentInChildren<OptionsMenu>(), SongBrowser.songlist);
 		}
