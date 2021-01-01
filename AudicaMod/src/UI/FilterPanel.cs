@@ -30,14 +30,19 @@ namespace AudicaModding
         public static bool firstTime = true;
 
         public static bool filteringFavorites = false;
-        public static bool filteringSearch = false;
+        public static bool filteringSearch    = false;
 
         static string favoritesPath = Application.dataPath + "/../" + "/UserData/"+ "SongBrowserFavorites.json";
+
+        private static SongSelect       songSelect       = null;
+        private static SongListControls songListControls = null;
 
         public static void Initialize()
         {
             if (firstTime)
             {
+                songSelect       = GameObject.FindObjectOfType<SongSelect>();
+                songListControls = GameObject.FindObjectOfType<SongListControls>();
                 GetReferences();
                 firstTime = false;
                 notificationPanel.transform.localPosition = new Vector3(0f, -17.5f, 0f);
@@ -54,7 +59,7 @@ namespace AudicaModding
                 filterButton.GetComponentInChildren<GunButton>().onHitEvent.AddListener(new Action(() => 
                 { 
                     DisableCustomFilters();
-                    GameObject.FindObjectOfType<SongSelect>().ShowSongList();
+                    songSelect.ShowSongList();
                 }));
             }
         }
@@ -91,7 +96,7 @@ namespace AudicaModding
 
         public static void FilterSearch()
         {
-            GameObject.FindObjectOfType<SongListControls>().FilterExtras(); // this seems to fix duplicated songs;
+            songListControls.FilterExtras(); // this seems to fix duplicated songs;
             if (!filteringSearch)
             {
                 filteringSearch = true;
@@ -105,12 +110,12 @@ namespace AudicaModding
                 filteringSearch = false;
                 searchButtonSelectedIndicator.SetActive(false);
             }
-            GameObject.FindObjectOfType<SongSelect>().ShowSongList();
+            songSelect.ShowSongList();
         }
 
         public static void FilterFavorites()
         {
-            GameObject.FindObjectOfType<SongListControls>().FilterExtras(); // this seems to fix duplicated songs;
+            songListControls.FilterExtras(); // this seems to fix duplicated songs;
             if (!filteringFavorites)
             {
                 filteringFavorites = true;
@@ -124,7 +129,7 @@ namespace AudicaModding
                 filteringFavorites = false;
                 favoritesButtonSelectedIndicator.SetActive(false);
             }
-            GameObject.FindObjectOfType<SongSelect>().ShowSongList();
+            songSelect.ShowSongList();
         }
 
         public static void GetReferences()
@@ -162,6 +167,11 @@ namespace AudicaModding
         {
             string text = JSON.Dump(favorites);
             File.WriteAllText(favoritesPath, text);
+        }
+
+        public static bool IsFavorite(string songID)
+        {
+            return favorites.songIDs.Contains(songID);
         }
 
         public static void AddFavorite(string songID)

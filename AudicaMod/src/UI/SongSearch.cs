@@ -31,14 +31,14 @@ namespace AudicaModding
         private static void OnSearchButtonShot()
         {
             searchInProgress = true;
-            GameObject.FindObjectOfType<MenuState>().GoToSettingsPage();
+            MenuState.I.GoToSettingsPage();
             // moves to search page next via Hooks.PatchShowOptionsPage.Postfix()
         }
 
         public static void CancelSearch()
         {
             searchInProgress = false;
-            GameObject.FindObjectOfType<MenuState>().GoToSongPage();
+            MenuState.I.GoToSongPage();
         }
 
         public static void Search()

@@ -13,6 +13,8 @@ namespace AudicaModding
         private static Vector3 delButtonInGameUIPosition = new Vector3(-5f, -15.5f, 0f);
         private static Vector3 delButtonInGameUIRotation = new Vector3(0f, 0f, 0f);
 
+        private static LaunchPanel panel = null;
+
         public static void CreateDeleteButton(ButtonUtils.ButtonLocation location = ButtonUtils.ButtonLocation.Menu)
         {
             // can only reuse the menu button, InGameUI gets recreated each time
@@ -22,6 +24,7 @@ namespace AudicaModding
                 return;
             }
 
+            panel                 = GameObject.FindObjectOfType<LaunchPanel>();
             string  name          = "InGameUI/ShellPage_EndGameContinue/page/ShellPanel_Center/exit";
             Vector3 localPosition = delButtonInGameUIPosition;
             Vector3 rotation      = delButtonInGameUIRotation;
@@ -50,12 +53,12 @@ namespace AudicaModding
         private static void OnDeleteButtonShot()
         {
             Delete();
-            GameObject.FindObjectOfType<LaunchPanel>().Back();
+            panel.Back();
         }
         private static void OnInGameUIDeleteButtonShot()
         {
             Delete();
-            GameObject.FindObjectOfType<InGameUI>().ReturnToSongList();
+            InGameUI.I.ReturnToSongList();
         }
 
         private static void Delete()

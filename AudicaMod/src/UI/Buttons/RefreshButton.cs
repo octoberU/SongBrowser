@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using Harmony;
 
 namespace AudicaModding
 {
@@ -25,7 +24,7 @@ namespace AudicaModding
         }
         private static void OnRefreshButtonShot()
         {
-            GameObject.FindObjectOfType<MenuState>().GoToMainPage();
+            MenuState.I.GoToMainPage();
             SongBrowser.ReloadSongList();
         }
     }

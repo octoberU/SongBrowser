@@ -108,8 +108,8 @@ namespace AudicaModding
                             case "done":
                                 __instance.Hide();
                                 SongBrowser.shouldShowKeyboard = false;
-                                    SongSearch.Search();
-                                    GameObject.FindObjectOfType<MenuState>().GoToSongPage();
+                                SongSearch.Search();
+                                MenuState.I.GoToSongPage();
                                 break;
                             case "clear":
                                     SongSearch.query = "";

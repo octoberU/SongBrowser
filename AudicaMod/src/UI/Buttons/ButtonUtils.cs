@@ -19,8 +19,7 @@ namespace AudicaModding
         {
             GameObject.Destroy(button.GetComponentInChildren<Localizer>());
 
-            TextMeshPro buttonText = button.GetComponentInChildren<TextMeshPro>();
-            buttonText.text        = label;
+            UpdateButtonLabel(button, label);
 
             GunButton gb       = button.GetComponentInChildren<GunButton>();
             gb.destroyOnShot   = false;
@@ -31,6 +30,12 @@ namespace AudicaModding
 
             button.transform.localPosition = localPosition;
             button.transform.Rotate(rotation);
+        }
+
+        public static void UpdateButtonLabel(GameObject button, string label)
+        {
+            TextMeshPro buttonText = button.GetComponentInChildren<TextMeshPro>();
+            buttonText.text = label;
         }
     }
 }

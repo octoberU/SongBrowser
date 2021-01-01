@@ -13,15 +13,19 @@ namespace AudicaModding
         private static Vector3 favButtonInGameUIPosition = new Vector3(5f, -15.5f, 0f);
         private static Vector3 favButtonInGameUIRotation = new Vector3(0f, 0f, 0f);
 
+        private static LaunchPanel panel = null;
+
         public static void CreateFavoriteButton(ButtonUtils.ButtonLocation location = ButtonUtils.ButtonLocation.Menu)
         {
             // can only reuse the menu button, InGameUI gets recreated each time
             if (location == ButtonUtils.ButtonLocation.Menu && favoriteButton != null)
             {
+                UpdateLabel();
                 favoriteButton.SetActive(true);
                 return;
             }
             
+            panel                 = GameObject.FindObjectOfType<LaunchPanel>();
             string  name          = "InGameUI/ShellPage_EndGameContinue/page/ShellPanel_Center/exit";
             Vector3 localPosition = favButtonInGameUIPosition;
             Vector3 rotation      = favButtonInGameUIRotation;
@@ -44,7 +48,7 @@ namespace AudicaModding
             {
                 favoriteButton = button;
             }
-            ButtonUtils.InitButton(button, "Favorite", listener, localPosition, rotation);
+            ButtonUtils.InitButton(button, FindLabel(), listener, localPosition, rotation);
         }
 
         private static void OnFavoriteButtonShot()
@@ -55,13 +59,26 @@ namespace AudicaModding
         private static void OnInGameUIFavoriteButtonShot()
         {
             Favorite();
-            GameObject.FindObjectOfType<InGameUI>().ReturnToSongList();
+            InGameUI.I.ReturnToSongList();
         }
 
         private static void Favorite()
         {
             var song = SongDataHolder.I.songData;
             FilterPanel.AddFavorite(song.songID);
+        }
+
+        private static void UpdateLabel()
+        {
+            ButtonUtils.UpdateButtonLabel(favoriteButton, FindLabel());
+        }
+
+        private static string FindLabel()
+        {
+            if (FilterPanel.IsFavorite(SongDataHolder.I.songData.songID))
+                return "Unfavorite";
+            else
+                return "Favorite";
         }
     }
 }
