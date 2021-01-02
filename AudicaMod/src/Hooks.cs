@@ -254,9 +254,12 @@ namespace AudicaModding
                     if (FilterPanel.favorites != null)
                     {
                         __result.Clear();
+                        string id;
                         for (int i = 0; i < FilterPanel.favorites.songIDs.Count; i++)
                         {
-                            __result.Add(FilterPanel.favorites.songIDs[i]);
+                            id = FilterPanel.favorites.songIDs[i];
+                            if (SongBrowser.songIDs.Contains(id))
+                                __result.Add(id);
                         }
                     }
                     __instance.scroller.SnapTo(0, true);
@@ -362,7 +365,7 @@ namespace AudicaModding
                 else
                 {
                     ScoreDisplayList.Hide();
-                }           
+                }
             }
         }
 

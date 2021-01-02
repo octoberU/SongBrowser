@@ -44,6 +44,8 @@ namespace AudicaModding
         public static int newSongCount;
         public static int lastSongCount;
 
+        public static HashSet<string> songIDs = new HashSet<string>();
+
         //Meeps' Stuff
         public static bool songDataLoaderInstalled = false;
         public class SongDisplayPackage
@@ -235,15 +237,24 @@ namespace AudicaModding
                 SongList.OnSongListLoaded.On(new Action(() => { songSelect.ShowSongList(); }));
             }
 
+            CacheSongIDs();
+
             if (songDataLoaderInstalled)
             {
                 SongList.OnSongListLoaded.On(new Action(() => { SafeDataLoaderReload(); }));
             }
 
             DebugText("Reloading Songs");
-			
         }
 
+        public static void CacheSongIDs()
+        {
+            songIDs.Clear();
+            for (int i = 0; i < SongList.I.songs.Count; i++)
+            {
+                songIDs.Add(SongList.I.songs[i].songID);
+            }
+        }
         private static void SafeDataLoaderReload()
         {
             SongDataLoader.ReloadSongData();
