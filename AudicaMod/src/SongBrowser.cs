@@ -231,18 +231,8 @@ namespace AudicaModding
             SongList.SongSourceDirs = new Il2CppSystem.Collections.Generic.List<SongList.SongSourceDir>();
             SongList.AddSongSearchDir(Application.dataPath, downloadsDirectory);
             SongList.I.StartAssembleSongList();
-            SongSelect songSelect = GameObject.FindObjectOfType<SongSelect>();
-            if (songSelect != null)
-            {
-                SongList.OnSongListLoaded.On(new Action(() => { songSelect.ShowSongList(); }));
-            }
 
-            CacheSongIDs();
-
-            if (songDataLoaderInstalled)
-            {
-                SongList.OnSongListLoaded.On(new Action(() => { SafeDataLoaderReload(); }));
-            }
+            SongLoadingManager.StartSongListUpdate();
 
             DebugText("Reloading Songs");
         }
@@ -254,11 +244,6 @@ namespace AudicaModding
             {
                 songIDs.Add(SongList.I.songs[i].songID);
             }
-        }
-        private static void SafeDataLoaderReload()
-        {
-            SongDataLoader.ReloadSongData();
-            MelonLogger.Log("Song Data Reloaded");
         }
 
         public static void StartSongSearch()

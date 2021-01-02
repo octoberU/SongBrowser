@@ -243,6 +243,15 @@ namespace AudicaModding
             }
         }
 
+        [HarmonyPatch(typeof(SongList), "Start", new Type[0])]
+        private static class PatchSongListStart
+        {
+            private static void Prefix(SongList __instance)
+            {
+                SongLoadingManager.StartSongListUpdate();
+            }
+        }
+
         [HarmonyPatch(typeof(SongSelect), "GetSongIDs", new Type[] { typeof(bool) })]
         private static class FilterScrollerItems
         {
@@ -338,7 +347,14 @@ namespace AudicaModding
             }
         }
 
-
+        [HarmonyPatch(typeof(MainMenuPanel), "OnEnable", new Type[0])]
+        private static class PatchMainMenuPanel
+        {
+            private static void Postfix(MenuState __instance)
+            {
+                SongLoadingManager.UpdateUI();
+            }
+        }
 
         [HarmonyPatch(typeof(MenuState), "SetState", new Type[] { typeof(MenuState.State) })]
         private static class Patch2SetMenuState
