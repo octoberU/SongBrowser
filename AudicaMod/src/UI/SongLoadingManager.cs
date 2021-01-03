@@ -58,6 +58,9 @@ namespace AudicaModding
 		/// </summary>
 		public static void UpdateUI()
         {
+			if (!Config.BlockOnSongListReload)
+				return;
+
 			if (!searching || disabled || MenuState.GetState() != MenuState.State.MainPage)
 				return;
 
@@ -69,30 +72,39 @@ namespace AudicaModding
 				soloButtonLabel = GameObject.Find("menu/ShellPage_Main/page/ShellPanel_Center/Solo/Label").GetComponent<TextMeshPro>();
 				GameObject.Destroy(soloButtonLabel.gameObject.GetComponent<Localizer>());
 			}
-			if (partyButton == null)
-			{
-				partyButton      = GameObject.Find("menu/ShellPage_Main/page/ShellPanel_Center/Party/Button").GetComponent<GunButton>();
-				partyButtonLabel = GameObject.Find("menu/ShellPage_Main/page/ShellPanel_Center/Party/Label").GetComponent<TextMeshPro>();
-				GameObject.Destroy(partyButtonLabel.gameObject.GetComponent<Localizer>());
-			}
 
 			originalSoloButtonText  = soloButtonLabel.text;
 			soloButtonLabel.text    = "Loading...";
 			soloButton.SetInteractable(false);
-
-			originalPartyButtonText  = partyButtonLabel.text;
-			partyButtonLabel.text    = "Loading...";
-			partyButton.SetInteractable(false);
+			
+			if (!SongBrowser.modSettingsInstalled)
+            {
+				if (partyButton == null)
+				{
+					partyButton      = GameObject.Find("menu/ShellPage_Main/page/ShellPanel_Center/Party/Button").GetComponent<GunButton>();
+					partyButtonLabel = GameObject.Find("menu/ShellPage_Main/page/ShellPanel_Center/Party/Label").GetComponent<TextMeshPro>();
+					GameObject.Destroy(partyButtonLabel.gameObject.GetComponent<Localizer>());
+				}
+				originalPartyButtonText  = partyButtonLabel.text;
+				partyButtonLabel.text    = "Loading...";
+				partyButton.SetInteractable(false);
+            }
 		}
 
 		private static void EnableButtons()
-        {
+		{
+			if (!Config.BlockOnSongListReload)
+				return;
+
 			if (disabled)
 			{
 				soloButton.SetInteractable(true);
-				soloButtonLabel.text  = originalSoloButtonText;
-				partyButton.SetInteractable(true);
-				partyButtonLabel.text = originalPartyButtonText;
+				soloButtonLabel.text = originalSoloButtonText;
+				if (!SongBrowser.modSettingsInstalled)
+				{
+					partyButton.SetInteractable(true);
+					partyButtonLabel.text = originalPartyButtonText;
+				}
 			}
 
 			disabled = false;

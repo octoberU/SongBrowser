@@ -12,7 +12,7 @@ using OggDecoder;
 using System.Linq;
 using TMPro;
 using UnityEngine.Events;
-[assembly: MelonOptionalDependencies("SongDataLoader")]
+[assembly: MelonOptionalDependencies("SongDataLoader", "ModSettings")]
 
 namespace AudicaModding
 {
@@ -45,6 +45,8 @@ namespace AudicaModding
         public static int lastSongCount;
 
         public static HashSet<string> songIDs = new HashSet<string>();
+
+        public static bool modSettingsInstalled = false;
 
         //Meeps' Stuff
         public static bool songDataLoaderInstalled = false;
@@ -90,22 +92,27 @@ namespace AudicaModding
             }
         }
 
-        private void CreateConfig()
+        private void CreatePrivateConfig()
         {
             MelonPrefs.RegisterInt("RandomSong", "RandomSongBagSize", 10);
             MelonPrefs.RegisterInt("SongBrowser", "LastSongCount", 0);
         }
 
-        private void LoadConfig()
+        private void LoadPrivateConfig()
         {
             RandomSong.LoadBagSize(MelonPrefs.GetInt("RandomSong", "RandomSongBagSize"));
             lastSongCount = MelonPrefs.GetInt("SongBrowser", "LastSongCount");
         }
 
-        public static void SaveConfig()
+        public static void SavePrivateConfig()
         {
             MelonPrefs.SetInt("RandomSong", "RandomSongBagSize", RandomSong.randomSongBagSize);
             MelonPrefs.SetInt("SongBrowser", "LastSongCount", lastSongCount);
+        }
+
+        public override void OnModSettingsApplied()
+        {
+            Config.OnModSettingsApplied();
         }
 
         public override void OnLevelWasLoaded(int level)
@@ -113,16 +120,17 @@ namespace AudicaModding
 
             if (!MelonPrefs.HasKey("RandomSong", "RandomSongBagSize") || !MelonPrefs.HasKey("SongBrowser", "LastSongCount"))
             {
-                CreateConfig();
+                CreatePrivateConfig();
             }
             else
             {
-                LoadConfig();
+                LoadPrivateConfig();
             }
         }
 
         public override void OnApplicationStart()
         {
+            Config.RegisterConfig();
             downloadsDirectory = Application.dataPath.Replace("Audica_Data", "Downloads");
             customSongDirectory = Application.dataPath.Replace("Audica_Data", "CustomSongs");
             CheckFolderDirectories();
@@ -137,6 +145,11 @@ namespace AudicaModding
             }
             else
                 MelonLogger.LogWarning("Song Data Loader is not installed. Consider downloading it for the best experience :3");
+
+            if (MelonHandler.Mods.Any(it => it.Info.SystemType.Name == nameof(ModSettings)))
+            {
+                modSettingsInstalled = true;
+            }
         }
 
         private void CheckFolderDirectories()
