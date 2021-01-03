@@ -103,6 +103,11 @@ namespace AudicaModding
             SongSearchButton.HideSearchButton();
         }
 
+        public static void ResetFilterState()
+        {
+            filterStateChanged = true;
+        }
+
         public static void UpdateScrollPosition(ShellScrollable scroller)
         {
             // only reset scroller if the user switched filters

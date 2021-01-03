@@ -7,11 +7,11 @@ namespace AudicaModding
     {
         public const string Category = "SongBrowser";
 
-        public static bool BlockOnSongListReload;
+        public static bool SafeSongListReload;
 
         public static void RegisterConfig()
         {
-            MelonPrefs.RegisterBool(Category, nameof(BlockOnSongListReload), true, 
+            MelonPrefs.RegisterBool(Category, nameof(SafeSongListReload), true, 
                                     "Blocks access to song list during song list reload (safety feature).");
 
             OnModSettingsApplied();

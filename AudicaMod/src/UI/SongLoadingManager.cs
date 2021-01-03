@@ -42,6 +42,7 @@ namespace AudicaModding
 				}
 
 				SongBrowser.UpdateSongCaches();
+				SongSearch.Search(); // update the search results with any new songs (if there is a search)
 
 				KataConfig.I.CreateDebugText("Songs Loaded", new Vector3(0f, -1f, 5f), 5f, null, false, 0.2f);
 
@@ -58,7 +59,7 @@ namespace AudicaModding
 		/// </summary>
 		public static void UpdateUI()
         {
-			if (!Config.BlockOnSongListReload)
+			if (!Config.SafeSongListReload)
 				return;
 
 			if (!searching || disabled || MenuState.GetState() != MenuState.State.MainPage)
@@ -93,7 +94,7 @@ namespace AudicaModding
 
 		private static void EnableButtons()
 		{
-			if (!Config.BlockOnSongListReload)
+			if (!Config.SafeSongListReload)
 				return;
 
 			if (disabled)

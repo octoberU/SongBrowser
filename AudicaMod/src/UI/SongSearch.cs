@@ -19,6 +19,9 @@ namespace AudicaModding
             searchResult.Clear();
             searchInProgress = false;
 
+            if (string.IsNullOrEmpty(query))
+                return;
+
             for (int i = 0; i < SongList.I.songs.Count - 1; i++)
             {
                 SongList.SongData currentSong = SongList.I.songs[i];
@@ -33,6 +36,14 @@ namespace AudicaModding
                     searchResult.Add(currentSong.songID);
                 }
             }
+        }
+
+        public static void OnNewUserSearch()
+        {
+            Search();
+            FilterPanel.ResetFilterState();
+            MenuState.I.GoToSongPage();
+            SongSearchButton.UpdateSearchButton();
         }
     }
 }

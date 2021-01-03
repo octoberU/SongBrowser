@@ -105,9 +105,7 @@ namespace AudicaModding
                             case "done":
                                 __instance.Hide();
                                 SongBrowser.shouldShowKeyboard = false;
-                                SongSearch.Search();
-                                MenuState.I.GoToSongPage();
-                                SongSearchButton.UpdateSearchButton();
+                                SongSearch.OnNewUserSearch();
                                 break;
                             case "clear":
                                     SongSearch.query = "";
