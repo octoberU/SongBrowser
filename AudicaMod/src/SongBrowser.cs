@@ -35,8 +35,8 @@ namespace AudicaModding
         public static string searchString = "";
         public static bool needRefresh = false;
         public static int page = 1;
-        public static string customSongDirectory;
         public static string downloadsDirectory;
+        public static string deletedDownloadsListPath;
         public static bool emptiedDownloadsFolder = false;
         public static bool addedCustomsDir = false;
         public static List<string> deletedSongs = new List<string>();
@@ -131,8 +131,8 @@ namespace AudicaModding
         public override void OnApplicationStart()
         {
             Config.RegisterConfig();
-            downloadsDirectory = Application.dataPath.Replace("Audica_Data", "Downloads");
-            customSongDirectory = Application.dataPath.Replace("Audica_Data", "CustomSongs");
+            downloadsDirectory       = Application.dataPath.Replace("Audica_Data", "Downloads");
+            deletedDownloadsListPath = Path.Combine(downloadsDirectory, "SongBrowserDownload_DeletedFiles");
             CheckFolderDirectories();
             StartSongSearch();
             var i = HarmonyInstance.Create("Song Downloader");
@@ -157,10 +157,6 @@ namespace AudicaModding
             if (!Directory.Exists(downloadsDirectory))
             {
                 Directory.CreateDirectory(downloadsDirectory);
-            }
-            if (!Directory.Exists(customSongDirectory))
-            {
-                Directory.CreateDirectory(customSongDirectory);
             }
         }
 
@@ -191,12 +187,30 @@ namespace AudicaModding
 
         public static void CleanDeletedSongs()
         {
+            List<string> downloadsMarkedForDeletion = new List<string>();
             foreach (var songPath in deletedSongPaths)
             {
                 if (File.Exists(songPath))
                 {
                     File.Delete(songPath);
                 }
+                else
+                {
+                    // could be a fresh download
+                    string fileName     = Path.GetFileName(songPath);
+                    string downloadPath = Path.Combine(downloadsDirectory, fileName);
+                    if (File.Exists(downloadPath))
+                    {
+                        // can't delete while game is still running since it has a write-lock
+                        downloadsMarkedForDeletion.Add(fileName);
+                    }
+                }
+            }
+            if (downloadsMarkedForDeletion.Count > 0)
+            {
+                // store these so they can be deleted on next launch
+                string text = JSON.Dump(downloadsMarkedForDeletion);
+                File.WriteAllText(deletedDownloadsListPath, text);
             }
         }
 
@@ -293,7 +307,6 @@ namespace AudicaModding
             string[] splitURL = downloadUrl.Split('/');
             string audicaName = splitURL[splitURL.Length - 1];
             string path = Application.streamingAssetsPath + "\\HmxAudioAssets\\songs\\" + audicaName;
-            string customSongsPath = customSongDirectory + "\\" + audicaName;
             string downloadPath = downloadsDirectory + "\\" + audicaName;
             if (!File.Exists(path) && !File.Exists(downloadPath) && !File.Exists(downloadPath))
             {
