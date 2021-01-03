@@ -260,6 +260,7 @@ namespace AudicaModding
                     extras = true;
                     if (FilterPanel.favorites != null)
                     {
+                        __instance.songSelectHeaderItems.mItems[0].titleLabel.text = "Favorites";
                         __result.Clear();
                         string id;
                         for (int i = 0; i < FilterPanel.favorites.songIDs.Count; i++)
@@ -277,6 +278,7 @@ namespace AudicaModding
                     extras = true;
                     if (SongSearch.searchResult != null)
                     {
+                        __instance.songSelectHeaderItems.mItems[0].titleLabel.text = "Search Results";
                         __result.Clear();
                         for (int i = 0; i < SongSearch.searchResult.Count; i++)
                         {
