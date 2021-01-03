@@ -36,13 +36,13 @@ namespace AudicaModding
 			SongList.OnSongListLoaded.On(new Action(() => {
 				MapperNames.FixMappers();
 
-				SongBrowser.CacheSongIDs();
-
 				if (SongBrowser.songDataLoaderInstalled)
                 {
 					SafeDataLoaderReload();
 				}
-				
+
+				SongBrowser.UpdateSongCaches();
+
 				KataConfig.I.CreateDebugText("Songs Loaded", new Vector3(0f, -1f, 5f), 5f, null, false, 0.2f);
 
 				EnableButtons();

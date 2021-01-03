@@ -250,12 +250,18 @@ namespace AudicaModding
             DebugText("Reloading Songs");
         }
 
-        public static void CacheSongIDs()
+        public static void UpdateSongCaches()
         {
             songIDs.Clear();
             for (int i = 0; i < SongList.I.songs.Count; i++)
             {
-                songIDs.Add(SongList.I.songs[i].songID);
+                string songID = SongList.I.songs[i].songID;
+                songIDs.Add(songID);
+
+                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Easy.ToString());
+                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Normal.ToString());
+                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Hard.ToString());
+                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Expert.ToString());
             }
         }
 
