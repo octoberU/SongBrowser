@@ -1,5 +1,4 @@
 ﻿
-using csvorbis;
 using System.Collections.Generic;
 using System.IO;
 using MelonLoader.TinyJSON;
@@ -7,7 +6,6 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using MelonLoader;
 
 namespace AudicaModding
 {
@@ -36,6 +34,8 @@ namespace AudicaModding
 
         private static SongSelect       songSelect       = null;
         private static SongListControls songListControls = null;
+
+        private static bool filterStateChanged = false;
 
         public static void Initialize()
         {
@@ -103,12 +103,24 @@ namespace AudicaModding
             SongSearchButton.HideSearchButton();
         }
 
+        public static void UpdateScrollPosition(ShellScrollable scroller)
+        {
+            // only reset scroller if the user switched filters
+            // not e.g. when re-entering the song list from a song
+            if (FilterPanel.filterStateChanged)
+            {
+                scroller.SnapTo(0, true);
+                filterStateChanged = false;
+            }
+        }
+
         public static void FilterSearch()
         {
             songListControls.FilterExtras(); // this seems to fix duplicated songs;
             if (!filteringSearch)
             {
                 filteringSearch = true;
+                filterStateChanged = true;
                 searchButtonSelectedIndicator.SetActive(true);
                 SongSearchButton.ShowSearchButton();
 
@@ -127,6 +139,7 @@ namespace AudicaModding
             if (!filteringFavorites)
             {
                 filteringFavorites = true;
+                filterStateChanged = true;
                 favoritesButtonSelectedIndicator.SetActive(true);
 
                 DisableSearchFilter();

@@ -271,7 +271,7 @@ namespace AudicaModding
                                 __result.Add(id);
                         }
                     }
-                    __instance.scroller.SnapTo(0, true);
+                    FilterPanel.UpdateScrollPosition(__instance.scroller);
 
                 }
                 else if (FilterPanel.filteringSearch)
@@ -285,7 +285,7 @@ namespace AudicaModding
                             __result.Add(SongSearch.searchResult[i]);
                         }
                     }
-                    __instance.scroller.SnapTo(0, true);
+                    FilterPanel.UpdateScrollPosition(__instance.scroller);
                 }
                 if (SongBrowser.deletedSongs.Count > 0)
                 {
@@ -413,7 +413,6 @@ namespace AudicaModding
         {
             private static void Postfix(SongSelect __instance)
             {
-                //FilterPanel.filteringFavorites = false;
                 FilterPanel.Initialize();
                 ScoreHistory.LoadHistory(PlatformChooser.I.GetLeaderboardID());
                 MelonCoroutines.Start(SongBrowser.UpdateLastSongCount());
