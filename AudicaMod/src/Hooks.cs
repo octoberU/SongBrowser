@@ -42,7 +42,7 @@ namespace AudicaModding
             {
                 SongBrowser.shouldShowKeyboard = false;
                 buttonCount = 0;
-                SongBrowser.searchString = "";
+                SongDownloader.searchString = "";
             }
             private static void Postfix(InGameUI __instance, OptionsMenu.Page page)
             {
@@ -68,7 +68,7 @@ namespace AudicaModding
                 {
                     if (SongDownloaderUI.songItemPanel != null)
                         SongDownloaderUI.songItemPanel.SetPageActive(false);
-                    if (SongBrowser.needRefresh)
+                    if (SongDownloader.needRefresh)
                         SongBrowser.ReloadSongList();
                 }
                 return true;
@@ -127,20 +127,19 @@ namespace AudicaModding
                             case "done":
                                 __instance.Hide();
                                 SongBrowser.shouldShowKeyboard = false;
-                                SongBrowser.page = 1;
-                                SongBrowser.StartSongSearch();
+                                SongDownloader.StartNewSongSearch();
                                 break;
                             case "clear":
-                                SongBrowser.searchString = "";
+                                SongDownloader.searchString = "";
                                 break;
                             default:
-                                SongBrowser.searchString += label;
+                                SongDownloader.searchString += label;
                                 break;
                         }
 
                         if (SongDownloaderUI.searchText != null)
                         {
-                            SongDownloaderUI.searchText.text = SongBrowser.searchString;
+                            SongDownloaderUI.searchText.text = SongDownloader.searchString;
                         }
                     }
                     return false;
@@ -170,11 +169,11 @@ namespace AudicaModding
                     }
                     else
                     {
-                        SongBrowser.searchString += " ";
+                        SongDownloader.searchString += " ";
 
                         if (SongDownloaderUI.searchText != null)
                         {
-                            SongDownloaderUI.searchText.text = SongBrowser.searchString;
+                            SongDownloaderUI.searchText.text = SongDownloader.searchString;
                         }
                     }
                     return false;
@@ -206,13 +205,13 @@ namespace AudicaModding
                     }
                     else
                     {
-                        if (SongBrowser.searchString == "" || SongBrowser.searchString == null)
+                        if (SongDownloader.searchString == "" || SongDownloader.searchString == null)
                             return false;
-                        SongBrowser.searchString = SongBrowser.searchString.Substring(0, SongBrowser.searchString.Length - 1);
+                        SongDownloader.searchString = SongDownloader.searchString.Substring(0, SongDownloader.searchString.Length - 1);
                         
                         if (SongDownloaderUI.searchText != null)
                         {
-                            SongDownloaderUI.searchText.text = SongBrowser.searchString;
+                            SongDownloaderUI.searchText.text = SongDownloader.searchString;
                         }
                     }
                     return false;
