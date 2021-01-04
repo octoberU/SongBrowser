@@ -9,10 +9,15 @@ namespace AudicaModding
 
         public static bool SafeSongListReload;
 
+        public static bool HideDownloadedSongs;
+
         public static void RegisterConfig()
         {
             MelonPrefs.RegisterBool(Category, nameof(SafeSongListReload), true, 
                                     "Blocks access to song list during song list reload (safety feature).");
+
+            MelonPrefs.RegisterBool(Category, nameof(HideDownloadedSongs), true,
+                                    "Will only show songs that have not been downloaded yet in the download menu.");
 
             OnModSettingsApplied();
         }

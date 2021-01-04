@@ -196,7 +196,8 @@ namespace AudicaModding
 
 			foreach (var song in songlist.songs)
 			{
-				if (! SongBrowser.songIDsHashless.Contains(song.song_id)) // make sure we don't already have this song
+				// make sure we don't already have this song
+				if (! Config.HideDownloadedSongs || ! SongBrowser.songIDsHashless.Contains(song.song_id))
 					CreateSongItem(song, optionsMenu);
 			}
 
