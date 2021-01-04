@@ -5,13 +5,14 @@ namespace AudicaModding
     class SongSearch
     {
         public static List<string> searchResult = new List<string>();
-        public static string query;
-        public static bool   searchInProgress = false;
+        public static string       query;
+        public static bool         searchInProgress = false;
 
         public static void CancelSearch()
         {
             searchInProgress = false;
             MenuState.I.GoToSongPage();
+            SongSearchButton.UpdateSearchButton();
         }
 
         public static void Search()

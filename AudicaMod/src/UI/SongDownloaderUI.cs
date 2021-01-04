@@ -196,9 +196,7 @@ namespace AudicaModding
 
 			foreach (var song in songlist.songs)
 			{
-				// make sure we don't already have this song
-				if (! Config.HideDownloadedSongs || ! SongBrowser.songIDsHashless.Contains(song.song_id))
-					CreateSongItem(song, optionsMenu);
+				CreateSongItem(song, optionsMenu);
 			}
 
 			AddPageButtons(optionsMenu);
@@ -252,12 +250,33 @@ namespace AudicaModding
             songd.customAdvancedTags = songd.customAdvancedTags.Distinct().ToList();
             songd.customEasyTags = songd.customEasyTags.Distinct().ToList();
 
-            var downloadButton = optionsMenu.AddButton(0,
-				"Download" + SongBrowser.GetDifficultyString(songd),
-				new Action(() => { MelonCoroutines.Start(SongDownloader.DownloadSong(song.download_url)); TMP.text = "Added song to download queue!"; }),
+			bool   destroyOnShot = true;
+			Action onHit         = new Action(() => { MelonCoroutines.Start(SongDownloader.DownloadSong(song.download_url)); TMP.text = "Added song to download queue!"; });
+			string label         = "Download" + SongBrowser.GetDifficultyString(songd);
+			float  alpha         = 1f;
+			bool   interactable  = true;
+
+			string[] splitURL = song.download_url.Split('/');
+			string audicaName = splitURL[splitURL.Length - 1];
+
+			if (SongBrowser.songFilenames.Contains(song.filename))
+            {
+				destroyOnShot = false;
+				onHit         = new Action(() => { });
+				label         = "Downloaded";
+				alpha         = 0.25f;
+				interactable  = false;
+			}
+
+			var downloadButton = optionsMenu.AddButton(0,
+				label,
+				onHit,
 				null,
 				null);
-			downloadButton.button.destroyOnShot = true;
+			downloadButton.button.SetInteractable(interactable);
+			downloadButton.button.destroyOnShot   = destroyOnShot;
+			downloadButton.button.doMeshExplosion = destroyOnShot;
+			downloadButton.label.alpha            = alpha;
 
 			row.Add(downloadButton.gameObject);
 
