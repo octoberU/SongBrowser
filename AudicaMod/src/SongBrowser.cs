@@ -32,7 +32,8 @@ namespace AudicaModding
         public static int newSongCount;
         public static int lastSongCount;
 
-        public static HashSet<string> songIDs = new HashSet<string>();
+        public static HashSet<string> songIDs         = new HashSet<string>();
+        public static HashSet<string> songIDsHashless = new HashSet<string>();
 
         public static bool modSettingsInstalled = false;
 
@@ -243,10 +244,15 @@ namespace AudicaModding
         public static void UpdateSongCaches()
         {
             songIDs.Clear();
+            songIDsHashless.Clear();
             for (int i = 0; i < SongList.I.songs.Count; i++)
             {
                 string songID = SongList.I.songs[i].songID;
                 songIDs.Add(songID);
+
+                string[] idComponents = songID.Split('_');
+                Array.Resize(ref idComponents, idComponents.Length - 1); // remove the hash component
+                songIDsHashless.Add(string.Join("_", idComponents));
 
                 DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Easy.ToString());
                 DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Normal.ToString());
