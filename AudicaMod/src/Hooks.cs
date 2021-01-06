@@ -456,6 +456,25 @@ namespace AudicaModding
             }
         }
 
-        
+        /// <summary>
+        /// OnLeaderboardDataResponse() is also processed when the user is already in
+        /// a song, which can lead to a lag spike. This is supposed to avoid that spike
+        /// with minimal impact.
+        /// </summary>
+        [HarmonyPatch(typeof(SongSelect), "OnLeaderboardDataResponse", new Type[] { typeof(string) })]
+        private static class StopLeaderboardUpdateForFriends
+        {
+            private static bool Prefix(SongSelect __instance, string response)
+
+            {
+                if (MenuState.GetState() == MenuState.State.Launched)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+
+
     }
 }
