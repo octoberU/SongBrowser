@@ -10,7 +10,7 @@ namespace AudicaModding
         private static Vector3 delButtonMenuPosition = new Vector3(-12.28f, -0.68f, -6.38f);
         private static Vector3 delButtonMenuRotation = new Vector3(0f, -51.978f, 0f);
 
-        private static Vector3 delButtonInGameUIPosition = new Vector3(-5f, -15.5f, 0f);
+        private static Vector3 delButtonInGameUIPosition = new Vector3(-5f, 13.5f, 0f);
         private static Vector3 delButtonInGameUIRotation = new Vector3(0f, 0f, 0f);
 
         private static LaunchPanel panel = null;

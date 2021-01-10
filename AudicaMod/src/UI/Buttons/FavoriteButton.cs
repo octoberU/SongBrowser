@@ -10,7 +10,7 @@ namespace AudicaModding
         private static Vector3 favButtonMenuPosition = new Vector3(-9.73f, -0.68f, -3.12f);
         private static Vector3 favButtonMenuRotation = new Vector3(0f, -51.978f, 0f);
 
-        private static Vector3 favButtonInGameUIPosition = new Vector3(5f, -15.5f, 0f);
+        private static Vector3 favButtonInGameUIPosition = new Vector3(5f, 13.5f, 0f);
         private static Vector3 favButtonInGameUIRotation = new Vector3(0f, 0f, 0f);
 
         private static LaunchPanel panel = null;
