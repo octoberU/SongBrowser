@@ -244,7 +244,7 @@
     <Compile Include="src\UI\Buttons\SongSearchButton.cs" />
     <Compile Include="src\UI\SongLoadingManager.cs" />
     <Compile Include="src\UI\SongSearchScreen.cs" />
-    <Compile Include="src\UI\SongSearch.cs" />
+    <Compile Include="src\SongSearch.cs" />
     <Compile Include="src\CustomDifficultyNames\CustomDifficultyNames.cs" />
     <Compile Include="src\EitherHandFix\EitherHand.cs" />
     <Compile Include="src\MapperNames\MapperNames.cs" />

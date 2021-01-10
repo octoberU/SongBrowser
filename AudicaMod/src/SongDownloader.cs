@@ -18,17 +18,6 @@ namespace AudicaModding
         public static bool        needRefresh = false;
         public static int         page = 1;
 
-        private static IEnumerator PlayOggCoroutine(string oggFilename)
-        {
-            using (var file = new FileStream(oggFilename, FileMode.Open, FileAccess.Read))
-            {
-                var player = new SoundPlayer(new OggDecodeStream(file));
-                player.Play();
-                yield return new WaitForSeconds(10f);
-            }
-            yield return null;
-        }
-
         public static void StartNewSongSearch()
         {
             page = 1;

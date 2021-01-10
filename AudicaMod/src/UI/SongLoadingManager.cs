@@ -1,5 +1,7 @@
 ﻿using MelonLoader;
 using System;
+using System.Collections;
+using System.IO;
 using TMPro;
 using UnityEngine;
 
@@ -34,20 +36,7 @@ namespace AudicaModding
 			searching = true;
 
 			SongList.OnSongListLoaded.On(new Action(() => {
-				MapperNames.FixMappers();
-
-				if (SongBrowser.songDataLoaderInstalled)
-                {
-					SafeDataLoaderReload();
-				}
-
-				SongBrowser.UpdateSongCaches();
-				SongSearch.Search(); // update the search results with any new songs (if there is a search)
-
-				KataConfig.I.CreateDebugText("Songs Loaded", new Vector3(0f, -1f, 5f), 5f, null, false, 0.2f);
-
-				EnableButtons();
-				searching = false;
+				MelonCoroutines.Start(PostProcess());
 			}));
 
 			UpdateUI();
@@ -90,6 +79,44 @@ namespace AudicaModding
 				partyButtonLabel.text    = "Loading...";
 				partyButton.SetInteractable(false);
             }
+		}
+
+		private static IEnumerator PostProcess()
+        {
+			MapperNames.FixMappers();
+			yield return null;
+
+			if (SongBrowser.songDataLoaderInstalled)
+			{
+				SafeDataLoaderReload();
+			}
+			yield return null;
+
+			// calculate song difficulties
+			// only slow the first time this runs since results are cached
+			SongBrowser.songIDs.Clear();
+			SongBrowser.songFilenames.Clear();
+			for (int i = 0; i < SongList.I.songs.Count; i++)
+			{
+				string songID = SongList.I.songs[i].songID;
+				SongBrowser.songIDs.Add(songID);
+				SongBrowser.songFilenames.Add(Path.GetFileName(SongList.I.songs[i].zipPath));
+
+				DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Easy.ToString());
+				DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Normal.ToString());
+				DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Hard.ToString());
+				DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Expert.ToString());
+				yield return null;
+			}
+
+			SongSearch.Search(); // update the search results with any new songs (if there is a search)
+			yield return null;
+
+			KataConfig.I.CreateDebugText("Songs Loaded", new Vector3(0f, -1f, 5f), 5f, null, false, 0.2f);
+
+			EnableButtons();
+			searching = false;
+			yield return null;
 		}
 
 		private static void EnableButtons()
