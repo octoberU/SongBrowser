@@ -269,8 +269,6 @@ namespace AudicaModding
                                 __result.Add(id);
                         }
                     }
-                    FilterPanel.UpdateScrollPosition(__instance.scroller);
-
                 }
                 else if (FilterPanel.filteringSearch)
                 {
@@ -284,7 +282,6 @@ namespace AudicaModding
                             __result.Add(SongSearch.searchResult[i]);
                         }
                     }
-                    FilterPanel.UpdateScrollPosition(__instance.scroller);
                 }
                 if (SongBrowser.deletedSongs.Count > 0)
                 {
