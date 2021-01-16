@@ -406,10 +406,10 @@ namespace AudicaModding
             }
         }
 
-        [HarmonyPatch(typeof(LaunchPanel), "Play", new Type[0])]
-        private static class ResetFilterPanel
+        [HarmonyPatch(typeof(AudioDriver), "StartPlaying")]
+        private static class PatchPlay
         {
-            private static void Prefix(SongListControls __instance)
+            private static void Postfix(AudioDriver __instance)
             {
                 FilterPanel.firstTime = true;
             }
