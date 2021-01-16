@@ -18,6 +18,7 @@ A MelonLoader mod to improve the song browsing experience in Audica & downloadin
 * Displaying available difficulties for a song next to the mapper tag
 * Deleting songs
 * Favoriting songs
+* Searching for songs
 * Skill based ranking system (offline only during beta)
 * Displays the difficulty of a song using a calculated rating.
 * Displays [Custom Difficulty Names](https://github.com/meepsalot69/Audica-CustomDifficultyNames/blob/master/README.md#changing-difficulty-names-in-your-map)

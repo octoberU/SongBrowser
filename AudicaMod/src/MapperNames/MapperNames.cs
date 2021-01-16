@@ -122,14 +122,5 @@ namespace AudicaModding
                 }
             }
         }
-
-        [HarmonyPatch(typeof(SongList), "Start", new Type[0])]
-        private static class SongListStartPatch
-        {
-            private static void Postfix(SongList __instance)
-            {
-                SongList.OnSongListLoaded.On(new Action(() => { FixMappers(); KataConfig.I.CreateDebugText("Songs Loaded", new Vector3(0f, -1f, 5f), 5f, null, false, 0.2f); }));
-            }
-        }
     }
 }

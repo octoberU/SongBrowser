@@ -71,6 +71,9 @@
       <HintPath>lib\MelonLoader.ModHandler.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="ModSettings">
+      <HintPath>src\lib\ModSettings.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -237,6 +240,11 @@
     <Compile Include="csvorbis\Time0.cs" />
     <Compile Include="csvorbis\VorbisFile.cs" />
     <Compile Include="csvorbis\OggStream.cs" />
+    <Compile Include="src\SongDownloader.cs" />
+    <Compile Include="src\UI\Buttons\SongSearchButton.cs" />
+    <Compile Include="src\UI\SongLoadingManager.cs" />
+    <Compile Include="src\UI\SongSearchScreen.cs" />
+    <Compile Include="src\SongSearch.cs" />
     <Compile Include="src\CustomDifficultyNames\CustomDifficultyNames.cs" />
     <Compile Include="src\EitherHandFix\EitherHand.cs" />
     <Compile Include="src\MapperNames\MapperNames.cs" />
@@ -248,12 +256,14 @@
     <Compile Include="src\UI\Buttons\DeleteButton.cs" />
     <Compile Include="src\DiffCalculationUtil.cs" />
     <Compile Include="src\DifficultyCalculator.cs" />
+    <Compile Include="src\UI\Buttons\ButtonUtils.cs" />
     <Compile Include="src\UI\Buttons\RefreshButton.cs" />
     <Compile Include="src\UI\FilterPanel.cs" />
     <Compile Include="src\Hooks.cs" />
     <Compile Include="src\UI\SongDownloaderUI.cs" />
     <Compile Include="src\SongBrowser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Config.cs" />
     <Compile Include="src\Utility.cs" />
   </ItemGroup>
   <ItemGroup>

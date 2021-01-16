@@ -1,10 +1,7 @@
 ﻿using Harmony;
 using UnityEngine;
-using System.Reflection;
 using System;
 using MelonLoader;
-using Valve.VR.InteractionSystem;
-using TMPro;
 using System.Linq;
 using static DifficultyCalculator;
 
@@ -13,7 +10,6 @@ namespace AudicaModding
     internal static class Hooks
     {
         private static int buttonCount = 0;
-        private static int scrollCounter = 2;
 
         /*
         public static void ApplyHooks(HarmonyInstance instance)
@@ -33,33 +29,49 @@ namespace AudicaModding
                     if (buttonCount == 9)
                     {
                         SongDownloaderUI.AddPageButton(__instance, 0);
+                        SongSearchScreen.SetMenu(__instance);
                     }
                 }
             }
         }
 
         [HarmonyPatch(typeof(OptionsMenu), "ShowPage", new Type[] { typeof(OptionsMenu.Page) })]
-        private static class ResetButtons
+        private static class PatchShowOptionsPage
         {
             private static void Prefix(OptionsMenu __instance, OptionsMenu.Page page)
             {
                 SongBrowser.shouldShowKeyboard = false;
                 buttonCount = 0;
-                SongBrowser.searchString = "";
-
+                SongDownloader.searchString = "";
+            }
+            private static void Postfix(InGameUI __instance, OptionsMenu.Page page)
+            {
+                if (page == OptionsMenu.Page.Main && SongSearch.searchInProgress)
+                {
+                    SongSearchScreen.GoToSearch();
+                }
             }
         }
 
         [HarmonyPatch(typeof(OptionsMenu), "BackOut", new Type[0])]
         private static class Backout
         {
-            private static void Prefix(OptionsMenu __instance)
+            private static bool Prefix(OptionsMenu __instance)
             {
-                if (SongDownloaderUI.songItemPanel != null)
-                    SongDownloaderUI.songItemPanel.SetPageActive(false);
-                if (SongBrowser.needRefresh)
-                    SongBrowser.ReloadSongList();
-
+                // should always be on the search page when this happens
+                if (SongSearch.searchInProgress)
+                {
+                    SongSearch.CancelSearch();
+                    return false;
+                }
+                else
+                {
+                    if (SongDownloaderUI.songItemPanel != null)
+                        SongDownloaderUI.songItemPanel.SetPageActive(false);
+                    if (SongDownloader.needRefresh)
+                        SongBrowser.ReloadSongList();
+                }
+                return true;
             }
         }
 
@@ -86,25 +98,49 @@ namespace AudicaModding
             {
                 if (SongBrowser.shouldShowKeyboard)
                 {
-                    switch (label)
+                    if (SongSearch.searchInProgress)
                     {
-                        case "done":
-                            __instance.Hide();
-                            SongBrowser.shouldShowKeyboard = false;
-                            SongBrowser.page = 1;
-                            SongBrowser.StartSongSearch();
-                            break;
-                        case "clear":
-                            SongBrowser.searchString = "";
-                            break;
-                        default:
-                            SongBrowser.searchString += label;
-                            break;
-                    }
+                        switch (label)
+                        {
+                            case "done":
+                                __instance.Hide();
+                                SongBrowser.shouldShowKeyboard = false;
+                                SongSearch.OnNewUserSearch();
+                                break;
+                            case "clear":
+                                    SongSearch.query = "";
+                                break;
+                            default:
+                                    SongSearch.query += label;
+                                break;
+                        }
 
-                    if (SongDownloaderUI.searchText != null)
+                        if (SongSearchScreen.searchText != null)
+                        {
+                            SongSearchScreen.searchText.text = SongSearch.query;
+                        }
+                    }
+                    else
                     {
-                        SongDownloaderUI.searchText.text = SongBrowser.searchString;
+                        switch (label)
+                        {
+                            case "done":
+                                __instance.Hide();
+                                SongBrowser.shouldShowKeyboard = false;
+                                SongDownloader.StartNewSongSearch();
+                                break;
+                            case "clear":
+                                SongDownloader.searchString = "";
+                                break;
+                            default:
+                                SongDownloader.searchString += label;
+                                break;
+                        }
+
+                        if (SongDownloaderUI.searchText != null)
+                        {
+                            SongDownloaderUI.searchText.text = SongDownloader.searchString;
+                        }
                     }
                     return false;
                 }
@@ -122,11 +158,23 @@ namespace AudicaModding
             {
                 if (SongBrowser.shouldShowKeyboard)
                 {
-                    SongBrowser.searchString += " ";
-
-                    if (SongDownloaderUI.searchText != null)
+                    if (SongSearch.searchInProgress)
                     {
-                        SongDownloaderUI.searchText.text = SongBrowser.searchString;
+                        SongSearch.query += " ";
+
+                        if (SongSearchScreen.searchText != null)
+                        {
+                            SongSearchScreen.searchText.text = SongSearch.query;
+                        }
+                    }
+                    else
+                    {
+                        SongDownloader.searchString += " ";
+
+                        if (SongDownloaderUI.searchText != null)
+                        {
+                            SongDownloaderUI.searchText.text = SongDownloader.searchString;
+                        }
                     }
                     return false;
                 }
@@ -144,14 +192,27 @@ namespace AudicaModding
             {
                 if (SongBrowser.shouldShowKeyboard)
                 {
-                    if (SongBrowser.searchString == "" || SongBrowser.searchString == null)
-                        return false;
-                    SongBrowser.searchString = SongBrowser.searchString.Substring(0, SongBrowser.searchString.Length - 1);
-
-
-                    if (SongDownloaderUI.searchText != null)
+                    if (SongSearch.searchInProgress)
                     {
-                        SongDownloaderUI.searchText.text = SongBrowser.searchString;
+                        if (SongSearch.query == "" || SongSearch.query == null)
+                            return false;
+                        SongSearch.query = SongSearch.query.Substring(0, SongSearch.query.Length - 1);
+
+                        if (SongSearchScreen.searchText != null)
+                        {
+                            SongSearchScreen.searchText.text = SongSearch.query;
+                        }
+                    }
+                    else
+                    {
+                        if (SongDownloader.searchString == "" || SongDownloader.searchString == null)
+                            return false;
+                        SongDownloader.searchString = SongDownloader.searchString.Substring(0, SongDownloader.searchString.Length - 1);
+                        
+                        if (SongDownloaderUI.searchText != null)
+                        {
+                            SongDownloaderUI.searchText.text = SongDownloader.searchString;
+                        }
                     }
                     return false;
                 }
@@ -169,7 +230,7 @@ namespace AudicaModding
             {
                 if (!SongBrowser.emptiedDownloadsFolder)
                 {
-                    Utility.EmptyDownloadsFolderFolder();
+                    Utility.EmptyDownloadsFolder();
                 }
                 //if (!AudicaMod.addedCustomsDir)
                 //{
@@ -179,25 +240,21 @@ namespace AudicaModding
             }
         }
 
+        [HarmonyPatch(typeof(SongList), "Start", new Type[0])]
+        private static class PatchSongListStart
+        {
+            private static void Prefix(SongList __instance)
+            {
+                SongLoadingManager.StartSongListUpdate();
+            }
+        }
+
         [HarmonyPatch(typeof(SongSelect), "GetSongIDs", new Type[] { typeof(bool) })]
-        private static class RemoveDeletedScrollerItems
+        private static class FilterScrollerItems
         {
             private static void Postfix(SongSelect __instance, ref bool extras, ref Il2CppSystem.Collections.Generic.List<string> __result)
             {
-                if (FilterPanel.filteringFavorites)
-                {
-                    extras = true;
-                    if (FilterPanel.favorites != null)
-                    {
-                        __result.Clear();
-                        for (int i = 0; i < FilterPanel.favorites.songIDs.Count; i++)
-                        {
-                            __result.Add(FilterPanel.favorites.songIDs[i]);
-                        }
-                    }
-                    __instance.scroller.SnapTo(0, true);
-
-                }
+                FilterPanel.ApplyFilter(__instance, ref extras, ref __result);
                 if (SongBrowser.deletedSongs.Count > 0)
                 {
                     foreach (var deletedSong in SongBrowser.deletedSongs)
@@ -258,7 +315,14 @@ namespace AudicaModding
             }
         }
 
-
+        [HarmonyPatch(typeof(MainMenuPanel), "OnEnable", new Type[0])]
+        private static class PatchMainMenuPanel
+        {
+            private static void Postfix(MenuState __instance)
+            {
+                SongLoadingManager.UpdateUI();
+            }
+        }
 
         [HarmonyPatch(typeof(MenuState), "SetState", new Type[] { typeof(MenuState.State) })]
         private static class Patch2SetMenuState
@@ -268,7 +332,7 @@ namespace AudicaModding
                 if (state == MenuState.State.LaunchPage)
                 {
                     DeleteButton.CreateDeleteButton();
-                    FavoriteButtonButton.CreateFavoriteButtonButton();
+                    FavoriteButton.CreateFavoriteButton();
                     DifficultyDisplay.Show();
                 }
                 else
@@ -278,14 +342,37 @@ namespace AudicaModding
                 if (state == MenuState.State.SongPage)
                 {
                     ScoreDisplayList.Show();
+                    RandomSong.CreateRandomSongButton();
+                    SongSearchButton.CreateSearchButton();
+                    RefreshButton.CreateRefreshButton();
                 }
                 else
                 {
                     ScoreDisplayList.Hide();
                 }
+            }
+        }
 
-                if (state == MenuState.State.SongPage) RandomSong.CreateRandomSongButton();
-
+        [HarmonyPatch(typeof(InGameUI), "SetState", new Type[] { typeof(InGameUI.State), typeof(bool) })]
+        private static class PatchSetInGameUIState
+        {
+            private static void Postfix(InGameUI __instance, InGameUI.State state, bool instant)
+            {
+                if (state == InGameUI.State.FailedPage)
+                {
+                    DeleteButton.CreateDeleteButton(ButtonUtils.ButtonLocation.Failed);
+                    FavoriteButton.CreateFavoriteButton(ButtonUtils.ButtonLocation.Failed);
+                }
+                else if (state == InGameUI.State.PausePage)
+                {
+                    DeleteButton.CreateDeleteButton(ButtonUtils.ButtonLocation.Pause);
+                    FavoriteButton.CreateFavoriteButton(ButtonUtils.ButtonLocation.Pause);
+                }
+                else if (state == InGameUI.State.EndGameContinuePage)
+                {
+                    DeleteButton.CreateDeleteButton(ButtonUtils.ButtonLocation.EndGame);
+                    FavoriteButton.CreateFavoriteButton(ButtonUtils.ButtonLocation.EndGame);
+                }    
             }
         }
 
@@ -294,7 +381,6 @@ namespace AudicaModding
         {
             private static void Postfix(SongSelect __instance)
             {
-                //FilterPanel.filteringFavorites = false;
                 FilterPanel.Initialize();
                 ScoreHistory.LoadHistory(PlatformChooser.I.GetLeaderboardID());
                 MelonCoroutines.Start(SongBrowser.UpdateLastSongCount());
@@ -307,8 +393,7 @@ namespace AudicaModding
         {
             private static void Prefix(SongListControls __instance)
             {
-                FilterPanel.filteringFavorites = false;
-                FilterPanel.favoritesButtonSelectedIndicator.SetActive(false);
+                FilterPanel.DisableCustomFilters();
             }
         }
 
@@ -317,30 +402,38 @@ namespace AudicaModding
         {
             private static void Prefix(SongListControls __instance)
             {
-                FilterPanel.filteringFavorites = false;
-                FilterPanel.favoritesButtonSelectedIndicator.SetActive(false);
+                FilterPanel.DisableCustomFilters();
             }
         }
 
-        //[HarmonyPatch(typeof(SongListControls), "FilterExtras", new Type[0])]
-        //private static class FilterExtras
-        //{
-        //    private static void Prefix(SongListControls __instance)
-        //    {
-        //        FilterPanel.filteringFavorites = false;
-        //        FilterPanel.favoritesButtonSelectedIndicator.SetActive(false);
-        //    }
-        //}
-
-        [HarmonyPatch(typeof(LaunchPanel), "Play", new Type[0])]
-        private static class ResetFilterPanel
+        [HarmonyPatch(typeof(AudioDriver), "StartPlaying")]
+        private static class PatchPlay
         {
-            private static void Prefix(SongListControls __instance)
+            private static void Postfix(AudioDriver __instance)
             {
                 FilterPanel.firstTime = true;
             }
         }
 
-        
+        /// <summary>
+        /// OnLeaderboardDataResponse() is also processed when the user is already in
+        /// a song, which can lead to a lag spike. This is supposed to avoid that spike
+        /// with minimal impact.
+        /// </summary>
+        [HarmonyPatch(typeof(SongSelect), "OnLeaderboardDataResponse", new Type[] { typeof(string) })]
+        private static class StopLeaderboardUpdateForFriends
+        {
+            private static bool Prefix(SongSelect __instance, string response)
+
+            {
+                if (MenuState.GetState() == MenuState.State.Launched)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+
+
     }
 }
