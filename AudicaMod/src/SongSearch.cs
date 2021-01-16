@@ -2,7 +2,7 @@
 
 namespace AudicaModding
 {
-    class SongSearch
+    internal static class SongSearch
     {
         public static List<string> searchResult = new List<string>();
         public static string       query;

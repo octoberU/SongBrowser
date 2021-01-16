@@ -254,35 +254,7 @@ namespace AudicaModding
         {
             private static void Postfix(SongSelect __instance, ref bool extras, ref Il2CppSystem.Collections.Generic.List<string> __result)
             {
-                if (FilterPanel.filteringFavorites)
-                {
-                    extras = true;
-                    if (FilterPanel.favorites != null)
-                    {
-                        __instance.songSelectHeaderItems.mItems[0].titleLabel.text = "Favorites";
-                        __result.Clear();
-                        string id;
-                        for (int i = 0; i < FilterPanel.favorites.songIDs.Count; i++)
-                        {
-                            id = FilterPanel.favorites.songIDs[i];
-                            if (SongBrowser.songIDs.Contains(id))
-                                __result.Add(id);
-                        }
-                    }
-                }
-                else if (FilterPanel.filteringSearch)
-                {
-                    extras = true;
-                    if (SongSearch.searchResult != null)
-                    {
-                        __instance.songSelectHeaderItems.mItems[0].titleLabel.text = "Search Results";
-                        __result.Clear();
-                        for (int i = 0; i < SongSearch.searchResult.Count; i++)
-                        {
-                            __result.Add(SongSearch.searchResult[i]);
-                        }
-                    }
-                }
+                FilterPanel.ApplyFilter(__instance, ref extras, ref __result);
                 if (SongBrowser.deletedSongs.Count > 0)
                 {
                     foreach (var deletedSong in SongBrowser.deletedSongs)
@@ -433,16 +405,6 @@ namespace AudicaModding
                 FilterPanel.DisableCustomFilters();
             }
         }
-
-        //[HarmonyPatch(typeof(SongListControls), "FilterExtras", new Type[0])]
-        //private static class FilterExtras
-        //{
-        //    private static void Prefix(SongListControls __instance)
-        //    {
-        //        FilterPanel.filteringFavorites = false;
-        //        FilterPanel.favoritesButtonSelectedIndicator.SetActive(false);
-        //    }
-        //}
 
         [HarmonyPatch(typeof(LaunchPanel), "Play", new Type[0])]
         private static class ResetFilterPanel
