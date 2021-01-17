@@ -18,7 +18,7 @@ namespace AudicaModding
             public const string Name = "SongBrowser";  // Name of the Mod.  (MUST BE SET)
             public const string Author = "octo"; // Author of the Mod.  (Set as null if none)
             public const string Company = null; // Company that made the Mod.  (Set as null if none)
-            public const string Version = "2.3.2"; // Version of the Mod.  (MUST BE SET)
+            public const string Version = "2.3.0"; // Version of the Mod.  (MUST BE SET)
             public const string DownloadLink = null; // Download Link for the Mod.  (Set as null if none)
         }
         public static Vector3 DebugTextPosition = new Vector3(0f, -1f, 5f);
