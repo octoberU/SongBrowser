@@ -18,8 +18,6 @@ namespace AudicaModding
 
         internal static Favorites favorites;
 
-        internal static bool firstTime = true;
-
         private static string favoritesPath = Application.dataPath + "/../" + "/UserData/"+ "SongBrowserFavorites.json";
 
         private static Dictionary<string, Filter> filters;
@@ -136,12 +134,11 @@ namespace AudicaModding
 
         internal static void Initialize()
         {
-            if (firstTime)
+            if (songListControls == null)
             {
                 songSelect       = GameObject.FindObjectOfType<SongSelect>();
                 songListControls = GameObject.FindObjectOfType<SongListControls>();
                 GetReferences();
-                firstTime = false;
 
                 foreach (string filterKey in filters.Keys)
                 {

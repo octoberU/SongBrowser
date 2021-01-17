@@ -406,15 +406,6 @@ namespace AudicaModding
             }
         }
 
-        [HarmonyPatch(typeof(AudioDriver), "StartPlaying")]
-        private static class PatchPlay
-        {
-            private static void Postfix(AudioDriver __instance)
-            {
-                FilterPanel.firstTime = true;
-            }
-        }
-
         /// <summary>
         /// OnLeaderboardDataResponse() is also processed when the user is already in
         /// a song, which can lead to a lag spike. This is supposed to avoid that spike
