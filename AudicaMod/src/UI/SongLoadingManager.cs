@@ -20,6 +20,14 @@ namespace AudicaModding
 		private static bool searching = false;
 		private static bool disabled  = false;
 
+		private static System.Collections.Generic.List<Action> postProcessingActions = new System.Collections.Generic.List<Action>();
+
+
+		public static void AddPostProcessingCB(Action callback)
+		{
+			postProcessingActions.Add(callback);
+		}
+
 		/// <summary>
 		/// Ensures that once song search is complete (via SongList.OnSongListLoaded)
 		/// various types of post-processing happens and that the UI is re-enabled.
@@ -111,6 +119,12 @@ namespace AudicaModding
 
 			SongSearch.Search(); // update the search results with any new songs (if there is a search)
 			yield return null;
+
+			foreach (Action cb in postProcessingActions)
+            {
+				cb();
+				yield return null;
+            }
 
 			KataConfig.I.CreateDebugText("Songs Loaded", new Vector3(0f, -1f, 5f), 5f, null, false, 0.2f);
 

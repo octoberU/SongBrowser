@@ -18,7 +18,7 @@ namespace AudicaModding
             public const string Name = "SongBrowser";  // Name of the Mod.  (MUST BE SET)
             public const string Author = "octo"; // Author of the Mod.  (Set as null if none)
             public const string Company = null; // Company that made the Mod.  (Set as null if none)
-            public const string Version = "2.3.0"; // Version of the Mod.  (MUST BE SET)
+            public const string Version = "2.3.1"; // Version of the Mod.  (MUST BE SET)
             public const string DownloadLink = null; // Download Link for the Mod.  (Set as null if none)
         }
         public static Vector3 DebugTextPosition = new Vector3(0f, -1f, 5f);
@@ -227,6 +227,10 @@ namespace AudicaModding
             //}
         }
 
+        /// <summary>
+        /// Call to reload song list after songs were added to songs or downloads directories.
+        /// Should be called while the user is in the main menu.
+        /// </summary>
         public static void ReloadSongList()
         {
             SongDownloader.needRefresh = false;
@@ -239,6 +243,14 @@ namespace AudicaModding
             SongLoadingManager.StartSongListUpdate();
 
             DebugText("Reloading Songs");
+        }
+
+        /// <summary>
+        /// Register a callback that will be called after song list has been reloaded.
+        /// </summary>
+        public static void RegisterSongListPostProcessing(Action callback)
+        {
+            SongLoadingManager.AddPostProcessingCB(callback);
         }
 
         public static void UpdateSongCaches()
