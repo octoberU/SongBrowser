@@ -96,7 +96,7 @@ namespace AudicaModding
 
             var rand = new System.Random();
             int index;
-            if (FilterPanel.filteringFavorites && availableFavouritesSongs.Count > 0)
+            if (FilterPanel.IsFiltering("favorites") && availableFavouritesSongs.Count > 0)
             {
                 string id = availableFavouritesSongs[rand.Next(0, availableFavouritesSongs.Count)];  
                 for(int i = 0; i < songs.Count; i++)

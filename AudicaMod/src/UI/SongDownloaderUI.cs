@@ -3,9 +3,6 @@ using System;
 using TMPro;
 using UnityEngine;
 using MelonLoader;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using UnityEngine.Experimental.XR;
 using System.Linq;
 
 namespace AudicaModding
@@ -24,19 +21,23 @@ namespace AudicaModding
 		public static OptionsMenuButton popularityToggle;
 		public static APISongList activeSongList;
 
+		private static OptionsMenu primaryMenu;
+
 		static public void AddPageButton(OptionsMenu optionsMenu, int col)
 		{
-			optionsMenu.AddButton(col, "Download Songs", new System.Action(() => {
-				GoToArenaPage(optionsMenu);
+			primaryMenu = optionsMenu;
+			primaryMenu.AddButton(col, "Download Songs", new System.Action(() => {
+				GoToWebSearchPage();
 				if (songItemPanel != null)
 					songItemPanel.SetPageActive(true);
-				}), null, "Download new maps from the Audica Modding Discord");
+			}), null, "Download new maps from the Audica Modding Discord");
+
 		}
 
-		public static void GoToArenaPage(OptionsMenu optionsMenu)
+		public static void GoToWebSearchPage()
 		{
-			SongBrowser.page = 1;
-			if(songItemPanel == null)
+			SongDownloader.page = 1;
+			if (songItemPanel == null)
 			{
 				secondaryPanel = GameObject.Instantiate(GameObject.Find("ShellPage_Settings"));
 				secondaryPanel.SetActive(true);
@@ -47,13 +48,18 @@ namespace AudicaModding
 			{
 				SpawnSecondaryPanel(secondaryPanel);
 			}
-			
-			optionsMenu.ShowPage(OptionsMenu.Page.Customization);	
-			CleanUpPage(optionsMenu);
-			AddButtons(optionsMenu);
-			optionsMenu.screenTitle.text = "Filters";
+
+			primaryMenu.ShowPage(OptionsMenu.Page.Customization);
+			CleanUpPage(primaryMenu);
+			AddButtons(primaryMenu);
+			primaryMenu.screenTitle.text = "Filters";
 			SongBrowser.lastSongCount = SongBrowser.newSongCount; //User has seen new songs
-			SongBrowser.SaveConfig();
+			SongBrowser.SavePrivateConfig();
+		}
+
+		public static void ResetScrollPosition()
+        {
+			songItemMenu?.scrollable.SnapTo(0);
 		}
 		
 		private static void SpawnSecondaryPanel(GameObject secondaryPanel)
@@ -64,7 +70,7 @@ namespace AudicaModding
 			MelonCoroutines.Start(WaitForSpawningMenu(secondaryPanel));
 		}
 
-		private static void SetupSeoondaryPanel(GameObject secondaryPanel)
+		private static void SetupSecondaryPanel(GameObject secondaryPanel)
 		{
 			songItemMenu = secondaryPanel.GetComponentInChildren<OptionsMenu>();
 			songItemMenu.ShowPage(OptionsMenu.Page.Customization);
@@ -93,8 +99,7 @@ namespace AudicaModding
 					difficultyFilter++;
 					if ((int)difficultyFilter > 4) difficultyFilter = 0;
 					difficultyToggle.label.text = difficultyFilter.ToString();
-					SongBrowser.page = 1;
-					SongBrowser.StartSongSearch();
+					SongDownloader.StartNewSongSearch();
 				}),
 				null,
 				"Filters the search to the selected difficulty");
@@ -117,8 +122,7 @@ namespace AudicaModding
 						curated = true;
 
 					curatedToggle.label.text = "Curated only: " + curated.ToString();
-					SongBrowser.page = 1;
-					SongBrowser.StartSongSearch();
+					SongDownloader.StartNewSongSearch();
 				}),
 				null,
 				"Filters the search to curated maps only");
@@ -159,8 +163,7 @@ namespace AudicaModding
 						popularity = true;
 
 					popularityToggle.label.text = "Sort by playcount: " + popularity.ToString();
-					SongBrowser.page = 1;
-					SongBrowser.StartSongSearch();
+					SongDownloader.StartNewSongSearch();
 				}),
 				null,
 				"Sorts downloads by leaderboard scores rather than date.");
@@ -176,7 +179,8 @@ namespace AudicaModding
 		{
 			foreach (var song in activeSongList.songs)
 			{
-				MelonCoroutines.Start(SongBrowser.DownloadSong(song.download_url));
+				MelonCoroutines.Start(SongDownloader.DownloadSong(song.download_url));
+				SongDownloader.needRefresh = true;
 			}
 		}
 
@@ -184,7 +188,7 @@ namespace AudicaModding
 		{
 			CleanUpPage(optionsMenu);
 			activeSongList = songlist;
-			optionsMenu.screenTitle.text = "Displaying page " + SongBrowser.page.ToString() + " out of " + songlist.total_pages.ToString();
+			optionsMenu.screenTitle.text = "Displaying page " + SongDownloader.page.ToString() + " out of " + songlist.total_pages.ToString();
 
 			var pageHeader = optionsMenu.AddHeader(0, "Listing " + songlist.song_count.ToString() + " songs");
 			optionsMenu.scrollable.AddRow(pageHeader.gameObject);
@@ -204,14 +208,14 @@ namespace AudicaModding
 			var row = new Il2CppSystem.Collections.Generic.List<GameObject>();
 			var previousPage = optionsMenu.AddButton(0,
 				"Previous Page",
-				new Action(() => { SongBrowser.PreviousPage(); SongBrowser.StartSongSearch(); optionsMenu.scrollable.SnapTo(0); }),
+				new Action(() => { SongDownloader.PreviousPage(); SongDownloader.StartNewPageSearch(); optionsMenu.scrollable.SnapTo(0); }),
 				null,
 				null);
 			row.Add(previousPage.gameObject);
 
 			var nextPage = optionsMenu.AddButton(1,
 				"Next Page",
-				new Action(() => { SongBrowser.NextPage(); SongBrowser.StartSongSearch(); optionsMenu.scrollable.SnapTo(0); }),
+				new Action(() => { SongDownloader.NextPage(); SongDownloader.StartNewPageSearch(); optionsMenu.scrollable.SnapTo(0); }),
 				null,
 				null);
 			row.Add(nextPage.gameObject);
@@ -247,18 +251,43 @@ namespace AudicaModding
             songd.customAdvancedTags = songd.customAdvancedTags.Distinct().ToList();
             songd.customEasyTags = songd.customEasyTags.Distinct().ToList();
 
-            var downloadButton = optionsMenu.AddButton(0,
-				"Download" + SongBrowser.GetDifficultyString(songd),
-				new Action(() => { MelonCoroutines.Start(SongBrowser.DownloadSong(song.download_url)); TMP.text = "Added song to download queue!"; }),
+			bool   destroyOnShot = true;
+			Action onHit         = new Action(() => { 
+				MelonCoroutines.Start(SongDownloader.DownloadSong(song.download_url));
+				SongDownloader.needRefresh = true;
+				TMP.text = "Added song to download queue!"; 
+			});
+			string label         = "Download" + SongBrowser.GetDifficultyString(songd);
+			float  alpha         = 1f;
+			bool   interactable  = true;
+
+			string[] splitURL = song.download_url.Split('/');
+			string audicaName = splitURL[splitURL.Length - 1];
+
+			if (SongBrowser.songFilenames.Contains(song.filename))
+            {
+				destroyOnShot = false;
+				onHit         = new Action(() => { });
+				label         = "Downloaded";
+				alpha         = 0.25f;
+				interactable  = false;
+			}
+
+			var downloadButton = optionsMenu.AddButton(0,
+				label,
+				onHit,
 				null,
 				null);
-			downloadButton.button.destroyOnShot = true;
+			downloadButton.button.SetInteractable(interactable);
+			downloadButton.button.destroyOnShot   = destroyOnShot;
+			downloadButton.button.doMeshExplosion = destroyOnShot;
+			downloadButton.label.alpha            = alpha;
 
 			row.Add(downloadButton.gameObject);
 
 			var previewButton = optionsMenu.AddButton(1,
 				"Preview",
-				new Action(() => { MelonCoroutines.Start(SongBrowser.StreamPreviewSong(song.preview_url)); }),
+				new Action(() => { MelonCoroutines.Start(SongDownloader.StreamPreviewSong(song.preview_url)); }),
 				null,
 				null);
 			row.Add(previewButton.gameObject);
@@ -285,9 +314,9 @@ namespace AudicaModding
 
 		static IEnumerator WaitForSpawningMenu(GameObject panel)
 		{
-			yield return new WaitForSeconds(0.01f);
-			SetupSeoondaryPanel(panel);
-			AddSongItems(panel.GetComponentInChildren<OptionsMenu>(), SongBrowser.songlist);
+			yield return new WaitForSeconds(0.05f);
+			SetupSecondaryPanel(panel);
+			AddSongItems(panel.GetComponentInChildren<OptionsMenu>(), SongDownloader.songlist);
 		}
 	}
 }
