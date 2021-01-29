@@ -32,7 +32,7 @@ namespace AudicaModding
             if (query == null)
                 return;
 
-            for (int i = 0; i < SongList.I.songs.Count - 1; i++)
+            for (int i = 0; i < SongList.I.songs.Count; i++)
             {
                 SongList.SongData currentSong = SongList.I.songs[i];
                 bool              isCustom    = IsCustomSong(currentSong.songID);

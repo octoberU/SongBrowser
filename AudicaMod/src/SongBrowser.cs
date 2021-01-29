@@ -24,6 +24,7 @@ namespace AudicaModding
         public static Vector3 DebugTextPosition = new Vector3(0f, -1f, 5f);
         public static bool shouldShowKeyboard = false;
         public static string downloadsDirectory;
+        public static string mainSongDirectory;
         public static string deletedDownloadsListPath;
         public static bool emptiedDownloadsFolder = false;
         public static bool addedCustomsDir = false;
@@ -31,9 +32,6 @@ namespace AudicaModding
         public static List<string> deletedSongPaths = new List<string>();
         public static int newSongCount;
         public static int lastSongCount;
-
-        public static HashSet<string> songIDs         = new HashSet<string>();
-        public static HashSet<string> songFilenames = new HashSet<string>();
 
         public static bool modSettingsInstalled = false;
 
@@ -120,6 +118,7 @@ namespace AudicaModding
         public override void OnApplicationStart()
         {
             Config.RegisterConfig();
+            mainSongDirectory        = Path.Combine(Application.streamingAssetsPath, "HmxAudioAssets", "songs");
             downloadsDirectory       = Application.dataPath.Replace("Audica_Data", "Downloads");
             deletedDownloadsListPath = Path.Combine(downloadsDirectory, "SongBrowserDownload_DeletedFiles");
             CheckFolderDirectories();
@@ -231,8 +230,8 @@ namespace AudicaModding
         /// Call to reload song list after songs were added to songs or downloads directories.
         /// Should be called while the user is in the main menu.
         /// </summary>
-        /// <param name="fullReload">Call with true if new songs haven't already been added via SongList.ProcessSingleSong().
-        ///     SongDownloader automatically does this for all downloads, so call with false if using it.</param>
+        /// <param name="fullReload">Call with true to reload the entire song list. Otherwise only new 
+        ///     songs will be loaded (unfortunately unable to detect modified songs)</param>
         public static void ReloadSongList(bool fullReload = true)
         {
             SongDownloader.needRefresh = false;
@@ -245,10 +244,25 @@ namespace AudicaModding
                 SongList.AddSongSearchDir(Application.dataPath, downloadsDirectory);
                 SongList.I.StartAssembleSongList();
             }
-
-            // TODO
-            // else do partial reload by checking for any files not yet in the song list
-            // or with file change date newer than cached (also add cache for that)
+            else
+            {
+                List<SongList.SongSourceDir> sourceDirs = new List<SongList.SongSourceDir>();
+                sourceDirs.Add(new SongList.SongSourceDir(Application.streamingAssetsPath, mainSongDirectory));
+                sourceDirs.Add(new SongList.SongSourceDir(Application.dataPath,            downloadsDirectory));
+                for (int i = 0; i < sourceDirs.Count; i++)
+                {
+                    SongList.SongSourceDir sourceDir = sourceDirs[i];
+                    string[]               files     = Directory.GetFiles(sourceDir.dir, "*.audica");
+                    for (int j = 0; j < files.Length; j++)
+                    {
+                        string file = files[j].Replace('\\', '/');
+                        if (! SongLoadingManager.songFilenames.Contains(Path.GetFileName(file)))
+                        {
+                            SongList.I.ProcessSingleSong(sourceDir, file, new Il2CppSystem.Collections.Generic.HashSet<string>());
+                        }
+                    }
+                }
+            }
 
             SongLoadingManager.StartSongListUpdate(fullReload);
 
@@ -261,23 +275,6 @@ namespace AudicaModding
         public static void RegisterSongListPostProcessing(Action callback)
         {
             SongLoadingManager.AddPostProcessingCB(callback);
-        }
-
-        public static void UpdateSongCaches()
-        {
-            songIDs.Clear();
-            songFilenames.Clear();
-            for (int i = 0; i < SongList.I.songs.Count; i++)
-            {
-                string songID = SongList.I.songs[i].songID;
-                songIDs.Add(songID);
-                songFilenames.Add(Path.GetFileName(SongList.I.songs[i].zipPath));
-
-                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Easy.ToString());
-                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Normal.ToString());
-                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Hard.ToString());
-                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Expert.ToString());
-            }
         }
 
         public static IEnumerator UpdateLastSongCount()

@@ -262,7 +262,7 @@ namespace AudicaModding
 			string[] splitURL = song.download_url.Split('/');
 			string audicaName = splitURL[splitURL.Length - 1];
 
-			if (SongBrowser.songFilenames.Contains(song.filename))
+			if (SongLoadingManager.songFilenames.Contains(song.filename))
             {
 				destroyOnShot = false;
 				onHit         = new Action(() => { });

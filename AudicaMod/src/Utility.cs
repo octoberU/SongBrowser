@@ -3,14 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace AudicaModding
 {
     internal static class Utility
-    {        public static void EmptyDownloadsFolder()
+    {
+        public static void EmptyDownloadsFolder()
         {
             String directoryName = Application.dataPath + @"\StreamingAssets\HmxAudioAssets\songs";
             if (!Directory.Exists(directoryName))

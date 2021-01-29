@@ -51,11 +51,11 @@ namespace AudicaModding
         /// <param name="onDownloadComplete">Called when download has been written to disk</param>
         public static IEnumerator DownloadSong(string downloadUrl, Action onDownloadComplete = null)
         {
-            string[] splitURL = downloadUrl.Split('/');
-            string audicaName = splitURL[splitURL.Length - 1];
-            string path = Application.streamingAssetsPath + "\\HmxAudioAssets\\songs\\" + audicaName;
-            string downloadPath = SongBrowser.downloadsDirectory + "\\" + audicaName;
-            if (!File.Exists(path) && !File.Exists(downloadPath) && !File.Exists(downloadPath))
+            string[] splitURL     = downloadUrl.Split('/');
+            string   audicaName   = splitURL[splitURL.Length - 1];
+            string   path         = Path.Combine(SongBrowser.mainSongDirectory, audicaName);
+            string   downloadPath = Path.Combine(SongBrowser.downloadsDirectory, audicaName);
+            if (!File.Exists(path) && !File.Exists(downloadPath))
             {
                 WWW www = new WWW(downloadUrl);
                 yield return www;
@@ -66,8 +66,6 @@ namespace AudicaModding
             onDownloadComplete?.Invoke();
 
             needRefresh = true;
-            string downloadPathSlashSeparated = downloadPath.Replace('\\', '/'); // game won't be able to mount the file right if it's using \
-            SongList.I.ProcessSingleSong(new SongList.SongSourceDir(Application.dataPath, SongBrowser.downloadsDirectory), downloadPathSlashSeparated, new Il2CppSystem.Collections.Generic.HashSet<string>());
         }
 
         /// <summary>

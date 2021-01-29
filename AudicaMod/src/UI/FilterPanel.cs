@@ -133,7 +133,7 @@ namespace AudicaModding
                         for (int i = 0; i < favorites.songIDs.Count; i++)
                         {
                             id = favorites.songIDs[i];
-                            if (SongBrowser.songIDs.Contains(id))
+                            if (SongLoadingManager.songIDs.Contains(id))
                                 result.Add(id);
                         }
                         return true;

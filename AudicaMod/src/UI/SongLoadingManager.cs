@@ -1,6 +1,7 @@
 ﻿using MelonLoader;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
@@ -9,6 +10,9 @@ namespace AudicaModding
 {
 	internal static class SongLoadingManager
 	{
+        public static HashSet<string> songIDs       = new HashSet<string>();
+        public static HashSet<string> songFilenames = new HashSet<string>();
+
 		private static GunButton   soloButton               = null;
 		private static TextMeshPro soloButtonLabel          = null;
 		private static string      originalSoloButtonText   = null;
@@ -20,7 +24,7 @@ namespace AudicaModding
 		private static bool searching = false;
 		private static bool disabled  = false;
 
-		private static System.Collections.Generic.List<Action> postProcessingActions = new System.Collections.Generic.List<Action>();
+		private static List<Action> postProcessingActions = new List<Action>();
 
 		/// <summary>
 		/// Add any post-processing that would be triggered on SongList.OnSongListLoaded
@@ -110,13 +114,13 @@ namespace AudicaModding
 
 			// calculate song difficulties
 			// only slow the first time this runs since results are cached
-			SongBrowser.songIDs.Clear();
-			SongBrowser.songFilenames.Clear();
+			songIDs.Clear();
+			songFilenames.Clear();
 			for (int i = 0; i < SongList.I.songs.Count; i++)
 			{
 				string songID = SongList.I.songs[i].songID;
-				SongBrowser.songIDs.Add(songID);
-				SongBrowser.songFilenames.Add(Path.GetFileName(SongList.I.songs[i].zipPath));
+				songIDs.Add(songID);
+				songFilenames.Add(Path.GetFileName(SongList.I.songs[i].zipPath));
 
 				DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Easy.ToString());
 				DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Normal.ToString());
