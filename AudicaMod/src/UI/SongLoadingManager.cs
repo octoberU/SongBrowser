@@ -22,7 +22,10 @@ namespace AudicaModding
 
 		private static System.Collections.Generic.List<Action> postProcessingActions = new System.Collections.Generic.List<Action>();
 
-
+		/// <summary>
+		/// Add any post-processing that would be triggered on SongList.OnSongListLoaded
+		/// here if you want to ensure it is completed before the UI is re-enabled.
+		/// </summary>
 		public static void AddPostProcessingCB(Action callback)
 		{
 			postProcessingActions.Add(callback);
@@ -32,22 +35,27 @@ namespace AudicaModding
 		/// Ensures that once song search is complete (via SongList.OnSongListLoaded)
 		/// various types of post-processing happens and that the UI is re-enabled.
 		/// 
-		/// Add any post-processing that would be triggered on SongList.OnSongListLoaded
-		/// here if you want control over the order that post-processing happens in/
-		/// want to ensure it is completed before the UI is re-enabled.
 		/// </summary>
-		public static void StartSongListUpdate()
+		public static void StartSongListUpdate(bool processOnSongListLoaded = false)
 		{
 			if (searching)
 				return;
 
 			searching = true;
 
-			SongList.OnSongListLoaded.On(new Action(() => {
-				MelonCoroutines.Start(PostProcess());
-			}));
-
 			UpdateUI();
+
+			if (processOnSongListLoaded)
+			{
+				SongList.OnSongListLoaded.On(new Action(() =>
+				{
+					MelonCoroutines.Start(PostProcess());
+				}));
+			}
+			else
+			{
+				MelonCoroutines.Start(PostProcess());
+			}
 		}
 
 		/// <summary>

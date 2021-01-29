@@ -231,16 +231,26 @@ namespace AudicaModding
         /// Call to reload song list after songs were added to songs or downloads directories.
         /// Should be called while the user is in the main menu.
         /// </summary>
-        public static void ReloadSongList()
+        /// <param name="fullReload">Call with true if new songs haven't already been added via SongList.ProcessSingleSong().
+        ///     SongDownloader automatically does this for all downloads, so call with false if using it.</param>
+        public static void ReloadSongList(bool fullReload = true)
         {
             SongDownloader.needRefresh = false;
-            SongList.sFirstTime = true;
-            SongList.OnSongListLoaded.mDone = false;
-            SongList.SongSourceDirs = new Il2CppSystem.Collections.Generic.List<SongList.SongSourceDir>();
-            SongList.AddSongSearchDir(Application.dataPath, downloadsDirectory);
-            SongList.I.StartAssembleSongList();
 
-            SongLoadingManager.StartSongListUpdate();
+            if (fullReload)
+            {
+                SongList.sFirstTime = true;
+                SongList.OnSongListLoaded.mDone = false;
+                SongList.SongSourceDirs = new Il2CppSystem.Collections.Generic.List<SongList.SongSourceDir>();
+                SongList.AddSongSearchDir(Application.dataPath, downloadsDirectory);
+                SongList.I.StartAssembleSongList();
+            }
+
+            // TODO
+            // else do partial reload by checking for any files not yet in the song list
+            // or with file change date newer than cached (also add cache for that)
+
+            SongLoadingManager.StartSongListUpdate(fullReload);
 
             DebugText("Reloading Songs");
         }

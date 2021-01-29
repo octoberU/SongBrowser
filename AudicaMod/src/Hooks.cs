@@ -69,11 +69,11 @@ namespace AudicaModding
                     if (SongDownloaderUI.songItemPanel != null)
                         SongDownloaderUI.songItemPanel.SetPageActive(false);
                     if (SongDownloader.needRefresh)
-                        SongBrowser.ReloadSongList();
+                        SongBrowser.ReloadSongList(false);
                 }
                 return true;
             }
-        }
+        }        
 
         [HarmonyPatch(typeof(KeyboardEntry), "Hide", new Type[0])]
         private static class KeyboardEntry_Hide
@@ -245,7 +245,7 @@ namespace AudicaModding
         {
             private static void Prefix(SongList __instance)
             {
-                SongLoadingManager.StartSongListUpdate();
+                SongLoadingManager.StartSongListUpdate(true);
             }
         }
 

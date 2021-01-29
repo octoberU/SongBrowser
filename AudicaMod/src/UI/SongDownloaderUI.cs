@@ -180,7 +180,6 @@ namespace AudicaModding
 			foreach (var song in activeSongList.songs)
 			{
 				MelonCoroutines.Start(SongDownloader.DownloadSong(song.download_url));
-				SongDownloader.needRefresh = true;
 			}
 		}
 
@@ -254,7 +253,6 @@ namespace AudicaModding
 			bool   destroyOnShot = true;
 			Action onHit         = new Action(() => { 
 				MelonCoroutines.Start(SongDownloader.DownloadSong(song.download_url));
-				SongDownloader.needRefresh = true;
 				TMP.text = "Added song to download queue!"; 
 			});
 			string label         = "Download" + SongBrowser.GetDifficultyString(songd);

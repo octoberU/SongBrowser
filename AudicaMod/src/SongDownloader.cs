@@ -64,6 +64,10 @@ namespace AudicaModding
             }
             yield return null;
             onDownloadComplete?.Invoke();
+
+            needRefresh = true;
+            string downloadPathSlashSeparated = downloadPath.Replace('\\', '/'); // game won't be able to mount the file right if it's using \
+            SongList.I.ProcessSingleSong(new SongList.SongSourceDir(Application.dataPath, SongBrowser.downloadsDirectory), downloadPathSlashSeparated, new Il2CppSystem.Collections.Generic.HashSet<string>());
         }
 
         /// <summary>
