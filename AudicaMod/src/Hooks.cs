@@ -373,6 +373,11 @@ namespace AudicaModding
                     DeleteButton.CreateDeleteButton(ButtonUtils.ButtonLocation.EndGame);
                     FavoriteButton.CreateFavoriteButton(ButtonUtils.ButtonLocation.EndGame);
                 }    
+                else if (state == InGameUI.State.PracticeModeOverPage)
+                {
+                    DeleteButton.CreateDeleteButton(ButtonUtils.ButtonLocation.PracticeModeOver);
+                    FavoriteButton.CreateFavoriteButton(ButtonUtils.ButtonLocation.PracticeModeOver);
+                }
             }
         }
 
