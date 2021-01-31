@@ -18,7 +18,7 @@ namespace AudicaModding
             public const string Name = "SongBrowser";  // Name of the Mod.  (MUST BE SET)
             public const string Author = "octo"; // Author of the Mod.  (Set as null if none)
             public const string Company = null; // Company that made the Mod.  (Set as null if none)
-            public const string Version = "2.4.0"; // Version of the Mod.  (MUST BE SET)
+            public const string Version = "2.4.1"; // Version of the Mod.  (MUST BE SET)
             public const string DownloadLink = null; // Download Link for the Mod.  (Set as null if none)
         }
         public static Vector3 DebugTextPosition = new Vector3(0f, -1f, 5f);
@@ -102,9 +102,8 @@ namespace AudicaModding
             Config.OnModSettingsApplied();
         }
 
-        public override void OnLevelWasLoaded(int level)
+        private void InitPrivateConfig()
         {
-
             if (!MelonPrefs.HasKey("RandomSong", "RandomSongBagSize") || !MelonPrefs.HasKey("SongBrowser", "LastSongCount"))
             {
                 CreatePrivateConfig();
@@ -118,6 +117,7 @@ namespace AudicaModding
         public override void OnApplicationStart()
         {
             Config.RegisterConfig();
+            InitPrivateConfig();
             mainSongDirectory        = Path.Combine(Application.streamingAssetsPath, "HmxAudioAssets", "songs");
             downloadsDirectory       = Application.dataPath.Replace("Audica_Data", "Downloads");
             deletedDownloadsListPath = Path.Combine(downloadsDirectory, "SongBrowserDownload_DeletedFiles");
@@ -256,7 +256,8 @@ namespace AudicaModding
                     for (int j = 0; j < files.Length; j++)
                     {
                         string file = files[j].Replace('\\', '/');
-                        if (! SongLoadingManager.songFilenames.Contains(Path.GetFileName(file)))
+                        if (! SongLoadingManager.songFilenames.Contains(Path.GetFileName(file)) && 
+                            ! SongDownloader.downloadedFileNames.Contains(Path.GetFileName(file)))
                         {
                             SongList.I.ProcessSingleSong(sourceDir, file, new Il2CppSystem.Collections.Generic.HashSet<string>());
                         }
@@ -264,6 +265,7 @@ namespace AudicaModding
                 }
             }
 
+            SongDownloader.downloadedFileNames.Clear();
             SongLoadingManager.StartSongListUpdate(fullReload);
 
             DebugText("Reloading Songs");

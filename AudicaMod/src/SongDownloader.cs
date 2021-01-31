@@ -7,16 +7,19 @@ using MelonLoader.TinyJSON;
 using System.IO;
 using System.Media;
 using OggDecoder;
+using System.Collections.Generic;
 
 namespace AudicaModding
 {
     public static class SongDownloader
     {
-        internal static string      apiURL = "http://www.audica.wiki:5000/api/customsongs?pagesize=14";
-        internal static APISongList songlist;
-        internal static string      searchString = "";
-        internal static bool        needRefresh = false;
-        internal static int         page = 1;
+        internal static string          apiURL              = "http://www.audica.wiki:5000/api/customsongs?pagesize=14";
+        internal static APISongList     songlist;           
+        internal static string          searchString        = "";
+        internal static bool            needRefresh         = false;
+        internal static int             page                = 1;
+        internal static HashSet<string> downloadedFileNames = new HashSet<string>();
+        internal static HashSet<string> failedDownloads     = new HashSet<string>();
 
         /// <summary>
         /// Coroutine that searches for songs using the web API
@@ -47,9 +50,12 @@ namespace AudicaModding
         /// Coroutine that downloads a song from given download URL. Caller is responsible to call
         /// SongBrowser.ReloadSongList() once download is done
         /// </summary>
+        /// <param name="songID">SongID of download target, typically Song.song_id</param>
         /// <param name="downloadUrl">Download target, typically Song.download_url</param>
-        /// <param name="onDownloadComplete">Called when download has been written to disk</param>
-        public static IEnumerator DownloadSong(string downloadUrl, Action onDownloadComplete = null)
+        /// <param name="onDownloadComplete">Called when download has been written to disk.
+        ///     First argument is the songID of the downloaded song.
+        ///     Second argument is true if the download succeeded, false otherwise.</param>
+        public static IEnumerator DownloadSong(string songID, string downloadUrl, Action<string, bool> onDownloadComplete = null)
         {
             string[] splitURL     = downloadUrl.Split('/');
             string   audicaName   = splitURL[splitURL.Length - 1];
@@ -63,9 +69,24 @@ namespace AudicaModding
                 File.WriteAllBytes(downloadPath, results);
             }
             yield return null;
-            onDownloadComplete?.Invoke();
 
-            needRefresh = true;
+			SongList.SongSourceDir dir     = new SongList.SongSourceDir(Application.dataPath, SongBrowser.downloadsDirectory);
+			string                 file    = downloadPath.Replace('\\', '/');
+			bool                   success = SongList.I.ProcessSingleSong(dir, file, new Il2CppSystem.Collections.Generic.HashSet<string>());
+            downloadedFileNames.Add(audicaName);
+
+            if (success)
+            {
+                needRefresh = true;
+            }
+            else
+            {
+                failedDownloads.Add(audicaName);
+                if (File.Exists(downloadPath))
+                    File.Delete(downloadPath);
+            }
+
+            onDownloadComplete?.Invoke(songID, success);
         }
 
         /// <summary>

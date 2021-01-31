@@ -28,8 +28,7 @@ namespace AudicaModding
 		private static string      originalBackText;
 		private static int		   activeDownloadsCount = 0;
 
-		private static Dictionary<Song, OptionsMenuButton> downloadButtons     = new Dictionary<Song, OptionsMenuButton>();
-		private static HashSet<string>                     downloadedFileNames = new HashSet<string>();
+		private static Dictionary<Song, OptionsMenuButton> downloadButtons = new Dictionary<Song, OptionsMenuButton>();
 
 		static public void AddPageButton(OptionsMenu optionsMenu, int col)
 		{
@@ -44,7 +43,6 @@ namespace AudicaModding
 
 		public static void GoToWebSearchPage()
 		{
-			downloadedFileNames.Clear();
 			SongDownloader.StartNewSongSearch();
 
 			if (backButton == null)
@@ -203,7 +201,7 @@ namespace AudicaModding
 			foreach (var song in activeSongList.songs)
 			{
 				OnDownloadStart(song);
-				MelonCoroutines.Start(SongDownloader.DownloadSong(song.download_url, () => { OnDownloadDone(song); }));
+				MelonCoroutines.Start(SongDownloader.DownloadSong(song.song_id, song.download_url, (songID, success) => { OnDownloadDone(song, success); }));
 			}
 		}
 
@@ -277,7 +275,7 @@ namespace AudicaModding
 			bool   destroyOnShot = true;
 			Action onHit         = new Action(() => {
 				OnDownloadStart(song);
-				MelonCoroutines.Start(SongDownloader.DownloadSong(song.download_url, () => { OnDownloadDone(song); }));
+				MelonCoroutines.Start(SongDownloader.DownloadSong(song.song_id, song.download_url, (songID, success) => { OnDownloadDone(song, success); }));
 				KataConfig.I.CreateDebugText("Downloading...", new Vector3(0f, -1f, 5f), 5f, null, false, 0.2f);
 			});
 			string label         = "Download" + SongBrowser.GetDifficultyString(songd);
@@ -287,11 +285,16 @@ namespace AudicaModding
 			string[] splitURL = song.download_url.Split('/');
 			string audicaName = splitURL[splitURL.Length - 1];
 
-			if (SongLoadingManager.songFilenames.Contains(song.filename) || downloadedFileNames.Contains(song.filename))
+			if (SongLoadingManager.songFilenames.Contains(song.filename) || SongDownloader.downloadedFileNames.Contains(song.filename) ||
+				SongDownloader.failedDownloads.Contains(song.filename))
             {
+				if (SongDownloader.failedDownloads.Contains(song.filename))
+					label = "Download failed";
+				else
+					label = "Downloaded!";
+
 				destroyOnShot = false;
 				onHit         = new Action(() => { });
-				label         = "Downloaded";
 				alpha         = 0.25f;
 				interactable  = false;
 			}
@@ -336,17 +339,20 @@ namespace AudicaModding
 				downloadButtons[song].button.SetInteractable(false);
 				downloadButtons[song].button.destroyOnShot   = false;
 				downloadButtons[song].button.doMeshExplosion = false;
-				downloadButtons[song].label.alpha = 0.25f;
-				downloadButtons[song].label.text  = "Downloading...";
+				downloadButtons[song].button.onHitEvent      = new UnityEngine.Events.UnityEvent();
+				downloadButtons[song].label.alpha            = 0.25f;
+				downloadButtons[song].label.text             = "Downloading...";
 			}
         }
 
-		private static void OnDownloadDone(Song song)
+		private static void OnDownloadDone(Song song, bool success)
         {
-			downloadedFileNames.Add(song.filename);
 			if (downloadButtons.ContainsKey(song))
-			{
-				downloadButtons[song].label.text = "Downloaded!";
+            {
+				if (success)
+					downloadButtons[song].label.text = "Downloaded!";
+				else
+					downloadButtons[song].label.text = "Download failed";
 			}
 			activeDownloadsCount--;
 			
