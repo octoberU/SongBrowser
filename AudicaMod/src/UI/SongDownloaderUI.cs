@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using MelonLoader;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace AudicaModding
 {
@@ -22,11 +23,17 @@ namespace AudicaModding
 		public static APISongList activeSongList;
 
 		private static OptionsMenu primaryMenu;
+		private static GunButton   backButton;
+		private static TextMeshPro backText;
+		private static string      originalBackText;
+		private static int		   activeDownloadsCount = 0;
+
+		private static Dictionary<Song, OptionsMenuButton> downloadButtons = new Dictionary<Song, OptionsMenuButton>();
 
 		static public void AddPageButton(OptionsMenu optionsMenu, int col)
 		{
 			primaryMenu = optionsMenu;
-			primaryMenu.AddButton(col, "Download Songs", new System.Action(() => {
+			primaryMenu.AddButton(col, "Download Songs", new Action(() => {
 				GoToWebSearchPage();
 				if (songItemPanel != null)
 					songItemPanel.SetPageActive(true);
@@ -36,7 +43,18 @@ namespace AudicaModding
 
 		public static void GoToWebSearchPage()
 		{
-			SongDownloader.page = 1;
+			SongDownloader.StartNewSongSearch();
+
+			if (backButton == null)
+			{
+				var button       = GameObject.Find("menu/ShellPage_Settings/page/backParent/back");
+				backButton       = button.GetComponentInChildren<GunButton>();
+				backText         = button.GetComponentInChildren<TextMeshPro>();
+				originalBackText = backText.text;
+
+				UnityEngine.Object.Destroy(button.GetComponentInChildren<Localizer>());
+			}
+
 			if (songItemPanel == null)
 			{
 				secondaryPanel = GameObject.Instantiate(GameObject.Find("ShellPage_Settings"));
@@ -177,9 +195,13 @@ namespace AudicaModding
 
 		private static void DownloadFullPage()
 		{
+			// for now this debug message will be visible the entire time
+			// once downloads are actually async this should be called once every few seconds
+			KataConfig.I.CreateDebugText("Downloading...", new Vector3(0f, -1f, 5f), 5f, null, false, 0.2f);
 			foreach (var song in activeSongList.songs)
 			{
-				MelonCoroutines.Start(SongDownloader.DownloadSong(song.download_url));
+				OnDownloadStart(song);
+				MelonCoroutines.Start(SongDownloader.DownloadSong(song.song_id, song.download_url, (songID, success) => { OnDownloadDone(song, success); }));
 			}
 		}
 
@@ -251,7 +273,11 @@ namespace AudicaModding
             songd.customEasyTags = songd.customEasyTags.Distinct().ToList();
 
 			bool   destroyOnShot = true;
-			Action onHit         = new Action(() => { MelonCoroutines.Start(SongDownloader.DownloadSong(song.download_url)); TMP.text = "Added song to download queue!"; });
+			Action onHit         = new Action(() => {
+				OnDownloadStart(song);
+				MelonCoroutines.Start(SongDownloader.DownloadSong(song.song_id, song.download_url, (songID, success) => { OnDownloadDone(song, success); }));
+				KataConfig.I.CreateDebugText("Downloading...", new Vector3(0f, -1f, 5f), 5f, null, false, 0.2f);
+			});
 			string label         = "Download" + SongBrowser.GetDifficultyString(songd);
 			float  alpha         = 1f;
 			bool   interactable  = true;
@@ -259,11 +285,16 @@ namespace AudicaModding
 			string[] splitURL = song.download_url.Split('/');
 			string audicaName = splitURL[splitURL.Length - 1];
 
-			if (SongBrowser.songFilenames.Contains(song.filename))
+			if (SongLoadingManager.songFilenames.Contains(song.filename) || SongDownloader.downloadedFileNames.Contains(song.filename) ||
+				SongDownloader.failedDownloads.Contains(song.filename))
             {
+				if (SongDownloader.failedDownloads.Contains(song.filename))
+					label = "Download failed";
+				else
+					label = "Downloaded!";
+
 				destroyOnShot = false;
 				onHit         = new Action(() => { });
-				label         = "Downloaded";
 				alpha         = 0.25f;
 				interactable  = false;
 			}
@@ -278,6 +309,8 @@ namespace AudicaModding
 			downloadButton.button.doMeshExplosion = destroyOnShot;
 			downloadButton.label.alpha            = alpha;
 
+			downloadButtons.Add(song, downloadButton);
+
 			row.Add(downloadButton.gameObject);
 
 			var previewButton = optionsMenu.AddButton(1,
@@ -289,6 +322,46 @@ namespace AudicaModding
 
 
 			optionsMenu.scrollable.AddRow(row);
+		}
+
+		private static void OnDownloadStart(Song song)
+        {
+			activeDownloadsCount++;
+
+			if (activeDownloadsCount > 0)
+            {
+				backButton.SetInteractable(false);
+				backText.alpha = 0.25f;
+				backText.text  = "Waiting...";
+            }
+			if (downloadButtons.ContainsKey(song))
+            {
+				downloadButtons[song].button.SetInteractable(false);
+				downloadButtons[song].button.destroyOnShot   = false;
+				downloadButtons[song].button.doMeshExplosion = false;
+				downloadButtons[song].button.onHitEvent      = new UnityEngine.Events.UnityEvent();
+				downloadButtons[song].label.alpha            = 0.25f;
+				downloadButtons[song].label.text             = "Downloading...";
+			}
+        }
+
+		private static void OnDownloadDone(Song song, bool success)
+        {
+			if (downloadButtons.ContainsKey(song))
+            {
+				if (success)
+					downloadButtons[song].label.text = "Downloaded!";
+				else
+					downloadButtons[song].label.text = "Download failed";
+			}
+			activeDownloadsCount--;
+			
+			if (activeDownloadsCount == 0)
+			{
+				backText.alpha = 1.0f;
+				backText.text  = originalBackText;
+				backButton.SetInteractable(true);
+			}
 		}
 
 		private static void CleanUpPage(OptionsMenu optionsMenu)
@@ -305,6 +378,7 @@ namespace AudicaModding
 			optionsMenu.mRows.Clear();
 			optionsMenu.scrollable.ClearRows();
 			optionsMenu.scrollable.mRows.Clear();
+			downloadButtons.Clear();
 		}
 
 		static IEnumerator WaitForSpawningMenu(GameObject panel)

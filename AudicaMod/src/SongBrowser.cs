@@ -18,12 +18,13 @@ namespace AudicaModding
             public const string Name = "SongBrowser";  // Name of the Mod.  (MUST BE SET)
             public const string Author = "octo"; // Author of the Mod.  (Set as null if none)
             public const string Company = null; // Company that made the Mod.  (Set as null if none)
-            public const string Version = "2.3.2"; // Version of the Mod.  (MUST BE SET)
+            public const string Version = "2.4.1"; // Version of the Mod.  (MUST BE SET)
             public const string DownloadLink = null; // Download Link for the Mod.  (Set as null if none)
         }
         public static Vector3 DebugTextPosition = new Vector3(0f, -1f, 5f);
         public static bool shouldShowKeyboard = false;
         public static string downloadsDirectory;
+        public static string mainSongDirectory;
         public static string deletedDownloadsListPath;
         public static bool emptiedDownloadsFolder = false;
         public static bool addedCustomsDir = false;
@@ -31,9 +32,6 @@ namespace AudicaModding
         public static List<string> deletedSongPaths = new List<string>();
         public static int newSongCount;
         public static int lastSongCount;
-
-        public static HashSet<string> songIDs         = new HashSet<string>();
-        public static HashSet<string> songFilenames = new HashSet<string>();
 
         public static bool modSettingsInstalled = false;
 
@@ -104,9 +102,8 @@ namespace AudicaModding
             Config.OnModSettingsApplied();
         }
 
-        public override void OnLevelWasLoaded(int level)
+        private void InitPrivateConfig()
         {
-
             if (!MelonPrefs.HasKey("RandomSong", "RandomSongBagSize") || !MelonPrefs.HasKey("SongBrowser", "LastSongCount"))
             {
                 CreatePrivateConfig();
@@ -120,6 +117,8 @@ namespace AudicaModding
         public override void OnApplicationStart()
         {
             Config.RegisterConfig();
+            InitPrivateConfig();
+            mainSongDirectory        = Path.Combine(Application.streamingAssetsPath, "HmxAudioAssets", "songs");
             downloadsDirectory       = Application.dataPath.Replace("Audica_Data", "Downloads");
             deletedDownloadsListPath = Path.Combine(downloadsDirectory, "SongBrowserDownload_DeletedFiles");
             CheckFolderDirectories();
@@ -227,35 +226,57 @@ namespace AudicaModding
             //}
         }
 
-        public static void ReloadSongList()
+        /// <summary>
+        /// Call to reload song list after songs were added to songs or downloads directories.
+        /// Should be called while the user is in the main menu.
+        /// </summary>
+        /// <param name="fullReload">Call with true to reload the entire song list. Otherwise only new 
+        ///     songs will be loaded (unfortunately unable to detect modified songs)</param>
+        public static void ReloadSongList(bool fullReload = true)
         {
             SongDownloader.needRefresh = false;
-            SongList.sFirstTime = true;
-            SongList.OnSongListLoaded.mDone = false;
-            SongList.SongSourceDirs = new Il2CppSystem.Collections.Generic.List<SongList.SongSourceDir>();
-            SongList.AddSongSearchDir(Application.dataPath, downloadsDirectory);
-            SongList.I.StartAssembleSongList();
 
-            SongLoadingManager.StartSongListUpdate();
+            if (fullReload)
+            {
+                SongList.sFirstTime = true;
+                SongList.OnSongListLoaded.mDone = false;
+                SongList.SongSourceDirs = new Il2CppSystem.Collections.Generic.List<SongList.SongSourceDir>();
+                SongList.AddSongSearchDir(Application.dataPath, downloadsDirectory);
+                SongList.I.StartAssembleSongList();
+            }
+            else
+            {
+                List<SongList.SongSourceDir> sourceDirs = new List<SongList.SongSourceDir>();
+                sourceDirs.Add(new SongList.SongSourceDir(Application.streamingAssetsPath, mainSongDirectory));
+                sourceDirs.Add(new SongList.SongSourceDir(Application.dataPath,            downloadsDirectory));
+                for (int i = 0; i < sourceDirs.Count; i++)
+                {
+                    SongList.SongSourceDir sourceDir = sourceDirs[i];
+                    string[]               files     = Directory.GetFiles(sourceDir.dir, "*.audica");
+                    for (int j = 0; j < files.Length; j++)
+                    {
+                        string file = files[j].Replace('\\', '/');
+                        if (! SongLoadingManager.songFilenames.Contains(Path.GetFileName(file)) && 
+                            ! SongDownloader.downloadedFileNames.Contains(Path.GetFileName(file)))
+                        {
+                            SongList.I.ProcessSingleSong(sourceDir, file, new Il2CppSystem.Collections.Generic.HashSet<string>());
+                        }
+                    }
+                }
+            }
+
+            SongDownloader.downloadedFileNames.Clear();
+            SongLoadingManager.StartSongListUpdate(fullReload);
 
             DebugText("Reloading Songs");
         }
 
-        public static void UpdateSongCaches()
+        /// <summary>
+        /// Register a callback that will be called after song list has been reloaded.
+        /// </summary>
+        public static void RegisterSongListPostProcessing(Action callback)
         {
-            songIDs.Clear();
-            songFilenames.Clear();
-            for (int i = 0; i < SongList.I.songs.Count; i++)
-            {
-                string songID = SongList.I.songs[i].songID;
-                songIDs.Add(songID);
-                songFilenames.Add(Path.GetFileName(SongList.I.songs[i].zipPath));
-
-                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Easy.ToString());
-                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Normal.ToString());
-                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Hard.ToString());
-                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Expert.ToString());
-            }
+            SongLoadingManager.AddPostProcessingCB(callback);
         }
 
         public static IEnumerator UpdateLastSongCount()

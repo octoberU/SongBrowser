@@ -12,7 +12,8 @@ namespace AudicaModding
             Menu,
             Pause,
             Failed,
-            EndGame
+            EndGame,
+            PracticeModeOver
         }
 
         public static void InitButton(GameObject button, string label, Action listener, Vector3 localPosition, 

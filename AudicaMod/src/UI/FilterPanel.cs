@@ -18,8 +18,6 @@ namespace AudicaModding
 
         internal static Favorites favorites;
 
-        internal static bool firstTime = true;
-
         private static string favoritesPath = Application.dataPath + "/../" + "/UserData/"+ "SongBrowserFavorites.json";
 
         private static Dictionary<string, Filter> filters;
@@ -32,7 +30,11 @@ namespace AudicaModding
         private static GameObject panel;
         private static GameObject glass;
         private static GameObject highlights;
-        private static GameObject filterButton;
+        private static GameObject allButton;
+        private static GameObject mainButton;
+        private static GameObject extrasButton;
+
+        private static List<string> buttonOrder = new List<string>() { "All", "Main", "Extras" };
 
         public class Filter
         {
@@ -56,14 +58,15 @@ namespace AudicaModding
         /// Allows adding a filter (including its button) to the filter panel.
         /// </summary>
         /// <param name="defaultButtonText">Text shown on filter button by default, also acts as filterID</param>
+        /// <param name="placeAboveOriginalFilters">If true, filter button will be positioned above the "All" filter</param>
         /// <param name="songListText">Text shown as first element in the filtered list (e.g. "Extras")</param>
         /// <param name="onHitListener">Called when the button is shot</param>
         /// <param name="onDisable">Called when the filter is disabled</param>
         /// <param name="applyFilter">Called to apply the filter to the song list. Must return true if filter was applied successfully, 
         ///     false otherwise.</param>
         /// <returns>Function that can be used to access the filter - null if filter with same ID already exists</returns>
-        public static Func<Filter> RegisterFilter(string defaultButtonText, string songListText, Action onHitListener,
-                                                  Action onDisable,
+        public static Func<Filter> RegisterFilter(string defaultButtonText, bool placeAboveOriginalFilters, string songListText,
+                                                  Action onHitListener, Action onDisable,
                                                   Func<Il2CppSystem.Collections.Generic.List<string>, bool> applyFilter)
         {
             if (filters == null)
@@ -85,6 +88,11 @@ namespace AudicaModding
 
             filters.Add(defaultButtonText, filter);
 
+            if (placeAboveOriginalFilters)
+                buttonOrder.Insert(0, filter.FilterID);
+            else
+                buttonOrder.Add(filter.FilterID);
+
             return new Func<Filter>(() => { return filter; });
         }
 
@@ -100,7 +108,7 @@ namespace AudicaModding
         {
             LoadFavorites();
 
-            RegisterFilter("search", "Search Results", SongSearchButton.ShowSearchButton, SongSearchButton.HideSearchButton, 
+            RegisterFilter("search", false, "Search Results", SongSearchButton.ShowSearchButton, SongSearchButton.HideSearchButton, 
                 (result) =>
                 {
                     if (SongSearch.searchResult != null)
@@ -115,7 +123,7 @@ namespace AudicaModding
                     return false;
                 });
 
-            RegisterFilter("favorites", "Favorites", () => {}, () => {}, 
+            RegisterFilter("favorites", false, "Favorites", () => {}, () => {}, 
                 (result) =>
                 {
                     if (favorites != null)
@@ -125,23 +133,22 @@ namespace AudicaModding
                         for (int i = 0; i < favorites.songIDs.Count; i++)
                         {
                             id = favorites.songIDs[i];
-                            if (SongBrowser.songIDs.Contains(id))
+                            if (SongLoadingManager.songIDs.Contains(id))
                                 result.Add(id);
                         }
                         return true;
                     }
                     return false;
-                });
+                });;
         }
 
         internal static void Initialize()
         {
-            if (firstTime)
+            if (songListControls == null)
             {
                 songSelect       = GameObject.FindObjectOfType<SongSelect>();
                 songListControls = GameObject.FindObjectOfType<SongListControls>();
                 GetReferences();
-                firstTime = false;
 
                 foreach (string filterKey in filters.Keys)
                 {
@@ -150,7 +157,7 @@ namespace AudicaModding
 
                 SetFilterUIGeometry();
 
-                filterButton.GetComponentInChildren<GunButton>().onHitEvent.AddListener(new Action(() => 
+                extrasButton.GetComponentInChildren<GunButton>().onHitEvent.AddListener(new Action(() => 
                 { 
                     DisableCustomFilters();
                     songSelect.ShowSongList();
@@ -235,7 +242,7 @@ namespace AudicaModding
 
         private static void PrepareFilterButton(Filter filter)
         {
-            filter.Button = GameObject.Instantiate(filterButton, filterButton.transform.parent);
+            filter.Button = GameObject.Instantiate(extrasButton, extrasButton.transform.parent);
             GameObject.Destroy(filter.Button.GetComponentInChildren<Localizer>());
             GunButton button = filter.Button.GetComponentInChildren<GunButton>();
             button.onHitEvent = new UnityEvent();
@@ -281,10 +288,28 @@ namespace AudicaModding
             highlights.transform.localScale           = highlightsLocalScale;
             highlights.transform.localPosition        = highlightsLocalPosition;
 
-            Vector3 localPos = new Vector3(0f, -8f, 0f); // local position (relative to extras button) of first custom filter button
-            foreach (string key in filterKeys)
+            Vector3 localPos = new Vector3(0f, 2.5f, 0f); // local position (relative to top of the list)
+            foreach (string key in buttonOrder)
             {
-                filters[key].Button.transform.localPosition = localPos;
+                GameObject button = null;
+                if (key == "All")
+                {
+                    button = allButton;
+                }
+                else if (key == "Main")
+                {
+                    button = mainButton;
+                }
+                else if (key == "Extras")
+                {
+                    button = extrasButton;
+                }
+                else
+                {
+                    button = filters[key].Button;
+                }
+
+                button.transform.localPosition = localPos;
                 localPos += new Vector3(0f, -3.5f, 0f);
             }
         }
@@ -294,7 +319,9 @@ namespace AudicaModding
             panel             = GameObject.Find("menu/ShellPage_Song/page/ShellPanel_Left");
             glass             = GameObject.Find("menu/ShellPage_Song/page/ShellPanel_Left/Glass");
             highlights        = GameObject.Find("menu/ShellPage_Song/page/ShellPanel_Left/PanelFrame/highlights");
-            filterButton      = GameObject.Find("menu/ShellPage_Song/page/ShellPanel_Left/FilterExtras");
+            allButton         = GameObject.Find("menu/ShellPage_Song/page/ShellPanel_Left/FilterAll");
+            mainButton        = GameObject.Find("menu/ShellPage_Song/page/ShellPanel_Left/FilterMain");
+            extrasButton      = GameObject.Find("menu/ShellPage_Song/page/ShellPanel_Left/FilterExtras");
             notificationPanel = GameObject.Find("menu/ShellPage_Song/page/ShellPanel_Left/ShellPanel_SongListNotification");
             notificationText  = notificationPanel.GetComponentInChildren<TextMeshPro>();
         }

@@ -6,7 +6,15 @@ namespace AudicaModding
     {
         public static List<string> searchResult = new List<string>();
         public static string       query;
+        public static MapType      mapType          = MapType.All;
         public static bool         searchInProgress = false;
+
+        public enum MapType
+        {
+            All,
+            OfficialOnly,
+            CustomsOnly
+        }
 
         public static void CancelSearch()
         {
@@ -20,12 +28,20 @@ namespace AudicaModding
             searchResult.Clear();
             searchInProgress = false;
 
-            if (string.IsNullOrEmpty(query))
+            if (query == null)
                 return;
 
-            for (int i = 0; i < SongList.I.songs.Count - 1; i++)
+            for (int i = 0; i < SongList.I.songs.Count; i++)
             {
                 SongList.SongData currentSong = SongList.I.songs[i];
+                bool              isCustom    = Utility.IsCustomSong(currentSong.songID);
+
+                if ((mapType == MapType.CustomsOnly  && !isCustom) ||
+                    (mapType == MapType.OfficialOnly && isCustom))
+                    continue;
+
+                if (currentSong.songID == "tutorial")
+                    continue; // never return the tutorial as result
 
                 if (currentSong.artist.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
                     currentSong.title.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
@@ -46,5 +62,6 @@ namespace AudicaModding
             MenuState.I.GoToSongPage();
             SongSearchButton.UpdateSearchButton();
         }
+
     }
 }

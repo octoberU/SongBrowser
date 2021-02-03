@@ -69,11 +69,11 @@ namespace AudicaModding
                     if (SongDownloaderUI.songItemPanel != null)
                         SongDownloaderUI.songItemPanel.SetPageActive(false);
                     if (SongDownloader.needRefresh)
-                        SongBrowser.ReloadSongList();
+                        SongBrowser.ReloadSongList(false);
                 }
                 return true;
             }
-        }
+        }        
 
         [HarmonyPatch(typeof(KeyboardEntry), "Hide", new Type[0])]
         private static class KeyboardEntry_Hide
@@ -245,7 +245,7 @@ namespace AudicaModding
         {
             private static void Prefix(SongList __instance)
             {
-                SongLoadingManager.StartSongListUpdate();
+                SongLoadingManager.StartSongListUpdate(true);
             }
         }
 
@@ -373,6 +373,11 @@ namespace AudicaModding
                     DeleteButton.CreateDeleteButton(ButtonUtils.ButtonLocation.EndGame);
                     FavoriteButton.CreateFavoriteButton(ButtonUtils.ButtonLocation.EndGame);
                 }    
+                else if (state == InGameUI.State.PracticeModeOverPage)
+                {
+                    DeleteButton.CreateDeleteButton(ButtonUtils.ButtonLocation.PracticeModeOver);
+                    FavoriteButton.CreateFavoriteButton(ButtonUtils.ButtonLocation.PracticeModeOver);
+                }
             }
         }
 
@@ -403,15 +408,6 @@ namespace AudicaModding
             private static void Prefix(SongListControls __instance)
             {
                 FilterPanel.DisableCustomFilters();
-            }
-        }
-
-        [HarmonyPatch(typeof(AudioDriver), "StartPlaying")]
-        private static class PatchPlay
-        {
-            private static void Postfix(AudioDriver __instance)
-            {
-                FilterPanel.firstTime = true;
             }
         }
 
