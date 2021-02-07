@@ -240,15 +240,6 @@ namespace AudicaModding
             }
         }
 
-        [HarmonyPatch(typeof(SongList), "Start", new Type[0])]
-        private static class PatchSongListStart
-        {
-            private static void Prefix(SongList __instance)
-            {
-                SongLoadingManager.StartSongListUpdate(true);
-            }
-        }
-
         [HarmonyPatch(typeof(SongSelect), "GetSongIDs", new Type[] { typeof(bool) })]
         private static class FilterScrollerItems
         {
@@ -349,6 +340,18 @@ namespace AudicaModding
                 else
                 {
                     ScoreDisplayList.Hide();
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(StartupLogo), "SetState", new Type[] { typeof(StartupLogo.State) })]
+        private static class Patch2SetLogoState
+        {
+            private static void Postfix(StartupLogo __instance, ref StartupLogo.State state)
+            {
+                if (state == StartupLogo.State.Done)
+                {
+                    SongLoadingManager.StartSongListUpdate();
                 }
             }
         }
