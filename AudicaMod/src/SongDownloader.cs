@@ -21,6 +21,9 @@ namespace AudicaModding
         internal static HashSet<string> downloadedFileNames = new HashSet<string>();
         internal static HashSet<string> failedDownloads     = new HashSet<string>();
 
+        private static SoundPlayer player      = new SoundPlayer();
+        private static string      lastPreview = "";
+
         /// <summary>
         /// Coroutine that searches for songs using the web API
         /// </summary>
@@ -90,20 +93,31 @@ namespace AudicaModding
         }
 
         /// <summary>
-        /// Coroutine that plays song preview for given preview URL
+        /// Coroutine that plays song preview for given preview URL.
+        /// If called with the url of a preview that's already playing
+        /// the preview will be stopped instead.
         /// </summary>
         /// <param name="url">URL to preview, typically Song.preview_url</param>
         public static IEnumerator StreamPreviewSong(string url)
         {
-            WWW www = new WWW(url);
-            yield return www;
-            if (www.isDone)
+            if (lastPreview == url) // let people stop previews since they're very loud
             {
-                Stream stream = new MemoryStream(www.bytes);
-                var player = new SoundPlayer(new OggDecodeStream(stream));
-                yield return new WaitForSeconds(0.2f);
-                player.Play();
-                yield return new WaitForSeconds(15f);
+                lastPreview = "";
+                player.Stop();
+            }
+            else
+            {
+                lastPreview = url;
+                WWW www = new WWW(url);
+                yield return www;
+                if (www.isDone)
+                {
+                    Stream stream = new MemoryStream(www.bytes);
+                    player.Stream = new OggDecodeStream(stream);
+                    yield return new WaitForSeconds(0.2f);
+                    player.Play();
+                    yield return new WaitForSeconds(15f);
+                }
             }
 
             yield return null;
