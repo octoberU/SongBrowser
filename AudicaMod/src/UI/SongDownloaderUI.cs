@@ -289,7 +289,7 @@ namespace AudicaModding
 				SongDownloader.failedDownloads.Contains(song.filename))
             {
 				if (SongDownloader.failedDownloads.Contains(song.filename))
-					label = "Download failed";
+					label = "Download unavailable";
 				else
 					label = "Downloaded!";
 

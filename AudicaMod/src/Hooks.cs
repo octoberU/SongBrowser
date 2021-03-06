@@ -351,6 +351,8 @@ namespace AudicaModding
             {
                 if (state == StartupLogo.State.Done)
                 {
+                    SongDownloader.StartNewSongSearch();
+                    FilterPanel.OnApplicationStart();
                     SongLoadingManager.StartSongListUpdate();
                 }
             }

@@ -122,9 +122,6 @@ namespace AudicaModding
             downloadsDirectory       = Application.dataPath.Replace("Audica_Data", "Downloads");
             deletedDownloadsListPath = Path.Combine(downloadsDirectory, "SongBrowserDownload_DeletedFiles");
             CheckFolderDirectories();
-            SongDownloader.StartNewSongSearch();
-            var i = HarmonyInstance.Create("Song Downloader");
-            FilterPanel.OnApplicationStart();
 
             if (MelonHandler.Mods.Any(it => it.Info.SystemType.Name == nameof(SongDataLoader)))
             {
@@ -162,7 +159,6 @@ namespace AudicaModding
 
         public override void OnApplicationQuit()
         {
-            FilterPanel.SaveFavorites();
             CleanDeletedSongs();
         }
 
