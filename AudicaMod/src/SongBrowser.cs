@@ -31,7 +31,6 @@ namespace AudicaModding
         public static List<string> deletedSongs = new List<string>();
         public static List<string> deletedSongPaths = new List<string>();
         public static int newSongCount;
-        public static int lastSongCount;
 
         public static bool modSettingsInstalled = false;
 
@@ -79,45 +78,14 @@ namespace AudicaModding
             }
         }
 
-        private void CreatePrivateConfig()
-        {
-            MelonPrefs.RegisterInt("RandomSong", "RandomSongBagSize", 10);
-            MelonPrefs.RegisterInt("SongBrowser", "LastSongCount", 0);
-        }
-
-        private void LoadPrivateConfig()
-        {
-            RandomSong.LoadBagSize(MelonPrefs.GetInt("RandomSong", "RandomSongBagSize"));
-            lastSongCount = MelonPrefs.GetInt("SongBrowser", "LastSongCount");
-        }
-
-        public static void SavePrivateConfig()
-        {
-            MelonPrefs.SetInt("RandomSong", "RandomSongBagSize", RandomSong.randomSongBagSize);
-            MelonPrefs.SetInt("SongBrowser", "LastSongCount", lastSongCount);
-        }
-
         public override void OnModSettingsApplied()
         {
             Config.OnModSettingsApplied();
         }
 
-        private void InitPrivateConfig()
-        {
-            if (!MelonPrefs.HasKey("RandomSong", "RandomSongBagSize") || !MelonPrefs.HasKey("SongBrowser", "LastSongCount"))
-            {
-                CreatePrivateConfig();
-            }
-            else
-            {
-                LoadPrivateConfig();
-            }
-        }
-
         public override void OnApplicationStart()
         {
             Config.RegisterConfig();
-            InitPrivateConfig();
             mainSongDirectory        = Path.Combine(Application.streamingAssetsPath, "HmxAudioAssets", "songs");
             downloadsDirectory       = Application.dataPath.Replace("Audica_Data", "Downloads");
             deletedDownloadsListPath = Path.Combine(downloadsDirectory, "SongBrowserDownload_DeletedFiles");
@@ -284,11 +252,11 @@ namespace AudicaModding
             newSongCount = songcount.song_count;
             if (FilterPanel.notificationPanel != null)
             {
-                if (lastSongCount == newSongCount) FilterPanel.SetNotificationText("There are no new songs available");
+                if (Config.LastSongCount == newSongCount) FilterPanel.SetNotificationText("There are no new songs available");
                 else
                 {
-                    int _count = newSongCount - lastSongCount;
-                    bool isSingular = (newSongCount - lastSongCount) == 1;
+                    int _count = newSongCount - Config.LastSongCount;
+                    bool isSingular = (newSongCount - Config.LastSongCount) == 1;
                     string preSongtxt = isSingular ? "is " : "are ";
                     string songtxt = isSingular ? "song" : "songs";
                     FilterPanel.SetNotificationText("There " + preSongtxt + _count.ToString() + " new " + songtxt + " available");

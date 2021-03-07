@@ -9,10 +9,19 @@ namespace AudicaModding
 
         public static bool SafeSongListReload;
 
+        public static int LastSongCount { get; private set; }
+        public static int RandomSongBagSize { get; private set; }
+
         public static void RegisterConfig()
         {
-            MelonPrefs.RegisterBool(Category, nameof(SafeSongListReload), true, 
+            MelonPrefs.RegisterBool(Category, nameof(SafeSongListReload), true,
                                     "Blocks access to song list during song list reload (safety feature).");
+
+            MelonPrefs.RegisterInt(Category, nameof(LastSongCount), 0, "", true);
+            LastSongCount = MelonPrefs.GetInt(Category, nameof(LastSongCount));
+
+            MelonPrefs.RegisterInt(Category, nameof(RandomSongBagSize), 10, "", true);
+            RandomSongBagSize = MelonPrefs.GetInt(Category, nameof(RandomSongBagSize));
 
             OnModSettingsApplied();
         }
@@ -24,6 +33,18 @@ namespace AudicaModding
                 if (fieldInfo.FieldType == typeof(bool))
                     fieldInfo.SetValue(null, MelonPrefs.GetBool(Category, fieldInfo.Name));
             }
+        }
+
+        public static void UpdateSongCount(int newCount)
+        {
+            MelonPrefs.SetInt(Category, nameof(LastSongCount), newCount);
+            LastSongCount = newCount;
+        }
+
+        public static void UpdateRandomSongBagSize(int newSize)
+        {
+            MelonPrefs.SetInt(Category, nameof(RandomSongBagSize), newSize);
+            RandomSongBagSize = newSize;
         }
     }
 }

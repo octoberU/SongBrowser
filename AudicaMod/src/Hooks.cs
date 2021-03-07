@@ -394,6 +394,7 @@ namespace AudicaModding
                 FilterPanel.Initialize();
                 ScoreHistory.LoadHistory(PlatformChooser.I.GetLeaderboardID());
                 MelonCoroutines.Start(SongBrowser.UpdateLastSongCount());
+                MelonLogger.Log("Updating song count");
             }
         }
 

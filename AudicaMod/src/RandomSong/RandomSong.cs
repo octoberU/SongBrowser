@@ -18,7 +18,6 @@ namespace AudicaModding
         private static Vector3 randomButtonPos = new Vector3(10.2f, -9.4f, 24.2f);
         private static Vector3 randomButtonRot = new Vector3(0f, 0f, 0f);
 
-        public static int randomSongBagSize = 10;
         private static int mainSongCount = 33;
         private static bool availableSongListsSetup = false;
         private static List<int> availableMainSongs = new List<int>();
@@ -35,8 +34,8 @@ namespace AudicaModding
 
         public static void LoadBagSize(int size)
         {
-            if (size > mainSongCount) randomSongBagSize = mainSongCount;
-            else randomSongBagSize = size;
+            if (size > mainSongCount) Config.UpdateRandomSongBagSize(mainSongCount);
+            else Config.UpdateRandomSongBagSize(size);
         }
 
         public static IEnumerator CreateRandomSongButton()
@@ -148,7 +147,7 @@ namespace AudicaModding
             if (availableSongs.Count > 0) availableSongs.Remove(index);
 
 
-            if (lastPickedSongs.Count > randomSongBagSize)
+            if (lastPickedSongs.Count > Config.RandomSongBagSize)
             {
                 int oldestIndex = lastPickedSongs[0];
                 lastPickedSongs.Remove(oldestIndex);

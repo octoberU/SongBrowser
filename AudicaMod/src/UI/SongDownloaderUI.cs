@@ -71,8 +71,7 @@ namespace AudicaModding
 			CleanUpPage(primaryMenu);
 			AddButtons(primaryMenu);
 			primaryMenu.screenTitle.text = "Filters";
-			SongBrowser.lastSongCount = SongBrowser.newSongCount; //User has seen new songs
-			SongBrowser.SavePrivateConfig();
+			Config.UpdateSongCount(SongBrowser.newSongCount); //User has seen new songs
 		}
 
 		public static void ResetScrollPosition()
