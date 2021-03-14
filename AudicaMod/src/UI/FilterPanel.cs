@@ -332,7 +332,21 @@ namespace AudicaModding
             string text = JSON.Dump(favorites);
             try
             {
-                File.WriteAllText(favoritesPath, text);
+                int favCount = favorites.songIDs.Count;
+                File.WriteAllText(favoritesPath + ".tmp", text);
+
+                // check that file can be loaded and contains the correct number of favorites
+                string    saved = File.ReadAllText(favoritesPath + ".tmp");
+                Favorites favs  = JSON.Load(saved).Make<Favorites>();
+                if (favCount == favs.songIDs.Count)
+                {
+                    // override existing favorites now that we know it worked
+                    File.Copy(favoritesPath + ".tmp", favoritesPath);
+                }
+                else
+                {
+                    SongBrowser.DebugText("Unable to save favorites");
+                }
             }
             catch (Exception ex)
             {
@@ -379,7 +393,10 @@ namespace AudicaModding
                 {
                     MelonLoader.MelonLogger.Log($"Unable to load favorites from file: {ex.Message}");
                     SongBrowser.DebugText("Unable to load favorites");
-                    File.Copy(favoritesPath, favoritesPath + ".backup"); // make a backup of the existing file, just in case
+
+                    // make a backup of the existing file, just in case it still contains something
+                    File.Copy(favoritesPath, favoritesPath + ".backup");
+
                     favorites = new Favorites();
                     favorites.songIDs = new List<string>();
                 }
