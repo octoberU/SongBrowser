@@ -341,6 +341,7 @@ namespace AudicaModding
                 if (favCount == favs.songIDs.Count)
                 {
                     // override existing favorites now that we know it worked
+                    File.Delete(favoritesPath);
                     File.Copy(favoritesPath + ".tmp", favoritesPath);
                 }
                 else
@@ -395,7 +396,8 @@ namespace AudicaModding
                     SongBrowser.DebugText("Unable to load favorites");
 
                     // make a backup of the existing file, just in case it still contains something
-                    File.Copy(favoritesPath, favoritesPath + ".backup");
+                    string backupPath = favoritesPath + DateTime.Now.ToString("yyyyMMdd_hhmmss") + ".temp";
+                    File.Copy(favoritesPath, backupPath);
 
                     favorites = new Favorites();
                     favorites.songIDs = new List<string>();
