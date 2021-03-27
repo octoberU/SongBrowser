@@ -144,7 +144,15 @@ namespace AudicaModding
             {
                 if (File.Exists(songPath))
                 {
-                    File.Delete(songPath);
+                    try
+                    {
+                        File.Delete(songPath);
+                    }
+                    catch
+                    {
+                        // try again on launch instead
+                        downloadsMarkedForDeletion.Add(Path.GetFileName(songPath));
+                    }
                 }
                 else
                 {

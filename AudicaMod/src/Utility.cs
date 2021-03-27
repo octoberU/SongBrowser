@@ -27,8 +27,25 @@ namespace AudicaModding
                 foreach (string fileName in deleted)
                 {
                     string path = Path.Combine(SongBrowser.downloadsDirectory, fileName);
-                    if (File.Exists(path))
-                        File.Delete(path);
+                    try
+                    {
+                        if (File.Exists(path))
+                        {
+                            File.Delete(path);
+                        }
+                        else // could also be located in the main directory
+                        {
+                            path = Path.Combine(SongBrowser.mainSongDirectory, fileName);
+                            if (File.Exists(path))
+                            {
+                                File.Delete(path);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        MelonLoader.MelonLogger.LogWarning($"Unable to delete {fileName}");
+                    }
                 }
                 File.Delete(SongBrowser.deletedDownloadsListPath);
             }
