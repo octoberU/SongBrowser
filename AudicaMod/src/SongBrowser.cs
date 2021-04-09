@@ -103,6 +103,11 @@ namespace AudicaModding
             {
                 modSettingsInstalled = true;
             }
+
+            if (!SongBrowser.emptiedDownloadsFolder)
+            {
+                Utility.EmptyDownloadsFolder();
+            }
         }
 
         private void CheckFolderDirectories()

@@ -223,23 +223,6 @@ namespace AudicaModding
             }
         }
 
-        [HarmonyPatch(typeof(SongList), "Awake", new Type[0])]
-        private static class CustomSongFolder
-        {
-            private static void Postfix(SongList __instance)
-            {
-                if (!SongBrowser.emptiedDownloadsFolder)
-                {
-                    Utility.EmptyDownloadsFolder();
-                }
-                //if (!AudicaMod.addedCustomsDir)
-                //{
-                //    SongList.AddSongSearchDir(Application.dataPath, AudicaMod.customSongDirectory);
-                //    AudicaMod.addedCustomsDir = true; 
-                //}
-            }
-        }
-
         [HarmonyPatch(typeof(SongSelect), "GetSongIDs", new Type[] { typeof(bool) })]
         private static class FilterScrollerItems
         {
