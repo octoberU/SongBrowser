@@ -43,12 +43,14 @@ namespace AudicaModding
                 if (currentSong.songID == "tutorial")
                     continue; // never return the tutorial as result
 
-                if (currentSong.artist.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
-                    currentSong.title.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
-                    currentSong.songID.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
-                    currentSong.author != null && currentSong.author.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
-                    currentSong.artist.ToLowerInvariant().Replace(" ", "").Contains(query.ToLowerInvariant()) ||
-                    currentSong.title.ToLowerInvariant().Replace(" ", "").Contains(query.ToLowerInvariant()))
+                string cleanQuery = CleanForSearch(query);
+
+                if (CleanForSearch(currentSong.artist).Contains(cleanQuery) ||
+                    CleanForSearch(currentSong.title).Contains(cleanQuery) ||
+                    CleanForSearch(currentSong.songID).Contains(cleanQuery) ||
+                    currentSong.author != null && CleanForSearch(currentSong.author).Contains(cleanQuery) ||
+                    CleanForSearch(currentSong.artist).Replace(" ", "").Contains(cleanQuery) ||
+                    CleanForSearch(currentSong.title).Replace(" ", "").Contains(cleanQuery))
                 {
                     searchResult.Add(currentSong.songID);
                 }
@@ -61,6 +63,11 @@ namespace AudicaModding
             FilterPanel.ResetFilterState();
             MenuState.I.GoToSongPage();
             SongSearchButton.UpdateSearchButton();
+        }
+
+        private static string CleanForSearch(string s)
+        { 
+            return s?.ToLowerInvariant().Replace("'", "");
         }
 
     }
