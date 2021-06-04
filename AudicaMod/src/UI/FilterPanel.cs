@@ -77,7 +77,7 @@ namespace AudicaModding
             if (filters.ContainsKey(defaultButtonText))
                 return null;
 
-            Filter filter            = new Filter();
+            Filter filter                   = new Filter();
             filter.FilterID          = defaultButtonText;
             filter.IsActive          = false;
             filter.SongListText      = songListText;
@@ -107,7 +107,6 @@ namespace AudicaModding
         internal static void OnApplicationStart()
         {
             LoadFavorites();
-
             RegisterFilter("search", false, "Search Results", SongSearchButton.ShowSearchButton, SongSearchButton.HideSearchButton, 
                 (result) =>
                 {
@@ -139,7 +138,31 @@ namespace AudicaModding
                         return true;
                     }
                     return false;
-                });;
+                });
+
+            PlaylistManager.playlistFilter = RegisterFilter("playlists", false, "Playlist", SelectPlaylistButton.ShowPlaylistButton, SelectPlaylistButton.HidePlaylistButton,
+                (result) =>
+                {
+                    result.Clear();
+                    if(PlaylistManager.selectedPlaylist is null)
+                    {
+                        if (PlaylistManager.playlistFilter != null) PlaylistManager.playlistFilter.SongListText = "No Playlist selected";
+                    }
+                    else
+                    {
+                        if (PlaylistManager.playlistFilter != null) PlaylistManager.playlistFilter.SongListText = PlaylistManager.selectedPlaylist.name;
+                        foreach (string song in PlaylistManager.selectedPlaylist.songs)
+                        {
+                            string fileName = song + ".audica";
+                            if (SongLoadingManager.songDictionary.ContainsKey(fileName))
+                            {
+                                result.Add(SongLoadingManager.songDictionary[fileName]);
+                            }
+                        }
+                    }                   
+                    return true;
+                })();
+            PlaylistManager.playlistFilter.OnHit += PlaylistManager.OnFilterApplied;
         }
 
         internal static void Initialize()

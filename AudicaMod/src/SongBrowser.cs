@@ -7,7 +7,7 @@ using MelonLoader.TinyJSON;
 using System.IO;
 using Harmony;
 using System.Linq;
-[assembly: MelonOptionalDependencies("SongDataLoader", "ModSettings")]
+[assembly: MelonOptionalDependencies("SongDataLoader", "ModSettings", "AuthorableModifiers")]
 
 namespace AudicaModding
 {
@@ -36,6 +36,8 @@ namespace AudicaModding
 
         //Meeps' Stuff
         public static bool songDataLoaderInstalled = false;
+
+        public static bool authorableInstalled = false;
         public class SongDisplayPackage
         {
             public bool hasEasy = false;
@@ -104,6 +106,17 @@ namespace AudicaModding
                 modSettingsInstalled = true;
             }
 
+            if (MelonHandler.Mods.Any(it => it.Assembly.GetName().Name == "AuthorableModifiers"))
+            {
+                var scoreVersion = new Version(MelonHandler.Mods.First(it => it.Assembly.GetName().Name == "AuthorableModifiers").Info.Version);
+                var lastUnsupportedVersion = new Version("1.2.5");
+                var result = scoreVersion.CompareTo(lastUnsupportedVersion);
+                if (result > 0)
+                {
+                    authorableInstalled = true;
+                }
+            }
+
             if (!SongBrowser.emptiedDownloadsFolder)
             {
                 Utility.EmptyDownloadsFolder();
@@ -115,7 +128,7 @@ namespace AudicaModding
             if (!Directory.Exists(downloadsDirectory))
             {
                 Directory.CreateDirectory(downloadsDirectory);
-            }
+            }           
         }
 
         //public override void OnGUI()
@@ -203,7 +216,7 @@ namespace AudicaModding
             //}
         }
 
-        /// <summary>
+        /// <summary>1
         /// Call to reload song list after songs were added to songs or downloads directories.
         /// Should be called while the user is in the main menu.
         /// </summary>

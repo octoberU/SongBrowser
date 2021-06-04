@@ -12,6 +12,12 @@ namespace AudicaModding
         public static int LastSongCount { get; private set; }
         public static int RandomSongBagSize { get; private set; }
 
+        public static string playlistTitle = "[Header]Playlist Settings";
+
+        public static bool Shuffle { get; set; }
+        public static bool ShowScores { get; set; }
+        public static bool NoFail { get; set; }
+        public static bool ResetHealth { get; set; }
         public static void RegisterConfig()
         {
             MelonPrefs.RegisterBool(Category, nameof(SafeSongListReload), true,
@@ -22,6 +28,20 @@ namespace AudicaModding
 
             MelonPrefs.RegisterInt(Category, nameof(RandomSongBagSize), 10, "", true);
             RandomSongBagSize = MelonPrefs.GetInt(Category, nameof(RandomSongBagSize));
+
+            MelonPrefs.RegisterString(Category, nameof(playlistTitle), "", "", true);           
+
+            MelonPrefs.RegisterBool(Category, nameof(Shuffle), false, "", false);
+            Shuffle = MelonPrefs.GetBool(Category, nameof(Shuffle));
+
+            MelonPrefs.RegisterBool(Category, nameof(ShowScores), false, "", false);
+            ShowScores = MelonPrefs.GetBool(Category, nameof(ShowScores));
+
+            MelonPrefs.RegisterBool(Category, nameof(NoFail), false, "", false);
+            NoFail = MelonPrefs.GetBool(Category, nameof(NoFail));
+
+            MelonPrefs.RegisterBool(Category, nameof(ResetHealth), false, "", false);
+            ResetHealth = MelonPrefs.GetBool(Category, nameof(ResetHealth));
 
             OnModSettingsApplied();
         }

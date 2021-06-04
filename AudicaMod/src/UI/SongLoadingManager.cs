@@ -12,6 +12,7 @@ namespace AudicaModding
 	{
         public static HashSet<string> songIDs       = new HashSet<string>();
         public static HashSet<string> songFilenames = new HashSet<string>();
+		public static Dictionary<string, string> songDictionary = new Dictionary<string, string>();
 
 		private static GunButton   soloButton               = null;
 		private static TextMeshPro soloButtonLabel          = null;
@@ -70,7 +71,6 @@ namespace AudicaModding
         {
 			if (!Config.SafeSongListReload)
 				return;
-
 			if (!searching || disabled || MenuState.GetState() != MenuState.State.MainPage)
 				return;
 
@@ -82,7 +82,6 @@ namespace AudicaModding
 				soloButtonLabel = GameObject.Find("menu/ShellPage_Main/page/ShellPanel_Center/Solo/Label").GetComponent<TextMeshPro>();
 				GameObject.Destroy(soloButtonLabel.gameObject.GetComponent<Localizer>());
 			}
-
 			originalSoloButtonText  = soloButtonLabel.text;
 			soloButtonLabel.text    = "Loading...";
 			soloButton.SetInteractable(false);
@@ -116,12 +115,14 @@ namespace AudicaModding
 			// only slow the first time this runs since results are cached
 			songIDs.Clear();
 			songFilenames.Clear();
+			songDictionary.Clear();
 			for (int i = 0; i < SongList.I.songs.Count; i++)
 			{
 				string songID = SongList.I.songs[i].songID;
 				songIDs.Add(songID);
-				songFilenames.Add(Path.GetFileName(SongList.I.songs[i].zipPath));
-
+				string path = Path.GetFileName(SongList.I.songs[i].zipPath);
+				songFilenames.Add(path);
+				songDictionary.Add(path, songID);
 				DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Easy.ToString());
 				DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Normal.ToString());
 				DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Hard.ToString());

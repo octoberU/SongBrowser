@@ -39,6 +39,9 @@
       <HintPath>lib\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="AuthorableModifiers">
+      <HintPath>D:\Games\Steam\steamapps\common\Audica\Mods\AuthorableModifiers.dll</HintPath>
+    </Reference>
     <Reference Include="Il2CppMono.Security">
       <HintPath>lib\Il2CppMono.Security.dll</HintPath>
       <Private>False</Private>
@@ -98,16 +101,18 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
+    <Reference Include="System.IO.Compression, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\40-System.IO.Compression.1.0.0.2\lib\net40-client\System.IO.Compression.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.IO.Compression.ZipFile, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>packages\System.IO.Compression.ZipFile.4.3.0\lib\net46\System.IO.Compression.ZipFile.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Shim, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\System.Shim.1.0.0.1\lib\net40-client\System.Shim.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -240,7 +245,21 @@
     <Compile Include="csvorbis\Time0.cs" />
     <Compile Include="csvorbis\VorbisFile.cs" />
     <Compile Include="csvorbis\OggStream.cs" />
+    <Compile Include="src\Playlists\PlaylistEndlessManager.cs" />
+    <Compile Include="src\Playlists\PlaylistUtil.cs" />
+    <Compile Include="src\Playlists\UI\PlaylistCreatePanel.cs" />
+    <Compile Include="src\Playlists\PlaylistDownloadManager.cs" />
+    <Compile Include="src\Playlists\UI\PlaylistEditPanel.cs" />
+    <Compile Include="src\Playlists\PlaylistIOHandler.cs" />
+    <Compile Include="src\Playlists\Playlist.cs" />
+    <Compile Include="src\Playlists\PlaylistManager.cs" />
+    <Compile Include="src\Playlists\UI\PlaylistEndlessPanel.cs" />
+    <Compile Include="src\Playlists\UI\PlaylistSelectPanel.cs" />
     <Compile Include="src\SongDownloader.cs" />
+    <Compile Include="src\UI\Buttons\AddPlaylistButton.cs" />
+    <Compile Include="src\UI\Buttons\PlaylistEndlessButton.cs" />
+    <Compile Include="src\UI\Buttons\PlaylistEndlessSkipButton.cs" />
+    <Compile Include="src\UI\Buttons\SelectPlaylistButton.cs" />
     <Compile Include="src\UI\Buttons\SongSearchButton.cs" />
     <Compile Include="src\UI\SongLoadingManager.cs" />
     <Compile Include="src\UI\SongSearchScreen.cs" />
@@ -279,6 +298,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\SteamLibrary\SteamApps\common\Audica\Mods\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "D:\Games\Steam\steamapps\common\Audica\Mods\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>
