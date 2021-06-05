@@ -109,7 +109,7 @@ namespace AudicaModding
             if (MelonHandler.Mods.Any(it => it.Assembly.GetName().Name == "AuthorableModifiers"))
             {
                 var scoreVersion = new Version(MelonHandler.Mods.First(it => it.Assembly.GetName().Name == "AuthorableModifiers").Info.Version);
-                var lastUnsupportedVersion = new Version("1.2.5");
+                var lastUnsupportedVersion = new Version("1.2.4");
                 var result = scoreVersion.CompareTo(lastUnsupportedVersion);
                 if (result > 0)
                 {
