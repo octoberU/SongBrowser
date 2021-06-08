@@ -58,7 +58,7 @@ namespace AudicaModding
             }
             yield return new WaitForSecondsRealtime(2f);
             float previousSongHealth = ScoreKeeper.I.GetHealth();
-            //AudioDriver.I.Pause();
+            AudioDriver.I.Pause();
             SetNextSong();
             InGameUI.I.Restart();
             if (SongBrowser.authorableInstalled)

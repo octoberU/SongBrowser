@@ -46,6 +46,14 @@ namespace AudicaModding
             OnModSettingsApplied();
         }
 
+        public static void UpdateValue(string name, object value)
+        {
+            if(value is bool)
+            {
+                MelonPrefs.SetBool(Category, name, (bool)value);
+            }
+        }
+
         public static void OnModSettingsApplied()
         {
             foreach (var fieldInfo in typeof(Config).GetFields(BindingFlags.Static | BindingFlags.Public))

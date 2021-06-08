@@ -38,23 +38,27 @@ namespace AudicaModding
 
 		private static void ToggleShuffle()
         {
+			Config.UpdateValue(nameof(Config.Shuffle), !Config.Shuffle);
 			Config.Shuffle = !Config.Shuffle;
 			shuffleButton.label.text = Config.Shuffle ? "<color=\"green\">Shuffle ON" : "<color=\"red\">Shuffle OFF";
         }
 
 		private static void ToggleShowScore()
         {
+			Config.UpdateValue(nameof(Config.ShowScores), !Config.ShowScores);
 			Config.ShowScores = !Config.ShowScores;
 			showScoreButton.label.text = Config.ShowScores ? "<color=\"green\">Show Score ON" : "<color=\"red\">Show Score OFF";
         }
 		private static void ToggleNoFail()
 		{
+			Config.UpdateValue(nameof(Config.NoFail), !Config.NoFail);
 			Config.NoFail = !Config.NoFail;
 			noFailButton.label.text = Config.NoFail ? "<color=\"green\">NoFail ON" : "<color=\"red\">NoFail OFF";
 		}
 
 		private static void ToggleResetHealth()
         {
+			Config.UpdateValue(nameof(Config.ResetHealth), !Config.ResetHealth);
 			Config.ResetHealth = !Config.ResetHealth;
 			resetHealthButton.label.text = Config.ResetHealth ? "<color=\"green\">Reset Health ON" : "<color=\"red\">Reset Health OFF";
 		}
