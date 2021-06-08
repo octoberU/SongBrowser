@@ -209,10 +209,10 @@ namespace AudicaModding
             {
                 ReloadSongList();
             }
-            if (Input.GetKeyDown(KeyCode.N))
+            /*if (Input.GetKeyDown(KeyCode.N))
             {
                 PlaylistEndlessManager.NextSong();
-            }
+            }*/
             //if (Input.GetKeyDown(KeyCode.F3))
             //{
             //    FilterPanel.GetReferences();
