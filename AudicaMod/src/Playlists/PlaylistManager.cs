@@ -43,6 +43,18 @@ namespace AudicaModding
             MelonCoroutines.Start(downloadManager.DownloadMissingSongs());
         }
 
+        public static void MoveSongUp(string song)
+        {
+            if (playlistToEdit is null) return;
+            playlistToEdit.MoveSongUp(song);
+        }
+
+        public static void MoveSongDown(string song)
+        {
+            if (playlistToEdit is null) return;
+            playlistToEdit.MoveSongDown(song);
+        }
+
         public static void OnFilterApplied()
         {
             if(selectedPlaylist is null)

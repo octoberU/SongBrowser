@@ -54,6 +54,7 @@ namespace AudicaModding
 			//var header = optionsMenu.AddHeader(0, PlaylistManager.playlistToEdit.name);
 			var header = optionsMenu.AddHeader(0, "Song List");
 			optionsMenu.scrollable.AddRow(header);
+			int index = 0;
 			foreach (KeyValuePair<string, string> song in PlaylistManager.playlistToEdit.songNames)
 			{
 				var name = optionsMenu.AddTextBlock(0, song.Value);
@@ -87,6 +88,27 @@ namespace AudicaModding
 				}
 				
 				optionsMenu.scrollable.AddRow(row);
+				row = new Il2CppSystem.Collections.Generic.List<GameObject>();
+				if(index < PlaylistManager.playlistToEdit.songs.Count - 1)
+                {
+					var moveDown = optionsMenu.AddButton(0, "Move Down", new Action(() =>
+					{
+						PlaylistManager.MoveSongDown(song.Key);
+						RefreshList();
+					}), null, "Moves this song down in the playlist", optionsMenu.buttonPrefab);
+					row.Add(moveDown.gameObject);
+				}
+				if(index != 0)
+                {
+					var moveUp = optionsMenu.AddButton(1, "Move Up", new Action(() =>
+					{
+						PlaylistManager.MoveSongUp(song.Key);
+						RefreshList();
+					}), null, "Moves this song up in the playlist", optionsMenu.buttonPrefab);
+					row.Add(moveUp.gameObject);
+				}
+				optionsMenu.scrollable.AddRow(row);
+				index++;
 			}
 			header = optionsMenu.AddHeader(0, "Delete Playlist");
 			optionsMenu.scrollable.AddRow(header);

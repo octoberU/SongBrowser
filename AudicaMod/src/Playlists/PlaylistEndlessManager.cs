@@ -18,6 +18,7 @@ namespace AudicaModding
         private static bool fadeInProgress = false;
         private static bool previousNoFail = false;
         private static bool pendingReset = false;
+        private static bool EndlessActive => PlaylistManager.state == PlaylistManager.PlaylistState.Endless;
 
         public static void StartEndlessSession()
         {
@@ -107,6 +108,10 @@ namespace AudicaModding
 
         private static IEnumerator ILaunch()
         {
+            if (SongBrowser.authorableInstalled)
+            {
+                SetEndlessActive(true);
+            }
             MenuState.I.GoToLaunchPage();
             LaunchPanel launchPanel = null;
             while(launchPanel is null)
@@ -116,14 +121,25 @@ namespace AudicaModding
             }
             if (SongBrowser.authorableInstalled)
             {
+                modifiersLoaded = false;
                 LoadModifiers(false);
+                while (!modifiersLoaded)
+                {
+                    yield return new WaitForSecondsRealtime(.2f);
+                }
+                
             }
-            while (EnvironmentLoader.I.IsSwitching())
+            /*while (EnvironmentLoader.I.IsSwitching())
             {
                 yield return new WaitForSecondsRealtime(.2f);
-            }
+            }*/
             launchPanel.Play();            
             yield return null;
+        }
+
+        private static void SetEndlessActive(bool active)
+        {
+            AuthorableModifiersMod.SetEndlessActive(active);
         }
         private static bool modifiersLoaded = false;
         private static void LoadModifiers(bool fromRestart)
@@ -134,7 +150,7 @@ namespace AudicaModding
         private static IEnumerator ILoadModifiers(bool fromRestart)
         {
             AuthorableModifiersMod.audicaFilePath = SongDataHolder.I.songData.foundPath;
-            AuthorableModifiersMod.LoadModifierCues(false, fromRestart);
+            AuthorableModifiersMod.LoadModifierCues(false);
             while (!AuthorableModifiersMod.modifiersLoaded)
             {
                 yield return new WaitForSecondsRealtime(.2f);
@@ -164,6 +180,10 @@ namespace AudicaModding
             if (index == songs.Count)
             {
                 PlaylistManager.state = PlaylistManager.PlaylistState.None;
+                if (SongBrowser.authorableInstalled)
+                {
+                    SetEndlessActive(false);
+                }
             }
         }
 

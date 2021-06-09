@@ -46,6 +46,24 @@ namespace AudicaModding
             songNames.Remove(song);
         }
 
+        public void MoveSongUp(string song)
+        {
+            if (!songs.Contains(song)) return;
+            int i = songs.IndexOf(song);
+            songs.RemoveAt(i);
+            songs.Insert(i - 1, song);
+            PopulateSongNames();
+        }
+
+        public void MoveSongDown(string song)
+        {
+            if (!songs.Contains(song)) return;
+            int i = songs.IndexOf(song);
+            songs.RemoveAt(i);
+            songs.Insert(i + 1, song);
+            PopulateSongNames();
+        }
+
         public void PopulateSongNames()
         {
             songNames = new Dictionary<string, string>();
