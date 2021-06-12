@@ -85,7 +85,7 @@ namespace AudicaModding
 				ToggleNoFail();
 			}), null, "Play the marathon with NoFail on or off", optionsMenu.buttonPrefab);
 
-			string resetHealthText = Config.NoFail ? "<color=\"green\">Reset Health ON" : "<color=\"red\">Reset Health OFF";
+			string resetHealthText = Config.ResetHealth ? "<color=\"green\">Reset Health ON" : "<color=\"red\">Reset Health OFF";
 			resetHealthButton = optionsMenu.AddButton(1, resetHealthText, new Action(() =>
 			{
 				ToggleResetHealth();
