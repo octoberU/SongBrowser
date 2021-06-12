@@ -40,7 +40,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="AuthorableModifiers">
-      <HintPath>D:\Games\Steam\steamapps\common\Audica\Mods\AuthorableModifiers.dll</HintPath>
+      <HintPath>src\lib\AuthorableModifiers.dll</HintPath>
     </Reference>
     <Reference Include="Il2CppMono.Security">
       <HintPath>lib\Il2CppMono.Security.dll</HintPath>
@@ -259,6 +259,7 @@
     <Compile Include="src\UI\Buttons\AddPlaylistButton.cs" />
     <Compile Include="src\UI\Buttons\PlaylistEndlessButton.cs" />
     <Compile Include="src\UI\Buttons\PlaylistEndlessSkipButton.cs" />
+    <Compile Include="src\UI\Buttons\RandomSongButton.cs" />
     <Compile Include="src\UI\Buttons\SelectPlaylistButton.cs" />
     <Compile Include="src\UI\Buttons\SongSearchButton.cs" />
     <Compile Include="src\UI\SongLoadingManager.cs" />

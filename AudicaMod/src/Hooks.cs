@@ -406,7 +406,7 @@ namespace AudicaModding
                 if (state == MenuState.State.SongPage)
                 {
                     ScoreDisplayList.Show();
-                    RandomSong.CreateRandomSongButton();
+                    RandomSongButton.CreateRandomSongButton();
                     SongSearchButton.CreateSearchButton();
                     SelectPlaylistButton.CreatePlaylistButton();
                     PlaylistEndlessButton.CreatePlaylistButton();

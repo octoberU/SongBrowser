@@ -10,7 +10,6 @@ namespace AudicaModding
         public static bool SafeSongListReload;
 
         public static int LastSongCount { get; private set; }
-        public static int RandomSongBagSize { get; private set; }
 
         public static string playlistTitle = "[Header]Playlist Settings";
 
@@ -25,9 +24,6 @@ namespace AudicaModding
 
             MelonPrefs.RegisterInt(Category, nameof(LastSongCount), 0, "", true);
             LastSongCount = MelonPrefs.GetInt(Category, nameof(LastSongCount));
-
-            MelonPrefs.RegisterInt(Category, nameof(RandomSongBagSize), 10, "", true);
-            RandomSongBagSize = MelonPrefs.GetInt(Category, nameof(RandomSongBagSize));
 
             MelonPrefs.RegisterString(Category, nameof(playlistTitle), "", "", true);           
 
@@ -67,12 +63,6 @@ namespace AudicaModding
         {
             MelonPrefs.SetInt(Category, nameof(LastSongCount), newCount);
             LastSongCount = newCount;
-        }
-
-        public static void UpdateRandomSongBagSize(int newSize)
-        {
-            MelonPrefs.SetInt(Category, nameof(RandomSongBagSize), newSize);
-            RandomSongBagSize = newSize;
         }
     }
 }

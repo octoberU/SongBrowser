@@ -390,14 +390,12 @@ namespace AudicaModding
             if (!song.extrasSong) return;
             if (favorites.songIDs.Contains(songID))
             {
-                RandomSong.FavouritesChanged(songID, false);
                 favorites.songIDs.Remove(songID);
                 SongBrowser.DebugText($"Removed {song.title} from favorites!");
                 SaveFavorites();
             }
             else
             {
-                RandomSong.FavouritesChanged(songID, true);
                 favorites.songIDs.Add(songID);
                 SongBrowser.DebugText($"Added {song.title} to favorites!");
                 SaveFavorites();
