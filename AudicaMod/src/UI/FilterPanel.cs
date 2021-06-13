@@ -159,6 +159,7 @@ namespace AudicaModding
                                 result.Add(SongLoadingManager.songDictionary[fileName]);
                             }
                         }
+                        songSelect.ChangeSort(SongSelect.Sort.Default);
                     }                   
                     return true;
                 })();

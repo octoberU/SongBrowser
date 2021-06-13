@@ -387,6 +387,18 @@ namespace AudicaModding
             }
         }
 
+        [HarmonyPatch(typeof(SongSelect), "ChangeSort", new Type[] { typeof(SongSelect.Sort)})]
+        private static class PathSongSelectChangeSort
+        {
+            private static void Prefix(SongSelect __instance, ref SongSelect.Sort newSort)
+            {
+                if (FilterPanel.IsFiltering("playlists"))
+                {
+                    newSort = SongSelect.Sort.Default;
+                }
+            }
+        }
+
         [HarmonyPatch(typeof(MenuState), "SetState", new Type[] { typeof(MenuState.State) })]
         private static class Patch2SetMenuState
         {

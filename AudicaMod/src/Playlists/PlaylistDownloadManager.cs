@@ -25,11 +25,13 @@ namespace AudicaModding
         public IEnumerator DownloadMissingSongs()
         {
             if (missingSongsDownloaded) yield break;
+            if (missingSongs is null || missingSongs.Count == 0) yield break;
             missingSongsDownloaded = true;
             yield return new WaitForSecondsRealtime(.5f);
             foreach (string song in missingSongs)
             {
-                Song match = songList.First(s => s.filename == song);
+                Song match = songList.DefaultIfEmpty(null).FirstOrDefault(s => s.filename == song);
+                if (match is null) continue;
                 activeDownloads++;
                 MelonCoroutines.Start(SongDownloader.DownloadSong(match.song_id, match.download_url, OnDownloadComplete));
                 yield return null;
