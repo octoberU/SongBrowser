@@ -35,7 +35,12 @@ namespace AudicaModding
                 select = GameObject.FindObjectOfType<SongSelect>();
                 yield return new WaitForSecondsRealtime(0.2f);
             }
-            if (!CanPlay(select)) yield break;
+            if (!CanPlay(select))
+            {
+                PlaylistManager.state = PlaylistManager.PlaylistState.None;
+                yield break;
+            }
+               
             previousNoFail = PlayerPreferences.I.NoFail.mVal;
             PlayerPreferences.I.NoFail.mVal = Config.NoFail;
             pendingReset = true;
@@ -180,10 +185,10 @@ namespace AudicaModding
             if (index == songs.Count)
             {
                 PlaylistManager.state = PlaylistManager.PlaylistState.None;
-                if (SongBrowser.authorableInstalled)
+                /*if (SongBrowser.authorableInstalled)
                 {
                     SetEndlessActive(false);
-                }
+                }*/
             }
         }
 
