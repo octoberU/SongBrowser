@@ -33,7 +33,9 @@ namespace AudicaModding
             for(int i = 0; i < files.Length; i++)
             {
                 if (Path.GetExtension(files[i]) != ".playlist") continue;
-                KeyValuePair<string, Playlist> entry = DecodePlaylist(files[i]);
+                KeyValuePair<string, Playlist>? nullableEntry = DecodePlaylist(files[i]);
+                if (nullableEntry is null) continue;
+                KeyValuePair<string, Playlist> entry = nullableEntry.Value;
                 CheckDuplicate(ref entry, ref playlists);
                 playlists.Add(entry.Key, entry.Value);
                 AddNewPlaylistData(entry.Value.name);
@@ -103,14 +105,23 @@ namespace AudicaModding
         /// </summary>
         /// <param name="playlistJson"></param>
         /// <returns></returns>
-        private KeyValuePair<string, Playlist> DecodePlaylist(string playlistJson)
+        private KeyValuePair<string, Playlist>? DecodePlaylist(string playlistJson)
         {
-            using (StreamReader reader = new StreamReader(playlistJson))
+            try
             {
-                string json = reader.ReadToEnd();
-                Playlist playlist = JsonConvert.DeserializeObject<Playlist>(json);
-                return new KeyValuePair<string, Playlist>(playlist.name, playlist);
-            }          
+                using (StreamReader reader = new StreamReader(playlistJson))
+                {
+                    string json = reader.ReadToEnd();
+                    Playlist playlist = JsonConvert.DeserializeObject<Playlist>(json);
+                    return new KeyValuePair<string, Playlist>(playlist.name, playlist);
+                }
+            }
+            catch
+            {
+                MelonLoader.MelonLogger.LogWarning($"Encountered an error while loading {Path.GetFileName(playlistJson)} - please check if the file has valid json.");                
+                return null;
+            }
+                   
         }
 
         /// <summary>
