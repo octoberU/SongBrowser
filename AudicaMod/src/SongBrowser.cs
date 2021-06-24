@@ -18,7 +18,7 @@ namespace AudicaModding
             public const string Name = "SongBrowser";  // Name of the Mod.  (MUST BE SET)
             public const string Author = "octo"; // Author of the Mod.  (Set as null if none)
             public const string Company = null; // Company that made the Mod.  (Set as null if none)
-            public const string Version = "2.4.2"; // Version of the Mod.  (MUST BE SET)
+            public const string Version = "2.5.0"; // Version of the Mod.  (MUST BE SET)
             public const string DownloadLink = null; // Download Link for the Mod.  (Set as null if none)
         }
         public static Vector3 DebugTextPosition = new Vector3(0f, -1f, 5f);
@@ -333,6 +333,7 @@ public class Song
     public string download_url;
     public string preview_url;
     public string upload_time;
+    public string update_time;
     public int leaderboard_scores;
     public string video_url;
     public string filename;
@@ -340,6 +341,21 @@ public class Song
     {
         string[] day = this.upload_time.Split(new char[] { ' ', '-' });
         string[] time = this.upload_time.Split(new char[] { ' ', ':', '.' });
+        return new DateTime(Int32.Parse(day[0]),
+            Int32.Parse(day[1]),
+            Int32.Parse(day[2]),
+            Int32.Parse(time[1]),
+            Int32.Parse(time[2]),
+            Int32.Parse(time[3]));
+    }
+    public DateTime? GetUpdateDate()
+    {
+        if (string.IsNullOrEmpty(update_time))
+        {
+            return null;
+        }
+        string[] day = this.update_time.Split(new char[] { ' ', '-' });
+        string[] time = this.update_time.Split(new char[] { ' ', ':', '.' });
         return new DateTime(Int32.Parse(day[0]),
             Int32.Parse(day[1]),
             Int32.Parse(day[2]),

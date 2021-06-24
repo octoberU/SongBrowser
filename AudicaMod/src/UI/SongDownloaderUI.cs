@@ -127,28 +127,31 @@ namespace AudicaModding
 			var extraHeader = optionsMenu.AddHeader(0, "Extra");
 			optionsMenu.scrollable.AddRow(extraHeader);
 
-			string curatedFilterText = "Curated only: " + curated.ToString();
-			curatedToggle = optionsMenu.AddButton
-				(0,
-				curatedFilterText,
-				new Action(() =>
-				{
-					if (curated)
-						curated = false;
-					else
-						curated = true;
+			if (!SongDownloader.UseNewAPI)
+            {
+				string curatedFilterText = "Curated only: " + curated.ToString();
+				curatedToggle = optionsMenu.AddButton
+					(0,
+					curatedFilterText,
+					new Action(() =>
+					{
+						if (curated)
+							curated = false;
+						else
+							curated = true;
 
-					curatedToggle.label.text = "Curated only: " + curated.ToString();
-					SongDownloader.StartNewSongSearch();
-				}),
-				null,
-				"Filters the search to curated maps only");
-			curatedToggle.button.doMeshExplosion = false;
-			curatedToggle.button.doParticles = false;
-			optionsMenu.scrollable.AddRow(curatedToggle.gameObject);
+						curatedToggle.label.text = "Curated only: " + curated.ToString();
+						SongDownloader.StartNewSongSearch();
+					}),
+					null,
+					"Filters the search to curated maps only");
+				curatedToggle.button.doMeshExplosion = false;
+				curatedToggle.button.doParticles = false;
+				optionsMenu.scrollable.AddRow(curatedToggle.gameObject);
+			}
 
 			var downloadFullPage = optionsMenu.AddButton
-				(1,
+				(SongDownloader.UseNewAPI ? 0 : 1,
 				"Download current page",
 				new Action(() =>
 				{
@@ -156,6 +159,10 @@ namespace AudicaModding
 				}),
 				null,
 				"Downloads all songs from the current page, this will cause major stutters");
+			if (SongDownloader.UseNewAPI)
+            {
+				optionsMenu.scrollable.AddRow(downloadFullPage.gameObject);
+			}
 
 			var RestoreSongs = optionsMenu.AddButton
 				(0,
@@ -166,27 +173,51 @@ namespace AudicaModding
 				}),
 				null,
 				"Restores all the songs you have deleted.");
-			//optionsMenu.scrollable.AddRow(RestoreSongs.gameObject);
 
-			string popularityFilterText = "Sort by playcount: " + popularity.ToString();
-			popularityToggle = optionsMenu.AddButton
-				(1,
-				popularityFilterText,
-				new Action(() =>
-				{
-					if (popularity)
-						popularity = false;
-					else
-						popularity = true;
+			if (SongDownloader.UseNewAPI)
+			{
+				string popularityFilterText = "Sort by downloads: " + popularity.ToString();
+				popularityToggle = optionsMenu.AddButton
+					(1,
+					popularityFilterText,
+					new Action(() =>
+					{
+						if (popularity)
+							popularity = false;
+						else
+							popularity = true;
 
-					popularityToggle.label.text = "Sort by playcount: " + popularity.ToString();
-					SongDownloader.StartNewSongSearch();
-				}),
-				null,
-				"Sorts downloads by leaderboard scores rather than date.");
-			popularityToggle.button.doMeshExplosion = false;
-			popularityToggle.button.doParticles = false;
-			optionsMenu.scrollable.AddRow(popularityToggle.gameObject);
+						popularityToggle.label.text = "Sort by downloads: " + popularity.ToString();
+						SongDownloader.StartNewSongSearch();
+					}),
+					null,
+					"Sorts songs by number of downloads rather than date.");
+				popularityToggle.button.doMeshExplosion = false;
+				popularityToggle.button.doParticles = false;
+				optionsMenu.scrollable.AddRow(popularityToggle.gameObject);
+			}
+			else
+			{
+				string popularityFilterText = "Sort by playcount: " + popularity.ToString();
+				popularityToggle = optionsMenu.AddButton
+					(1,
+					popularityFilterText,
+					new Action(() =>
+					{
+						if (popularity)
+							popularity = false;
+						else
+							popularity = true;
+
+						popularityToggle.label.text = "Sort by playcount: " + popularity.ToString();
+						SongDownloader.StartNewSongSearch();
+					}),
+					null,
+					"Sorts songs by leaderboard scores rather than date.");
+				popularityToggle.button.doMeshExplosion = false;
+				popularityToggle.button.doParticles = false;
+				optionsMenu.scrollable.AddRow(popularityToggle.gameObject);
+			}
 
 			var downloadFolderBlock = optionsMenu.AddTextBlock(0, "You can hotload songs by placing them in Audica/Downloads and pressing F5");
 			optionsMenu.scrollable.AddRow(downloadFolderBlock);
