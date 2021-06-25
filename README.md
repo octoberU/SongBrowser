@@ -13,9 +13,13 @@ A MelonLoader mod to improve the song browsing experience in Audica & downloadin
 
 
 ## Features
-* Downloading & Reloading songs
-* Reloading the songs folder with **F5**
-* Displaying available difficulties for a song next to the mapper tag
+* Downloading songs
+  * Search in the full online custom song list
+  * Filter search results
+* Reloading songs 
+  * **Fast Refresh** button in the song list (only loads new files, does *not* update existing/replaced files)
+  * **F5** in the main menu (completely reloads song list, slow)
+* Displaying available difficulties and content warnings (e.g. mines) for a song next to the mapper tag
 * Deleting songs
 * Favoriting songs
 * Searching for songs
@@ -37,4 +41,5 @@ https://github.com/Contiinuum
 Custom Difficulty Names:
 https://github.com/MeepsKitten
 
-
+Song Search:
+https://github.com/Silzoid

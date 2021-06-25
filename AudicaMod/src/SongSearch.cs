@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace AudicaModding
 {
@@ -7,7 +6,7 @@ namespace AudicaModding
     {
         public static List<string> searchResult = new List<string>();
         public static string       query;
-        public static MapType      mapType = MapType.All;
+        public static MapType      mapType          = MapType.All;
         public static bool         searchInProgress = false;
 
         public enum MapType
@@ -32,10 +31,10 @@ namespace AudicaModding
             if (query == null)
                 return;
 
-            for (int i = 0; i < SongList.I.songs.Count - 1; i++)
+            for (int i = 0; i < SongList.I.songs.Count; i++)
             {
                 SongList.SongData currentSong = SongList.I.songs[i];
-                bool              isCustom    = IsCustomSong(currentSong.songID);
+                bool              isCustom    = Utility.IsCustomSong(currentSong.songID);
 
                 if ((mapType == MapType.CustomsOnly  && !isCustom) ||
                     (mapType == MapType.OfficialOnly && isCustom))
@@ -44,12 +43,14 @@ namespace AudicaModding
                 if (currentSong.songID == "tutorial")
                     continue; // never return the tutorial as result
 
-                if (currentSong.artist.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
-                    currentSong.title.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
-                    currentSong.songID.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
-                    currentSong.author != null && currentSong.author.ToLowerInvariant().Contains(query.ToLowerInvariant()) ||
-                    currentSong.artist.ToLowerInvariant().Replace(" ", "").Contains(query.ToLowerInvariant()) ||
-                    currentSong.title.ToLowerInvariant().Replace(" ", "").Contains(query.ToLowerInvariant()))
+                string cleanQuery = CleanForSearch(query);
+
+                if (CleanForSearch(currentSong.artist).Contains(cleanQuery) ||
+                    CleanForSearch(currentSong.title).Contains(cleanQuery) ||
+                    CleanForSearch(currentSong.songID).Contains(cleanQuery) ||
+                    currentSong.author != null && CleanForSearch(currentSong.author).Contains(cleanQuery) ||
+                    CleanForSearch(currentSong.artist).Replace(" ", "").Contains(cleanQuery) ||
+                    CleanForSearch(currentSong.title).Replace(" ", "").Contains(cleanQuery))
                 {
                     searchResult.Add(currentSong.songID);
                 }
@@ -64,19 +65,10 @@ namespace AudicaModding
             SongSearchButton.UpdateSearchButton();
         }
 
-        private static bool IsCustomSong(string songID)
-        {
-            string[] components = songID.Split('_');
-            if (components.Length == 1) // only official songs don't have a hash in their ID
-                return false;
-
-            string potentialHash = components[components.Length - 1];
-
-            // hash is always 32 characters long and only contains (lowercase) hex characters
-            if (potentialHash.Length == 32 && Regex.IsMatch(potentialHash, @"^[0-9a-f]+$"))
-                return true;
-
-            return false;
+        private static string CleanForSearch(string s)
+        { 
+            return s?.ToLowerInvariant().Replace("'", "");
         }
+
     }
 }

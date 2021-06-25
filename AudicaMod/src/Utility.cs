@@ -3,14 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace AudicaModding
 {
     internal static class Utility
-    {        public static void EmptyDownloadsFolder()
+    {
+        public static void EmptyDownloadsFolder()
         {
             String directoryName = Application.dataPath + @"\StreamingAssets\HmxAudioAssets\songs";
             if (!Directory.Exists(directoryName))
@@ -27,8 +27,25 @@ namespace AudicaModding
                 foreach (string fileName in deleted)
                 {
                     string path = Path.Combine(SongBrowser.downloadsDirectory, fileName);
-                    if (File.Exists(path))
-                        File.Delete(path);
+                    try
+                    {
+                        if (File.Exists(path))
+                        {
+                            File.Delete(path);
+                        }
+                        else // could also be located in the main directory
+                        {
+                            path = Path.Combine(SongBrowser.mainSongDirectory, fileName);
+                            if (File.Exists(path))
+                            {
+                                File.Delete(path);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        MelonLoader.MelonLogger.Warning($"Unable to delete {fileName}");
+                    }
                 }
                 File.Delete(SongBrowser.deletedDownloadsListPath);
             }
@@ -49,6 +66,21 @@ namespace AudicaModding
                 }
             }
             SongBrowser.emptiedDownloadsFolder = true;
+        }
+
+        public static bool IsCustomSong(string songID)
+        {
+            string[] components = songID.Split('_');
+            if (components.Length == 1) // only official songs don't have a hash in their ID
+                return false;
+
+            string potentialHash = components[components.Length - 1];
+
+            // hash is always 32 characters long and only contains (lowercase) hex characters
+            if (potentialHash.Length == 32 && Regex.IsMatch(potentialHash, @"^[0-9a-f]+$"))
+                return true;
+
+            return false;
         }
     }
 }

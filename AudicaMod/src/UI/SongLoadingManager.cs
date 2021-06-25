@@ -1,6 +1,7 @@
 ﻿using MelonLoader;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
@@ -9,6 +10,10 @@ namespace AudicaModding
 {
 	internal static class SongLoadingManager
 	{
+        public static HashSet<string> songIDs       = new HashSet<string>();
+        public static HashSet<string> songFilenames = new HashSet<string>();
+		public static Dictionary<string, string> songDictionary = new Dictionary<string, string>();
+
 		private static GunButton   soloButton               = null;
 		private static TextMeshPro soloButtonLabel          = null;
 		private static string      originalSoloButtonText   = null;
@@ -20,9 +25,12 @@ namespace AudicaModding
 		private static bool searching = false;
 		private static bool disabled  = false;
 
-		private static System.Collections.Generic.List<Action> postProcessingActions = new System.Collections.Generic.List<Action>();
+		private static List<Action> postProcessingActions = new List<Action>();
 
-
+		/// <summary>
+		/// Add any post-processing that would be triggered on SongList.OnSongListLoaded
+		/// here if you want to ensure it is completed before the UI is re-enabled.
+		/// </summary>
 		public static void AddPostProcessingCB(Action callback)
 		{
 			postProcessingActions.Add(callback);
@@ -32,22 +40,27 @@ namespace AudicaModding
 		/// Ensures that once song search is complete (via SongList.OnSongListLoaded)
 		/// various types of post-processing happens and that the UI is re-enabled.
 		/// 
-		/// Add any post-processing that would be triggered on SongList.OnSongListLoaded
-		/// here if you want control over the order that post-processing happens in/
-		/// want to ensure it is completed before the UI is re-enabled.
 		/// </summary>
-		public static void StartSongListUpdate()
+		public static void StartSongListUpdate(bool processOnSongListLoaded = false)
 		{
 			if (searching)
 				return;
 
 			searching = true;
 
-			SongList.OnSongListLoaded.On(new Action(() => {
-				MelonCoroutines.Start(PostProcess());
-			}));
-
 			UpdateUI();
+
+			if (processOnSongListLoaded)
+			{
+				SongList.OnSongListLoaded.On(new Action(() =>
+				{
+					MelonCoroutines.Start(PostProcess());
+				}));
+			}
+			else
+			{
+				MelonCoroutines.Start(PostProcess());
+			}
 		}
 
 		/// <summary>
@@ -58,8 +71,7 @@ namespace AudicaModding
         {
 			if (!Config.SafeSongListReload)
 				return;
-
-			if (!searching || disabled || MenuState.GetState() != MenuState.State.MainPage)
+			if ((!searching || disabled || MenuState.GetState() != MenuState.State.MainPage) && !PlaylistDownloadManager.IsDownloadingMissing)
 				return;
 
 			disabled = true;
@@ -70,7 +82,6 @@ namespace AudicaModding
 				soloButtonLabel = GameObject.Find("menu/ShellPage_Main/page/ShellPanel_Center/Solo/Label").GetComponent<TextMeshPro>();
 				GameObject.Destroy(soloButtonLabel.gameObject.GetComponent<Localizer>());
 			}
-
 			originalSoloButtonText  = soloButtonLabel.text;
 			soloButtonLabel.text    = "Loading...";
 			soloButton.SetInteractable(false);
@@ -102,14 +113,16 @@ namespace AudicaModding
 
 			// calculate song difficulties
 			// only slow the first time this runs since results are cached
-			SongBrowser.songIDs.Clear();
-			SongBrowser.songFilenames.Clear();
+			songIDs.Clear();
+			songFilenames.Clear();
+			songDictionary.Clear();
 			for (int i = 0; i < SongList.I.songs.Count; i++)
 			{
 				string songID = SongList.I.songs[i].songID;
-				SongBrowser.songIDs.Add(songID);
-				SongBrowser.songFilenames.Add(Path.GetFileName(SongList.I.songs[i].zipPath));
-
+				songIDs.Add(songID);
+				string path = Path.GetFileName(SongList.I.songs[i].zipPath);
+				songFilenames.Add(path);
+				songDictionary.Add(path, songID);
 				DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Easy.ToString());
 				DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Normal.ToString());
 				DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Hard.ToString());
@@ -133,7 +146,7 @@ namespace AudicaModding
 			yield return null;
 		}
 
-		private static void EnableButtons()
+		public static void EnableButtons()
 		{
 			if (!Config.SafeSongListReload)
 				return;
@@ -155,7 +168,7 @@ namespace AudicaModding
 		private static void SafeDataLoaderReload()
 		{
 			SongDataLoader.ReloadSongData();
-			MelonLogger.Log("Song Data Reloaded");
+			MelonLogger.Msg("Song Data Reloaded");
 		}
 	}
 }

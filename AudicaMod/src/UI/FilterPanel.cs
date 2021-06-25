@@ -77,7 +77,7 @@ namespace AudicaModding
             if (filters.ContainsKey(defaultButtonText))
                 return null;
 
-            Filter filter            = new Filter();
+            Filter filter                   = new Filter();
             filter.FilterID          = defaultButtonText;
             filter.IsActive          = false;
             filter.SongListText      = songListText;
@@ -107,7 +107,6 @@ namespace AudicaModding
         internal static void OnApplicationStart()
         {
             LoadFavorites();
-
             RegisterFilter("search", false, "Search Results", SongSearchButton.ShowSearchButton, SongSearchButton.HideSearchButton, 
                 (result) =>
                 {
@@ -133,13 +132,38 @@ namespace AudicaModding
                         for (int i = 0; i < favorites.songIDs.Count; i++)
                         {
                             id = favorites.songIDs[i];
-                            if (SongBrowser.songIDs.Contains(id))
+                            if (SongLoadingManager.songIDs.Contains(id))
                                 result.Add(id);
                         }
                         return true;
                     }
                     return false;
-                });;
+                });
+
+            PlaylistManager.playlistFilter = RegisterFilter("playlists", false, "Playlist", SelectPlaylistButton.ShowPlaylistButton, SelectPlaylistButton.HidePlaylistButton,
+                (result) =>
+                {
+                    result.Clear();
+                    if(PlaylistManager.selectedPlaylist is null)
+                    {
+                        if (PlaylistManager.playlistFilter != null) PlaylistManager.playlistFilter.SongListText = "No Playlist selected";
+                    }
+                    else
+                    {
+                        if (PlaylistManager.playlistFilter != null) PlaylistManager.playlistFilter.SongListText = PlaylistManager.selectedPlaylist.name;
+                        foreach (string song in PlaylistManager.selectedPlaylist.songs)
+                        {
+                            string fileName = song + ".audica";
+                            if (SongLoadingManager.songDictionary.ContainsKey(fileName))
+                            {
+                                result.Add(SongLoadingManager.songDictionary[fileName]);
+                            }
+                        }
+                        songSelect.ChangeSort(SongSelect.Sort.Default);
+                    }                   
+                    return true;
+                })();
+            PlaylistManager.playlistFilter.OnHit += PlaylistManager.OnFilterApplied;
         }
 
         internal static void Initialize()
@@ -330,7 +354,30 @@ namespace AudicaModding
         public static void SaveFavorites()
         {
             string text = JSON.Dump(favorites);
-            File.WriteAllText(favoritesPath, text);
+            try
+            {
+                int favCount = favorites.songIDs.Count;
+                File.WriteAllText(favoritesPath + ".tmp", text);
+
+                // check that file can be loaded and contains the correct number of favorites
+                string    saved = File.ReadAllText(favoritesPath + ".tmp");
+                Favorites favs  = JSON.Load(saved).Make<Favorites>();
+                if (favCount == favs.songIDs.Count)
+                {
+                    // override existing favorites now that we know it worked
+                    File.Delete(favoritesPath);
+                    File.Copy(favoritesPath + ".tmp", favoritesPath);
+                }
+                else
+                {
+                    SongBrowser.DebugText("Unable to save favorites");
+                }
+            }
+            catch (Exception ex)
+            {
+                MelonLoader.MelonLogger.Msg($"Unable to save favorites: {ex.Message}");
+                SongBrowser.DebugText("Unable to save favorites");
+            }
         }
 
         public static bool IsFavorite(string songID)
@@ -344,14 +391,12 @@ namespace AudicaModding
             if (!song.extrasSong) return;
             if (favorites.songIDs.Contains(songID))
             {
-                RandomSong.FavouritesChanged(songID, false);
                 favorites.songIDs.Remove(songID);
                 SongBrowser.DebugText($"Removed {song.title} from favorites!");
                 SaveFavorites();
             }
             else
             {
-                RandomSong.FavouritesChanged(songID, true);
                 favorites.songIDs.Add(songID);
                 SongBrowser.DebugText($"Added {song.title} to favorites!");
                 SaveFavorites();
@@ -362,8 +407,23 @@ namespace AudicaModding
         {
             if (File.Exists(favoritesPath))
             {
-                string text = File.ReadAllText(favoritesPath);
-                favorites = JSON.Load(text).Make<Favorites>();
+                try
+                {
+                    string text = File.ReadAllText(favoritesPath);
+                    favorites = JSON.Load(text).Make<Favorites>();
+                }
+                catch (Exception ex)
+                {
+                    MelonLoader.MelonLogger.Msg($"Unable to load favorites from file: {ex.Message}");
+                    SongBrowser.DebugText("Unable to load favorites");
+
+                    // make a backup of the existing file, just in case it still contains something
+                    string backupPath = favoritesPath + DateTime.Now.ToString("yyyyMMdd_hhmmss") + ".temp";
+                    File.Copy(favoritesPath, backupPath);
+
+                    favorites = new Favorites();
+                    favorites.songIDs = new List<string>();
+                }
             }
             else
             {

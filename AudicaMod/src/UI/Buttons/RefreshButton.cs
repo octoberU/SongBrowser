@@ -23,13 +23,13 @@ namespace AudicaModding
                 return;
 
             refreshButton  = GameObject.Instantiate(backButton, backButton.transform.parent.transform);
-            ButtonUtils.InitButton(refreshButton, "Refresh Songs", new Action(() => { OnRefreshButtonShot(); }), 
+            ButtonUtils.InitButton(refreshButton, "Fast Refresh", new Action(() => { OnRefreshButtonShot(); }), 
                                    refreshButtonPos, refreshButtonRot);
         }
         private static void OnRefreshButtonShot()
         {
             MenuState.I.GoToMainPage();
-            SongBrowser.ReloadSongList();
+            SongBrowser.ReloadSongList(false);
         }
     }
 }

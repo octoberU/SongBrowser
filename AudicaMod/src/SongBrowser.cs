@@ -7,7 +7,7 @@ using MelonLoader.TinyJSON;
 using System.IO;
 using Harmony;
 using System.Linq;
-[assembly: MelonOptionalDependencies("SongDataLoader", "ModSettings")]
+[assembly: MelonOptionalDependencies("SongDataLoader", "ModSettings", "AuthorableModifiers")]
 
 namespace AudicaModding
 {
@@ -18,27 +18,26 @@ namespace AudicaModding
             public const string Name = "SongBrowser";  // Name of the Mod.  (MUST BE SET)
             public const string Author = "octo"; // Author of the Mod.  (Set as null if none)
             public const string Company = null; // Company that made the Mod.  (Set as null if none)
-            public const string Version = "2.3.2"; // Version of the Mod.  (MUST BE SET)
+            public const string Version = "3.0.0"; // Version of the Mod.  (MUST BE SET)
             public const string DownloadLink = null; // Download Link for the Mod.  (Set as null if none)
         }
         public static Vector3 DebugTextPosition = new Vector3(0f, -1f, 5f);
         public static bool shouldShowKeyboard = false;
         public static string downloadsDirectory;
+        public static string mainSongDirectory;
         public static string deletedDownloadsListPath;
         public static bool emptiedDownloadsFolder = false;
         public static bool addedCustomsDir = false;
         public static List<string> deletedSongs = new List<string>();
         public static List<string> deletedSongPaths = new List<string>();
         public static int newSongCount;
-        public static int lastSongCount;
-
-        public static HashSet<string> songIDs         = new HashSet<string>();
-        public static HashSet<string> songFilenames = new HashSet<string>();
 
         public static bool modSettingsInstalled = false;
 
         //Meeps' Stuff
         public static bool songDataLoaderInstalled = false;
+
+        public static bool authorableInstalled = false;
         public class SongDisplayPackage
         {
             public bool hasEasy = false;
@@ -81,63 +80,46 @@ namespace AudicaModding
             }
         }
 
-        private void CreatePrivateConfig()
+        public override void OnPreferencesSaved()
         {
-            MelonPrefs.RegisterInt("RandomSong", "RandomSongBagSize", 10);
-            MelonPrefs.RegisterInt("SongBrowser", "LastSongCount", 0);
-        }
-
-        private void LoadPrivateConfig()
-        {
-            RandomSong.LoadBagSize(MelonPrefs.GetInt("RandomSong", "RandomSongBagSize"));
-            lastSongCount = MelonPrefs.GetInt("SongBrowser", "LastSongCount");
-        }
-
-        public static void SavePrivateConfig()
-        {
-            MelonPrefs.SetInt("RandomSong", "RandomSongBagSize", RandomSong.randomSongBagSize);
-            MelonPrefs.SetInt("SongBrowser", "LastSongCount", lastSongCount);
-        }
-
-        public override void OnModSettingsApplied()
-        {
-            Config.OnModSettingsApplied();
-        }
-
-        public override void OnLevelWasLoaded(int level)
-        {
-
-            if (!MelonPrefs.HasKey("RandomSong", "RandomSongBagSize") || !MelonPrefs.HasKey("SongBrowser", "LastSongCount"))
-            {
-                CreatePrivateConfig();
-            }
-            else
-            {
-                LoadPrivateConfig();
-            }
+            Config.OnPreferencesSaved();
         }
 
         public override void OnApplicationStart()
         {
             Config.RegisterConfig();
+            mainSongDirectory        = Path.Combine(Application.streamingAssetsPath, "HmxAudioAssets", "songs");
             downloadsDirectory       = Application.dataPath.Replace("Audica_Data", "Downloads");
             deletedDownloadsListPath = Path.Combine(downloadsDirectory, "SongBrowserDownload_DeletedFiles");
             CheckFolderDirectories();
-            SongDownloader.StartNewSongSearch();
-            var i = HarmonyInstance.Create("Song Downloader");
-            FilterPanel.OnApplicationStart();
 
             if (MelonHandler.Mods.Any(it => it.Info.SystemType.Name == nameof(SongDataLoader)))
             {
                 songDataLoaderInstalled = true;
-                MelonLogger.Log("Song Data Loader is installed. Enabling integration");
+                MelonLogger.Msg("Song Data Loader is installed. Enabling integration");
             }
             else
-                MelonLogger.LogWarning("Song Data Loader is not installed. Consider downloading it for the best experience :3");
+                MelonLogger.Warning("Song Data Loader is not installed. Consider downloading it for the best experience :3");
 
             if (MelonHandler.Mods.Any(it => it.Info.SystemType.Name == nameof(ModSettings)))
             {
                 modSettingsInstalled = true;
+            }
+
+            if (MelonHandler.Mods.Any(it => it.Assembly.GetName().Name == "AuthorableModifiers"))
+            {
+                var scoreVersion = new Version(MelonHandler.Mods.First(it => it.Assembly.GetName().Name == "AuthorableModifiers").Info.Version);
+                var lastUnsupportedVersion = new Version("1.2.4");
+                var result = scoreVersion.CompareTo(lastUnsupportedVersion);
+                if (result > 0)
+                {
+                    authorableInstalled = true;
+                }
+            }
+
+            if (!SongBrowser.emptiedDownloadsFolder)
+            {
+                Utility.EmptyDownloadsFolder();
             }
         }
 
@@ -146,7 +128,7 @@ namespace AudicaModding
             if (!Directory.Exists(downloadsDirectory))
             {
                 Directory.CreateDirectory(downloadsDirectory);
-            }
+            }           
         }
 
         //public override void OnGUI()
@@ -163,7 +145,6 @@ namespace AudicaModding
 
         public override void OnApplicationQuit()
         {
-            FilterPanel.SaveFavorites();
             CleanDeletedSongs();
         }
 
@@ -181,7 +162,15 @@ namespace AudicaModding
             {
                 if (File.Exists(songPath))
                 {
-                    File.Delete(songPath);
+                    try
+                    {
+                        File.Delete(songPath);
+                    }
+                    catch
+                    {
+                        // try again on launch instead
+                        downloadsMarkedForDeletion.Add(Path.GetFileName(songPath));
+                    }
                 }
                 else
                 {
@@ -220,6 +209,10 @@ namespace AudicaModding
             {
                 ReloadSongList();
             }
+            /*if (Input.GetKeyDown(KeyCode.N))
+            {
+                PlaylistEndlessManager.NextSong();
+            }*/
             //if (Input.GetKeyDown(KeyCode.F3))
             //{
             //    FilterPanel.GetReferences();
@@ -227,20 +220,47 @@ namespace AudicaModding
             //}
         }
 
-        /// <summary>
+        /// <summary>1
         /// Call to reload song list after songs were added to songs or downloads directories.
         /// Should be called while the user is in the main menu.
         /// </summary>
-        public static void ReloadSongList()
+        /// <param name="fullReload">Call with true to reload the entire song list. Otherwise only new 
+        ///     songs will be loaded (unfortunately unable to detect modified songs)</param>
+        public static void ReloadSongList(bool fullReload = true)
         {
             SongDownloader.needRefresh = false;
-            SongList.sFirstTime = true;
-            SongList.OnSongListLoaded.mDone = false;
-            SongList.SongSourceDirs = new Il2CppSystem.Collections.Generic.List<SongList.SongSourceDir>();
-            SongList.AddSongSearchDir(Application.dataPath, downloadsDirectory);
-            SongList.I.StartAssembleSongList();
 
-            SongLoadingManager.StartSongListUpdate();
+            if (fullReload)
+            {
+                SongList.sFirstTime = true;
+                SongList.OnSongListLoaded.mDone = false;
+                SongList.SongSourceDirs = new Il2CppSystem.Collections.Generic.List<SongList.SongSourceDir>();
+                SongList.AddSongSearchDir(Application.dataPath, downloadsDirectory);
+                SongList.I.StartAssembleSongList();
+            }
+            else
+            {
+                List<SongList.SongSourceDir> sourceDirs = new List<SongList.SongSourceDir>();
+                sourceDirs.Add(new SongList.SongSourceDir(Application.streamingAssetsPath, mainSongDirectory));
+                sourceDirs.Add(new SongList.SongSourceDir(Application.dataPath,            downloadsDirectory));
+                for (int i = 0; i < sourceDirs.Count; i++)
+                {
+                    SongList.SongSourceDir sourceDir = sourceDirs[i];
+                    string[]               files     = Directory.GetFiles(sourceDir.dir, "*.audica");
+                    for (int j = 0; j < files.Length; j++)
+                    {
+                        string file = files[j].Replace('\\', '/');
+                        if (! SongLoadingManager.songFilenames.Contains(Path.GetFileName(file)) && 
+                            ! SongDownloader.downloadedFileNames.Contains(Path.GetFileName(file)))
+                        {
+                            SongList.I.ProcessSingleSong(sourceDir, file, new Il2CppSystem.Collections.Generic.HashSet<string>());
+                        }
+                    }
+                }
+            }
+
+            SongDownloader.downloadedFileNames.Clear();
+            SongLoadingManager.StartSongListUpdate(fullReload);
 
             DebugText("Reloading Songs");
         }
@@ -253,23 +273,6 @@ namespace AudicaModding
             SongLoadingManager.AddPostProcessingCB(callback);
         }
 
-        public static void UpdateSongCaches()
-        {
-            songIDs.Clear();
-            songFilenames.Clear();
-            for (int i = 0; i < SongList.I.songs.Count; i++)
-            {
-                string songID = SongList.I.songs[i].songID;
-                songIDs.Add(songID);
-                songFilenames.Add(Path.GetFileName(SongList.I.songs[i].zipPath));
-
-                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Easy.ToString());
-                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Normal.ToString());
-                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Hard.ToString());
-                DifficultyCalculator.GetRating(songID, KataConfig.Difficulty.Expert.ToString());
-            }
-        }
-
         public static IEnumerator UpdateLastSongCount()
         {
             string URL = "http://www.audica.wiki:5000/api/customsongstotal";
@@ -279,11 +282,11 @@ namespace AudicaModding
             newSongCount = songcount.song_count;
             if (FilterPanel.notificationPanel != null)
             {
-                if (lastSongCount == newSongCount) FilterPanel.SetNotificationText("There are no new songs available");
+                if (Config.LastSongCount == newSongCount) FilterPanel.SetNotificationText("There are no new songs available");
                 else
                 {
-                    int _count = newSongCount - lastSongCount;
-                    bool isSingular = (newSongCount - lastSongCount) == 1;
+                    int _count = newSongCount - Config.LastSongCount;
+                    bool isSingular = (newSongCount - Config.LastSongCount) == 1;
                     string preSongtxt = isSingular ? "is " : "are ";
                     string songtxt = isSingular ? "song" : "songs";
                     FilterPanel.SetNotificationText("There " + preSongtxt + _count.ToString() + " new " + songtxt + " available");
@@ -330,6 +333,7 @@ public class Song
     public string download_url;
     public string preview_url;
     public string upload_time;
+    public string update_time;
     public int leaderboard_scores;
     public string video_url;
     public string filename;
@@ -337,6 +341,21 @@ public class Song
     {
         string[] day = this.upload_time.Split(new char[] { ' ', '-' });
         string[] time = this.upload_time.Split(new char[] { ' ', ':', '.' });
+        return new DateTime(Int32.Parse(day[0]),
+            Int32.Parse(day[1]),
+            Int32.Parse(day[2]),
+            Int32.Parse(time[1]),
+            Int32.Parse(time[2]),
+            Int32.Parse(time[3]));
+    }
+    public DateTime? GetUpdateDate()
+    {
+        if (string.IsNullOrEmpty(update_time))
+        {
+            return null;
+        }
+        string[] day = this.update_time.Split(new char[] { ' ', '-' });
+        string[] time = this.update_time.Split(new char[] { ' ', ':', '.' });
         return new DateTime(Int32.Parse(day[0]),
             Int32.Parse(day[1]),
             Int32.Parse(day[2]),

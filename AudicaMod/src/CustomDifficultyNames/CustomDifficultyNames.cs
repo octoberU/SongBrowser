@@ -2,112 +2,72 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
-using Harmony;
+using HarmonyLib;
 using System;
 using System.Linq;
-
-
-
+using System.Collections.Generic;
 
 namespace AudicaModding
 {
     public class CustomDifficultyNames : MelonMod
     {
+
+        private static Dictionary<string, string> difficultyTagToName = new Dictionary<string, string>()
+        {
+            { "customExpert", "Expert" },
+            { "customAdvanced", "Advanced" },
+            { "customModerate", "Moderate" },
+            { "customBeginner", "Beginner" },
+        };
+
+        private static Dictionary<string, string> difficultyNameToTag = new Dictionary<string, string>()
+        {
+            { "Expert"  ,"customExpert" },
+            { "Advanced","customAdvanced" },
+            { "Moderate","customModerate" },
+            { "Beginner","customBeginner" },
+        };
+
         public static IEnumerator ChangeNamesLP(LaunchPanel __instance)
         {
             yield return new WaitForSeconds(0.05f);
 
-            var song = SongDataHolder.I.songData;
+            SongList.SongData song = SongDataHolder.I.songData;
 
-            bool hasCustom = SongDataLoader.AllSongData[song.songID].HasCustomData();
-
-            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customExpert"))
-            {
-                __instance.expert.GetComponentInChildren<TextMeshPro>().text = SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customExpert");
-            }
-            else
-            {
-                __instance.expert.GetComponentInChildren<TextMeshPro>().text = "Expert";
-            }
-
-            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customAdvanced"))
-            {
-                __instance.hard.GetComponentInChildren<TextMeshPro>().text = SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customAdvanced");
-            }
-            else
-            {
-                __instance.hard.GetComponentInChildren<TextMeshPro>().text = "Advanced";
-
-            }
-
-            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customModerate"))
-            {
-                __instance.normal.GetComponentInChildren<TextMeshPro>().text = SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customModerate");
-            }
-            else
-            {
-                __instance.normal.GetComponentInChildren<TextMeshPro>().text = "Moderate";
-
-            }
-
-            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customBeginner"))
-            {
-                __instance.easy.GetComponentInChildren<TextMeshPro>().text = SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customBeginner");
-            }
-            else
-            {
-                __instance.easy.GetComponentInChildren<TextMeshPro>().text = "Beginner";
-
-            }
+            ChangeSpecificDifficulty(ref song, __instance.expert.GetComponentInChildren<TextMeshPro>(), difficultyNameToTag["Expert"]);
+            ChangeSpecificDifficulty(ref song, __instance.hard.GetComponentInChildren<TextMeshPro>(), difficultyNameToTag["Advanced"]);
+            ChangeSpecificDifficulty(ref song, __instance.normal.GetComponentInChildren<TextMeshPro>(), difficultyNameToTag["Moderate"]);
+            ChangeSpecificDifficulty(ref song, __instance.easy.GetComponentInChildren<TextMeshPro>(), difficultyNameToTag["Beginner"]);
         }
 
         public static IEnumerator ChangeNamesDS(DifficultySelect __instance)
         {
             yield return new WaitForSeconds(0.05f);
 
-            var song = SongDataHolder.I.songData;
+            SongList.SongData song = SongDataHolder.I.songData;
 
+            ChangeSpecificDifficulty(ref song, __instance.expert.label, difficultyNameToTag["Expert"]);
+            ChangeSpecificDifficulty(ref song, __instance.hard.label, difficultyNameToTag["Advanced"]);
+            ChangeSpecificDifficulty(ref song, __instance.normal.label, difficultyNameToTag["Moderate"]);
+            ChangeSpecificDifficulty(ref song, __instance.easy.label, difficultyNameToTag["Beginner"]);
+        }
+
+        private static void ChangeSpecificDifficulty(ref SongList.SongData song,TextMeshPro label, string difficultyTag)
+        {
             bool hasCustom = SongDataLoader.AllSongData[song.songID].HasCustomData();
 
-            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customExpert"))
+            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey(difficultyTag))
             {
-                __instance.expert.label.SetText(SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customExpert"));
+                string text = SongDataLoader.AllSongData[song.songID].GetCustomData<string>(difficultyTag);
+                if (text.Length > 0)
+                {
+                    label.SetText(text);
+                }
             }
             else
             {
-                __instance.expert.label.text = "Expert";
+                label.SetText(difficultyTagToName[difficultyTag]);               
             }
-
-            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customAdvanced"))
-            {
-                __instance.hard.label.SetText(SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customAdvanced"));
-            }
-            else
-            {
-                __instance.hard.label.text = "Advanced";
-
-            }
-
-            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customModerate"))
-            {
-                __instance.normal.label.SetText(SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customModerate"));
-            }
-            else
-            {
-                __instance.normal.label.text = "Moderate";
-
-            }
-
-            if (hasCustom && SongDataLoader.AllSongData[song.songID].SongHasCustomDataKey("customBeginner"))
-            {
-                __instance.easy.label.SetText(SongDataLoader.AllSongData[song.songID].GetCustomData<string>("customBeginner"));
-            }
-            else
-            {
-                __instance.easy.label.text = "Beginner";
-            }
-
-
         }
 
         [HarmonyPatch(typeof(LaunchPanel), "OnEnable", new Type[0])]

@@ -51,7 +51,7 @@ public class DifficultyCalculator
                     {
                         CachedCalculation data = new CachedCalculation(calc.beginner.difficultyRating, calc.beginner.is360, calc.beginner.hasMines);
                         calculatorCache.Add(songID + diffLower, data);
-                        //MelonLogger.Log(songData.title + " (beginner) span: " + Math.Abs(calc.beginner.cueExtremesX.highest - calc.beginner.cueExtremesX.lowest));
+                        //MelonLogger.Msg(songData.title + " (beginner) span: " + Math.Abs(calc.beginner.cueExtremesX.highest - calc.beginner.cueExtremesX.lowest));
                         return data;
                     }
                     else
@@ -64,7 +64,7 @@ public class DifficultyCalculator
                     {
                         CachedCalculation data = new CachedCalculation(calc.standard.difficultyRating, calc.standard.is360, calc.standard.hasMines);
                         calculatorCache.Add(songID + diffLower, data);
-                        //MelonLogger.Log(songData.title + " (normal) span: " + Math.Abs(calc.standard.cueExtremesX.highest - calc.standard.cueExtremesX.lowest));
+                        //MelonLogger.Msg(songData.title + " (normal) span: " + Math.Abs(calc.standard.cueExtremesX.highest - calc.standard.cueExtremesX.lowest));
 
                         return data;
                     }
@@ -78,7 +78,7 @@ public class DifficultyCalculator
                     {
                         CachedCalculation data = new CachedCalculation(calc.advanced.difficultyRating, calc.advanced.is360, calc.advanced.hasMines);
                         calculatorCache.Add(songID + diffLower, data);
-                        //MelonLogger.Log(songData.title + " (hard) span: " + Math.Abs(calc.advanced.cueExtremesX.highest - calc.advanced.cueExtremesX.lowest));
+                        //MelonLogger.Msg(songData.title + " (hard) span: " + Math.Abs(calc.advanced.cueExtremesX.highest - calc.advanced.cueExtremesX.lowest));
 
                         return data;
                     }
@@ -92,7 +92,7 @@ public class DifficultyCalculator
                     {
                         CachedCalculation data = new CachedCalculation(calc.expert.difficultyRating, calc.expert.is360, calc.expert.hasMines);
                         calculatorCache.Add(songID + diffLower, data);
-                        //MelonLogger.Log(songData.title + " (expert) span: " + Math.Abs(calc.expert.cueExtremesX.highest - calc.expert.cueExtremesX.lowest));
+                        //MelonLogger.Msg(songData.title + " (expert) span: " + Math.Abs(calc.expert.cueExtremesX.highest - calc.expert.cueExtremesX.lowest));
                         return data;
                     }
                     else
