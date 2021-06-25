@@ -16,9 +16,9 @@ namespace AudicaModding
         internal static bool UseNewAPI = true;
 
         internal static string          apiURL              = "http://www.audica.wiki:5000/api/customsongs?pagesize=14";
-        internal static string          newApiUrl           = "https://beta.maudica.com/api/maps?per_page=14";
-        internal static string          downloadUrlFormat   = "https://beta.maudica.com/maps/{0}/download";
-        internal static string          previewUrlFormat    = "https://beta.maudica.com/maps/{0}/preview";
+        internal static string          newApiUrl           = "https://maudica.com/api/maps?per_page=14";
+        internal static string          downloadUrlFormat   = "https://maudica.com/maps/{0}/download";
+        internal static string          previewUrlFormat    = "https://maudica.com/maps/{0}/preview";
         internal static APISongList     songlist;           
         internal static string          searchString        = "";
         internal static bool            needRefresh         = false;
