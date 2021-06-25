@@ -196,7 +196,7 @@ namespace AudicaModding
         {             
             if (select is null)
             {
-                MelonLogger.LogWarning("SongSelect not found");
+                MelonLogger.Warning("SongSelect not found");
                 return false;
             }
             songs = new Il2CppSystem.Collections.Generic.List<SongSelectItem>();
@@ -204,7 +204,7 @@ namespace AudicaModding
             songs.RemoveAt(0);
             if (songs.Count == 0)
             {
-                MelonLogger.LogWarning("No songs in playlist");
+                MelonLogger.Warning("No songs in playlist");
                 return false;
             }
             return true;

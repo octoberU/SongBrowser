@@ -41,10 +41,10 @@ internal static class DiffCalculatorUtil
     public static void LogCurrentSongDifficulty()
     {
         var calc = new DifficultyCalculator(SongDataHolder.I.songData);
-        MelonLogger.Log("\n" + calc.songID);
-        if (calc.expert != null) MelonLogger.Log("\nExpert: " + calc.expert.difficultyRating.ToString());
-        if (calc.advanced != null) MelonLogger.Log("\nAdvanced: " + calc.advanced.difficultyRating.ToString());
-        if (calc.standard != null) MelonLogger.Log("\nStandard: " + calc.standard.difficultyRating.ToString());
-        if (calc.beginner != null) MelonLogger.Log("\nBeginner: " + calc.beginner.difficultyRating.ToString());
+        MelonLogger.Msg("\n" + calc.songID);
+        if (calc.expert != null) MelonLogger.Msg("\nExpert: " + calc.expert.difficultyRating.ToString());
+        if (calc.advanced != null) MelonLogger.Msg("\nAdvanced: " + calc.advanced.difficultyRating.ToString());
+        if (calc.standard != null) MelonLogger.Msg("\nStandard: " + calc.standard.difficultyRating.ToString());
+        if (calc.beginner != null) MelonLogger.Msg("\nBeginner: " + calc.beginner.difficultyRating.ToString());
     }
 }

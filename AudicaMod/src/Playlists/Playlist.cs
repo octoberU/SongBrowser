@@ -16,12 +16,16 @@ namespace AudicaModding
         public List<string> songs { get; set; }
         [JsonIgnore]
         public Dictionary<string, string> songNames { get; set; }
+        [JsonIgnore]
+        public Dictionary<string, bool> downloadedDict { get; set; }
 
         public Playlist(string name, List<string> songs)
         {
             this.name = name;
             this.songs = songs;
             songNames = new Dictionary<string, string>();
+            downloadedDict = new Dictionary<string, bool>();
+            foreach (string song in songs) downloadedDict.Add(song, false);
         }
 
         public void AddSong(string song)
@@ -33,17 +37,19 @@ namespace AudicaModding
             }
             songs.Add(song);
             songNames.Add(song, GetSongName(song));
+            downloadedDict.Add(song, true);
         }
 
         public void RemoveSong(string song)
         {
             if (!songs.Contains(song))
             {
-                MelonLogger.Log($"{song} doesn't exist in playlist");
+                MelonLogger.Msg($"{song} doesn't exist in playlist");
                 return;
             }
             songs.Remove(song);
             songNames.Remove(song);
+            downloadedDict.Remove(song);
         }
 
         public void MoveSongUp(string song)
@@ -64,6 +70,11 @@ namespace AudicaModding
             PopulateSongNames();
         }
 
+        public void SetSongDownloaded(string song, bool downloaded)
+        {
+            downloadedDict[song] = downloaded;
+        }
+
         public void PopulateSongNames()
         {
             songNames = new Dictionary<string, string>();
@@ -77,17 +88,17 @@ namespace AudicaModding
         private string GetSongName(string song)
         {
             string fileName = song + ".audica";
-            if (PlaylistManager.apiSongList.Any(s => s.filename == fileName))
-            {
-                Song _song = PlaylistManager.apiSongList.First(s => s.filename == fileName);
-                return _song.title + " - " + _song.author;
-            }
-            else if (PlaylistManager.internalSongList.Any(s => Path.GetFileName(s.zipPath) == fileName))
+            if (PlaylistManager.internalSongList.Any(s => Path.GetFileName(s.zipPath) == fileName))
             {
                 SongList.SongData _song = PlaylistManager.internalSongList.First(s => Path.GetFileName(s.zipPath) == fileName);
+                SetSongDownloaded(song, true);
                 return _song.title + " - " + _song.author;
             }
-            else return song;
+            else
+            {
+                SetSongDownloaded(song, false);
+                return song;
+            }
             
         }
     }

@@ -44,7 +44,7 @@ namespace AudicaModding
                     }
                     catch
                     {
-                        MelonLoader.MelonLogger.LogWarning($"Unable to delete {fileName}");
+                        MelonLoader.MelonLogger.Warning($"Unable to delete {fileName}");
                     }
                 }
                 File.Delete(SongBrowser.deletedDownloadsListPath);

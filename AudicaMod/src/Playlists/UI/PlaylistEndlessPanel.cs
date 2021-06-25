@@ -31,7 +31,7 @@ namespace AudicaModding
 		public static void CancelEndless()
 		{
 			PlaylistManager.state = PlaylistManager.PlaylistState.None;
-			MelonPrefs.SaveConfig();
+			MelonPreferences.Save();
 			MenuState.I.GoToSongPage();
 			SelectPlaylistButton.UpdatePlaylistButton();
 		}
@@ -103,7 +103,7 @@ namespace AudicaModding
 			optionsMenu.scrollable.AddRow(divider);
 			var start = optionsMenu.AddButton(1, "Start", new Action(() =>
 			{
-				MelonPrefs.SaveConfig();
+				MelonPreferences.Save();
 				PlaylistEndlessManager.StartEndlessSession();
 			}), null, "Starts the marathon", optionsMenu.buttonPrefab);
 

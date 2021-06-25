@@ -375,7 +375,7 @@ namespace AudicaModding
             }
             catch (Exception ex)
             {
-                MelonLoader.MelonLogger.Log($"Unable to save favorites: {ex.Message}");
+                MelonLoader.MelonLogger.Msg($"Unable to save favorites: {ex.Message}");
                 SongBrowser.DebugText("Unable to save favorites");
             }
         }
@@ -414,7 +414,7 @@ namespace AudicaModding
                 }
                 catch (Exception ex)
                 {
-                    MelonLoader.MelonLogger.Log($"Unable to load favorites from file: {ex.Message}");
+                    MelonLoader.MelonLogger.Msg($"Unable to load favorites from file: {ex.Message}");
                     SongBrowser.DebugText("Unable to load favorites");
 
                     // make a backup of the existing file, just in case it still contains something

@@ -71,7 +71,7 @@ namespace AudicaModding
         {
 			if (!Config.SafeSongListReload)
 				return;
-			if (!searching || disabled || MenuState.GetState() != MenuState.State.MainPage)
+			if ((!searching || disabled || MenuState.GetState() != MenuState.State.MainPage) && !PlaylistDownloadManager.IsDownloadingMissing)
 				return;
 
 			disabled = true;
@@ -146,7 +146,7 @@ namespace AudicaModding
 			yield return null;
 		}
 
-		private static void EnableButtons()
+		public static void EnableButtons()
 		{
 			if (!Config.SafeSongListReload)
 				return;
@@ -168,7 +168,7 @@ namespace AudicaModding
 		private static void SafeDataLoaderReload()
 		{
 			SongDataLoader.ReloadSongData();
-			MelonLogger.Log("Song Data Reloaded");
+			MelonLogger.Msg("Song Data Reloaded");
 		}
 	}
 }

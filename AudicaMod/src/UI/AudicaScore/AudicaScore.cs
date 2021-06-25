@@ -1,5 +1,5 @@
 ﻿using AudicaModding;
-using Harmony;
+using HarmonyLib;
 using MelonLoader;
 using System;
 using System.Collections.Generic;
@@ -125,7 +125,7 @@ internal static class ScoreHistory
         {
             if (counter % 2 == 0)
             {
-                MelonLogger.Log("Recorded new score!");
+                MelonLogger.Msg("Recorded new score!");
                 if (noFail) return;
                 if (percent < 30f) return;
                 float maxScorePercent = (float)score / (float)StarThresholds.I.GetMaxRawScore(songID, difficulty);
@@ -154,7 +154,7 @@ internal static class ScoreHistory
         finally
         {
             fs.Close();
-            MelonLogger.Log("Saved play history!");
+            MelonLogger.Msg("Saved play history!");
         }
     }
 
@@ -169,7 +169,7 @@ internal static class ScoreHistory
         if (!File.Exists(historySavePath + leaderboardID))
         {
             scores = new List<AudicaScore>();
-            MelonLogger.Log("No history found, creating new history");
+            MelonLogger.Msg("No history found, creating new history");
             return;
 
         }
@@ -186,7 +186,7 @@ internal static class ScoreHistory
             else
             {
                 scores = new List<AudicaScore>();
-                MelonLogger.Log("Wrong user, creating new history instead");
+                MelonLogger.Msg("Wrong user, creating new history instead");
                 return;
             }
                 
@@ -200,7 +200,7 @@ internal static class ScoreHistory
         {
             fs.Close();
         }
-        MelonLogger.Log($"Loaded {scores.Count.ToString()} scores");
+        MelonLogger.Msg($"Loaded {scores.Count.ToString()} scores");
         audicaScore = lastAudicaScore = CalculateTotalRating();
         ScoreDisplayList.UpdateTextFromList();
     }

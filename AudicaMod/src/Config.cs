@@ -19,49 +19,49 @@ namespace AudicaModding
         public static bool ResetHealth { get; set; }
         public static void RegisterConfig()
         {
-            MelonPrefs.RegisterBool(Category, nameof(SafeSongListReload), true,
+            MelonPreferences.CreateEntry(Category, nameof(SafeSongListReload), true,
                                     "Blocks access to song list during song list reload (safety feature).");
 
-            MelonPrefs.RegisterInt(Category, nameof(LastSongCount), 0, "", true);
-            LastSongCount = MelonPrefs.GetInt(Category, nameof(LastSongCount));
+            MelonPreferences.CreateEntry(Category, nameof(LastSongCount), 0, "");
+            LastSongCount = MelonPreferences.GetEntryValue<int>(Category, nameof(LastSongCount));
 
-            MelonPrefs.RegisterString(Category, nameof(playlistTitle), "", "", true);           
+            MelonPreferences.CreateEntry(Category, nameof(playlistTitle), "", "[Header]Playlist Settings");
 
-            MelonPrefs.RegisterBool(Category, nameof(Shuffle), false, "", false);
-            Shuffle = MelonPrefs.GetBool(Category, nameof(Shuffle));
+            MelonPreferences.CreateEntry(Category, nameof(Shuffle), false, "");
+            Shuffle = MelonPreferences.GetEntryValue<bool>(Category, nameof(Shuffle));
 
-            MelonPrefs.RegisterBool(Category, nameof(ShowScores), false, "", false);
-            ShowScores = MelonPrefs.GetBool(Category, nameof(ShowScores));
+            MelonPreferences.CreateEntry(Category, nameof(ShowScores), false, "");
+            ShowScores = MelonPreferences.GetEntryValue<bool>(Category, nameof(ShowScores));
 
-            MelonPrefs.RegisterBool(Category, nameof(NoFail), false, "", false);
-            NoFail = MelonPrefs.GetBool(Category, nameof(NoFail));
+            MelonPreferences.CreateEntry(Category, nameof(NoFail), false, "");
+            NoFail = MelonPreferences.GetEntryValue<bool>(Category, nameof(NoFail));
 
-            MelonPrefs.RegisterBool(Category, nameof(ResetHealth), false, "", false);
-            ResetHealth = MelonPrefs.GetBool(Category, nameof(ResetHealth));
+            MelonPreferences.CreateEntry(Category, nameof(ResetHealth), false, "");
+            ResetHealth = MelonPreferences.GetEntryValue<bool>(Category, nameof(ResetHealth));
 
-            OnModSettingsApplied();
+            OnPreferencesSaved();
         }
 
         public static void UpdateValue(string name, object value)
         {
             if(value is bool)
             {
-                MelonPrefs.SetBool(Category, name, (bool)value);
+                MelonPreferences.SetEntryValue(Category, name, (bool)value);
             }
         }
 
-        public static void OnModSettingsApplied()
+        public static void OnPreferencesSaved()
         {
             foreach (var fieldInfo in typeof(Config).GetFields(BindingFlags.Static | BindingFlags.Public))
             {
                 if (fieldInfo.FieldType == typeof(bool))
-                    fieldInfo.SetValue(null, MelonPrefs.GetBool(Category, fieldInfo.Name));
+                    fieldInfo.SetValue(null, MelonPreferences.GetEntryValue<bool>(Category, fieldInfo.Name));
             }
         }
 
         public static void UpdateSongCount(int newCount)
         {
-            MelonPrefs.SetInt(Category, nameof(LastSongCount), newCount);
+            MelonPreferences.SetEntryValue(Category, nameof(LastSongCount), newCount);
             LastSongCount = newCount;
         }
     }

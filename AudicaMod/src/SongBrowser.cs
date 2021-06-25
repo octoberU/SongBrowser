@@ -80,9 +80,9 @@ namespace AudicaModding
             }
         }
 
-        public override void OnModSettingsApplied()
+        public override void OnPreferencesSaved()
         {
-            Config.OnModSettingsApplied();
+            Config.OnPreferencesSaved();
         }
 
         public override void OnApplicationStart()
@@ -96,10 +96,10 @@ namespace AudicaModding
             if (MelonHandler.Mods.Any(it => it.Info.SystemType.Name == nameof(SongDataLoader)))
             {
                 songDataLoaderInstalled = true;
-                MelonLogger.Log("Song Data Loader is installed. Enabling integration");
+                MelonLogger.Msg("Song Data Loader is installed. Enabling integration");
             }
             else
-                MelonLogger.LogWarning("Song Data Loader is not installed. Consider downloading it for the best experience :3");
+                MelonLogger.Warning("Song Data Loader is not installed. Consider downloading it for the best experience :3");
 
             if (MelonHandler.Mods.Any(it => it.Info.SystemType.Name == nameof(ModSettings)))
             {

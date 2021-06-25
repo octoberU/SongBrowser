@@ -1,4 +1,4 @@
-﻿using Harmony;
+﻿using HarmonyLib;
 using UnityEngine;
 using System;
 using MelonLoader;
@@ -433,7 +433,7 @@ namespace AudicaModding
 
                 if(state == MenuState.State.MainPage)
                 {
-                    PlaylistManager.DownloadMissingSongs();
+                    //PlaylistManager.DownloadMissingSongs();
                 }
             }
         }
@@ -488,7 +488,7 @@ namespace AudicaModding
         {
             private static void Postfix(HighScoreRecords __instance, string songID, int score, KataConfig.Difficulty difficulty, float percent, bool fullCombo, bool force)
             {
-                MelonLogger.Log("Score recorded");
+                MelonLogger.Msg("Score recorded");
             }
         }*/
 
@@ -504,7 +504,7 @@ namespace AudicaModding
                     PlaylistManager.OnApplicationStart();
                     FilterPanel.OnApplicationStart();
                     SongLoadingManager.StartSongListUpdate();
-                    PlaylistManager.GetAllApiSongs();
+                    //PlaylistManager.GetAllApiSongs();
                 }
             }
         }
@@ -565,7 +565,7 @@ namespace AudicaModding
                 FilterPanel.Initialize();
                 ScoreHistory.LoadHistory(PlatformChooser.I.GetLeaderboardID());
                 MelonCoroutines.Start(SongBrowser.UpdateLastSongCount());
-                MelonLogger.Log("Updating song count");
+                MelonLogger.Msg("Updating song count");
             }
         }
 

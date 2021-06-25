@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using static AudicaModding.FilterPanel;
 
@@ -35,12 +36,8 @@ namespace AudicaModding
            // ioHandler.LoadPlaylistData();
             playlists = ioHandler.LoadPlaylists();
             SavePlaylistData();
-            SongLoadingManager.AddPostProcessingCB(downloadManager.FindMissingSongs);
-        }
-
-        public static void DownloadMissingSongs()
-        {
-            MelonCoroutines.Start(downloadManager.DownloadMissingSongs());
+            SongLoadingManager.AddPostProcessingCB(downloadManager.DownloadMissingSongs);
+            SongLoadingManager.AddPostProcessingCB(downloadManager.EnableBackButton);
         }
 
         public static void MoveSongUp(string song)
@@ -64,10 +61,10 @@ namespace AudicaModding
             }
         }
 
-        public static void GetAllApiSongs()
+        /*public static void GetAllApiSongs()
         {
             downloadManager.GetAllApiSongs();
-        }
+        }*/
 
         public static void SavePlaylist(string playlistName, bool fromEdit)
         {
@@ -93,10 +90,14 @@ namespace AudicaModding
             }
         }
 
-
-        public static void DownloadSong(string songName, GunButton button = null)
+        public static void DownloadSingleSong(string songName, bool showPopup, GunButton button, TextMeshPro label)
         {
-            downloadManager.DownloadSong(songName, button);
+            downloadManager.DownloadSingleSong(songName, showPopup, button, label);
+        }
+
+        public static void DownloadSongs(List<string> songs, bool showPopup, GunButton button, TextMeshPro label)
+        {
+            downloadManager.DownloadSongs(songs, showPopup, button, label);
         }
 
         public static void SavePlaylistData()
@@ -125,7 +126,7 @@ namespace AudicaModding
         {
             if (!playlists.ContainsKey(playlistName))
             {
-                MelonLoader.MelonLogger.Log("Playlist " + playlistName + " couldn't be found.");
+                MelonLoader.MelonLogger.Msg("Playlist " + playlistName + " couldn't be found.");
                 return;
             }
             playlistToEdit = playlists[playlistName];
@@ -135,7 +136,7 @@ namespace AudicaModding
         {
             if (!playlists.ContainsKey(playlistName))
             {
-                MelonLogger.Log("Playlist " + playlistName + " couldn't be found.");
+                MelonLogger.Msg("Playlist " + playlistName + " couldn't be found.");
                 return;
             }
             selectedPlaylist = playlists[playlistName];
@@ -144,7 +145,7 @@ namespace AudicaModding
         {
             if (!playlists.ContainsKey(playlistName))
             {
-                MelonLogger.Log("Playlist " + playlistName + " couldn't be found.");
+                MelonLogger.Msg("Playlist " + playlistName + " couldn't be found.");
                 return;
             }
             playlists[playlistName].AddSong(songName);
@@ -156,7 +157,7 @@ namespace AudicaModding
         {
             if(playlistToEdit is null)
             {
-                MelonLoader.MelonLogger.Log("No playlist to edit selected");
+                MelonLoader.MelonLogger.Msg("No playlist to edit selected");
                 return;
             }
             playlists[playlistToEdit.name].RemoveSong(songName);
@@ -166,7 +167,7 @@ namespace AudicaModding
         {
             if (playlistToEdit is null)
             {
-                MelonLoader.MelonLogger.Log("No playlist to edit selected");
+                MelonLogger.Msg("No playlist to edit selected");
                 return;
             }
             PlaylistUtil.Popup(playlistToEdit.name + " deleted");

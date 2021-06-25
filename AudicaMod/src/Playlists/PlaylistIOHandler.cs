@@ -40,6 +40,7 @@ namespace AudicaModding
                 playlists.Add(entry.Key, entry.Value);
                 AddNewPlaylistData(entry.Value.name);
             }
+            RemoveDeletedPlaylistData();
             return playlists;
         }
 
@@ -62,22 +63,35 @@ namespace AudicaModding
 
         private void LoadPlaylistData()
         {
-            playlistDataFile = Path.Combine(playlistDirectory, "playlistData.dat");
-            if (!File.Exists(playlistDataFile))
-            {
-                var stream = new FileStream(playlistDataFile, FileMode.Create);
-                stream.Dispose();
-                playlistData = new List<PlaylistData>();
-                return;
-            }
+            if (CreatePlaylistDataFile()) return;
 
             using (StreamReader reader = new StreamReader(playlistDataFile))
             {
                 string json = reader.ReadToEnd();
                 playlistData = JsonConvert.DeserializeObject<List<PlaylistData>>(json);
             }
+            if(playlistData is null) CreatePlaylistDataFile(true);
+        }
 
-            
+        private void RemoveDeletedPlaylistData()
+        {
+            for(int i = playlistData.Count - 1; i >= 0; i--)
+            {
+                if (!playlistData[i].loaded) playlistData.RemoveAt(i);
+            }
+        }
+
+        private bool CreatePlaylistDataFile(bool recreate = false)
+        {
+            playlistDataFile = Path.Combine(playlistDirectory, "playlistData.dat");
+            if (!File.Exists(playlistDataFile) || recreate)
+            {
+                var stream = new FileStream(playlistDataFile, FileMode.Create);
+                stream.Dispose();
+                playlistData = new List<PlaylistData>();
+                return true;
+            }
+            return false;
         }
 
         public void UpdatePlaylistData(string playlistName)
@@ -90,9 +104,23 @@ namespace AudicaModding
         {
             if (!playlistData.Any(p => p.playlistName == playlistName))
             {
-                playlistData.Add(new PlaylistData(playlistName, created));
+                PlaylistData data = new PlaylistData(playlistName, created);
+                data.loaded = true;
+                playlistData.Add(data);
+            }
+            else
+            {
+                playlistData.First(p => p.playlistName == playlistName).loaded = true;
             }
             
+        }
+
+        public void RemovePlaylistData(string playlistName)
+        {
+            if(playlistData.Any(p => p.playlistName == playlistName))
+            {
+                playlistData.Remove(playlistData.First(p => p.playlistName == playlistName));
+            }
         }
 
         public void SavePlaylistData()
@@ -118,7 +146,7 @@ namespace AudicaModding
             }
             catch
             {
-                MelonLoader.MelonLogger.LogWarning($"Encountered an error while loading {Path.GetFileName(playlistJson)} - please check if the file has valid json.");                
+                MelonLoader.MelonLogger.Warning($"Encountered an error while loading {Path.GetFileName(playlistJson)} - please check if the file has valid json.");                
                 return null;
             }
                    
@@ -185,6 +213,7 @@ namespace AudicaModding
         {
             public string playlistName;
             public bool initialized = false;
+            [NonSerialized] public bool loaded = false;
 
             public PlaylistData(string playlistName, bool initialized)
             {

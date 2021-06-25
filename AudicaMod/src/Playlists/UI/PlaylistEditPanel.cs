@@ -44,8 +44,8 @@ namespace AudicaModding
 		private static void RefreshList()
         {
 			CleanUpPage(primaryMenu);
+			PlaylistManager.playlistToEdit.PopulateSongNames();
 			AddButtons(primaryMenu);
-			//primaryMenu.screenTitle.text = "Edit Playlist";
 			primaryMenu.screenTitle.text = PlaylistManager.playlistToEdit.name;
         }
 
@@ -55,6 +55,7 @@ namespace AudicaModding
 			var header = optionsMenu.AddHeader(0, "Song List");
 			optionsMenu.scrollable.AddRow(header);
 			int index = 0;
+			Il2CppSystem.Collections.Generic.List<GameObject> row = new Il2CppSystem.Collections.Generic.List<GameObject>();
 			foreach (KeyValuePair<string, string> song in PlaylistManager.playlistToEdit.songNames)
 			{
 				var name = optionsMenu.AddTextBlock(0, song.Value);
@@ -68,19 +69,19 @@ namespace AudicaModding
 					PlaylistManager.RemoveSongFromPlaylist(song.Key);
 					RefreshList();
 				}), null, "Removes this song from this playlist", optionsMenu.buttonPrefab);
-				Il2CppSystem.Collections.Generic.List<GameObject> row = new Il2CppSystem.Collections.Generic.List<GameObject>();
 				row.Add(delete.gameObject);
 				if(!SongLoadingManager.songDictionary.ContainsKey(song.Key + ".audica"))
                 {
 					var download = optionsMenu.AddButton(0, "Download", new Action(() =>
 					{
-						if (backButton is null)
-						{
-							var button = GameObject.Find("menu/ShellPage_Settings/page/backParent/back");
-							backButton = button.GetComponentInChildren<GunButton>();
-						}
-						backButton.SetInteractable(false);
-						PlaylistManager.DownloadSong(song.Key, backButton);
+
+						
+						var button = GameObject.Find("menu/ShellPage_Settings/page/backParent/back");
+						var label = button.GetComponentInChildren<TextMeshPro>();
+						UnityEngine.Object.Destroy(button.GetComponentInChildren<Localizer>());						
+						var bButton = button.GetComponentInChildren<GunButton>();
+						PlaylistManager.DownloadSingleSong(song.Key + ".audica", true, bButton, label);
+
 
 					}), null, "Download this song", optionsMenu.buttonPrefab);
 					download.button.destroyOnShot = true;
@@ -109,17 +110,47 @@ namespace AudicaModding
 				}
 				optionsMenu.scrollable.AddRow(row);
 				index++;
+				row = new Il2CppSystem.Collections.Generic.List<GameObject>();
 			}
-			header = optionsMenu.AddHeader(0, "Delete Playlist");
+			header = optionsMenu.AddHeader(0, "Playlist Options");
 			optionsMenu.scrollable.AddRow(header);
-			var entry = optionsMenu.AddButton(0, "Delete", new Action(() =>
+
+			var deletePlaylistButton = optionsMenu.AddButton(0, "Delete", new Action(() =>
 			{
 				PlaylistManager.DeletePlaylist();
 				PlaylistManager.state = PlaylistManager.PlaylistState.Selecting;				
 				OptionsMenu.I.ShowPage(OptionsMenu.Page.Main);
 				SelectPlaylistButton.UpdatePlaylistButton();
 			}), null, "Deletes this Playlist", optionsMenu.buttonPrefab);
-			optionsMenu.scrollable.AddRow(entry.gameObject);
+			//optionsMenu.scrollable.AddRow(deletePlaylistButton.gameObject);
+			row.Add(deletePlaylistButton.gameObject);
+			if(PlaylistManager.playlistToEdit.downloadedDict.Any(p => p.Value == false))
+            {
+				var downloadAllButton = optionsMenu.AddButton(1, "Download All", new Action(() =>
+				{
+					var button = GameObject.Find("menu/ShellPage_Settings/page/backParent/back");
+					var label = button.GetComponentInChildren<TextMeshPro>();
+					UnityEngine.Object.Destroy(button.GetComponentInChildren<Localizer>());					
+					var bButton = button.GetComponentInChildren<GunButton>();
+					//bButton.SetInteractable(false);
+					List<string> songs = new List<string>();
+					foreach (KeyValuePair<string, string> song in PlaylistManager.playlistToEdit.songNames)
+					{
+						if (!SongLoadingManager.songDictionary.ContainsKey(song.Key + ".audica"))
+						{
+							songs.Add(song.Key + ".audica");
+							//PlaylistManager.DownloadSong(song.Key + ".audica", true, backButton);
+						}
+
+					}
+					if (songs.Count > 0) PlaylistManager.DownloadSongs(songs, true, bButton, label);
+
+				}), null, "Downloads all missing songs in this Playlist", optionsMenu.buttonPrefab);
+				//optionsMenu.scrollable.AddRow(downloadAllButton.gameObject);
+				row.Add(downloadAllButton.gameObject);
+			}
+			optionsMenu.scrollable.AddRow(row);
+			
 		}
 
 		private static void CleanUpPage(OptionsMenu optionsMenu)

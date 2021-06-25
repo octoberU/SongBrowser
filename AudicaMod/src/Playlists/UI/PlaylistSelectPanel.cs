@@ -83,7 +83,7 @@ namespace AudicaModding
 			optionsMenu.scrollable.AddRow(header);
 			entry = optionsMenu.AddButton(0, "Create new Playlist", new Action(() =>
 			{
-				MelonLoader.MelonLogger.Log("Create button shot");
+				MelonLoader.MelonLogger.Msg("Create button shot");
 				PlaylistManager.state = PlaylistManager.PlaylistState.Creating;
 				OptionsMenu.I.ShowPage(OptionsMenu.Page.Misc);
 				MenuState.I.GoToSettingsPage();
