@@ -19,6 +19,7 @@ namespace AudicaModding
         private GunButton backButton = null;
         private TextMeshPro backButtonLabel = null;
         private bool playlistsPopulated = false;
+        private bool prepareDownloadMissing = false;
         public void DownloadSingleSong(string filename, bool showPopup, GunButton button, TextMeshPro label)
         {
             if (backButton is null && button != null)
@@ -30,7 +31,6 @@ namespace AudicaModding
                 backButtonLabel.alpha = .25f;
             }
             if (showPopup) PlaylistUtil.Popup("Downloading..");
-            MelonLogger.Msg("7");
             MelonCoroutines.Start(SongDownloader.DoSongWebSearch(filename, OnWebSearchDone, DifficultyFilter.All, false, false, 1, false, true));
         }
 
@@ -59,7 +59,8 @@ namespace AudicaModding
             {
                 return;
             }
-            IsDownloadingMissing = true;
+            //IsDownloadingMissing = true;
+            prepareDownloadMissing = true;
             List<string> songs = new List<string>();
             foreach (Playlist playlist in PlaylistManager.playlists.Values)
             {
@@ -82,6 +83,7 @@ namespace AudicaModding
             }
             else
             {
+                prepareDownloadMissing = false;
                 IsDownloadingMissing = false;
                 PopulatePlaylists();
             }
@@ -89,6 +91,15 @@ namespace AudicaModding
 
         public void OnWebSearchDone(string search, APISongList result)
         {
+            if (result is null)
+            {
+                if (IsDownloadingMissing && prepareDownloadMissing)
+                {
+                    IsDownloadingMissing = false;
+                    prepareDownloadMissing = false;
+                }
+                return;
+            }
             if(result.song_count == 1)
             {
                 Song song = result.songs[0];
